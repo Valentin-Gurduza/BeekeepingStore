@@ -17,7 +17,32 @@ namespace eUseControl.BeekeepingStore
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                );
+
+                routes.MapRoute(
+                name: "About",
+                url: "about",
+                defaults: new { controller = "Home", action = "About" }
+            );
+
+            routes.MapRoute(
+                name: "Blog",
+                url: "blog",
+                defaults: new { controller = "Home", action = "Blog" }
+            );
+
+            routes.MapRoute(
+                name: "BlogDetails",
+                url: "blog-details",
+                defaults: new { controller = "Home", action = "BlogDetails" }
+            );
+
+            routes.MapRoute(
+                name: "Contact",
+                url: "contact",
+                defaults: new { controller = "Home", action = "Contact" }
             );
         }
     }
 }
+

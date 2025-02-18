@@ -3,6 +3,7 @@
     Layout = null;
 }
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,19 +16,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="shortcut icon" href="~/images/favicon.ico">
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" type="text/css">
 
     <!--Material Icon -->
-    <link rel="stylesheet" type="text/css" href="css/materialdesignicons.min.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/materialdesignicons.min.css" />
 
     <!--pe-icon-7 Icon -->
-    <link rel="stylesheet" type="text/css" href="css/pe-icon-7-stroke.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/pe-icon-7-stroke.css" />
 
     <!-- Custom  css -->
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/style.css" />
 
 </head>
 
@@ -76,8 +77,8 @@
             <div class="container-fluid">
                 <!-- LOGO -->
                 <a class="logo text-uppercase" href="index.html">
-                    <img src="images/logo-light.png" alt="" class="logo-light" height="20" />
-                    <img src="images/logo-dark.png" alt="" class="logo-dark" height="20" />
+                    <img src="~/images/logo-light.png" alt="" class="logo-light" height="20" />
+                    <img src="~/images/logo-dark.png" alt="" class="logo-dark" height="20" />
                 </a>
 
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,22 +87,22 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav ml-auto navbar-center" id="mySidenav">
                         <li class="nav-item active">
-                            <a href="index.html#home" class="nav-link">Home</a>
+                            <a href="#home" class="nav-link">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a href="index.html#services" class="nav-link">Services</a>
+                            <a href="#services" class="nav-link">Services</a>
                         </li>
                         <li class="nav-item">
-                            <a href="index.html#features" class="nav-link">Features</a>
+                            <a href="#features" class="nav-link">Features</a>
                         </li>
                         <li class="nav-item">
-                            <a href="index.html#pricing" class="nav-link">Pricing</a>
+                            <a href="#pricing" class="nav-link">Pricing</a>
                         </li>
                         <li class="nav-item">
-                            <a href="index.html#testimonial" class="nav-link">Testimonial</a>
+                            <a href="#testimonial" class="nav-link">Testimonial</a>
                         </li>
                         <li class="nav-item">
-                            <a href="index.html#faq" class="nav-link">Faq</a>
+                            <a href="#faq" class="nav-link">Faq</a>
                         </li>
                         <li class="nav-item">
                             <div class="dropdown">
@@ -109,10 +110,10 @@
                                     Pages <i class="mdi mdi-chevron-down ml-1"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="about.html">About</a>
-                                    <a class="dropdown-item" href="blog.html">Blog</a>
-                                    <a class="dropdown-item" href="blog-details.html">Blog Details</a>
-                                    <a class="dropdown-item" href="contact.html">Contact</a>
+                                    <a class="dropdown-item" href="@Url.Action("About", "Home")">About</a>
+                                    <a class="dropdown-item" href="@Url.Action("Blog", "Home")">Blog</a>
+                                    <a class="dropdown-item" href="@Url.Action("BlogDetails", "Home")">Blog Details</a>
+                                    <a class="dropdown-item" href="@Url.Action("Contact", "Home")">Contact</a>
                                 </div>
                             </div>
                         </li>
@@ -124,62 +125,41 @@
         <!-- Navbar End -->
     </header>
 
-    <!-- title start -->
-    <section class="page-header-box bg-primary">
+    <!-- home start -->
+    <section class="bg-home bg-primary" id="home">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="text-center">
-                        <h3 class="page-header-title text-white">About us</h3>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="#">Minton</a></li>
-                            <li class="breadcrumb-item"><a href="#">Pages</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">About</li>
-                        </ol>
-                    </div>
-                </div>
-            </div> <!--end row-->
-        </div> <!--end container-->
-    </section>
-    <!-- title end -->
-    <!-- about start -->
-    <section class="section">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-lg-5">
-                    <div class="mo-mb-20">
-                        <h4 class="mb-4">About the <span class="text-custom">Minton</span></h4>
-                        <p class="text-muted">Separate existence is a myth Europe uses the same vocabulary the languages in pronunciation and their most common words est</p>
-                        <p class="text-muted mb-4">At vero eos et accusamus et iusto odio ducimus qui atque</p>
-
-                        <div class="text-muted">
-                            <p><i class="mdi mdi-check text-primary mr-2"></i> Sed ut perspiciatis unde omnis iste</p>
-                            <p><i class="mdi mdi-check text-primary mr-2"></i> Et harum quidem rerum facilis est et</p>
-                            <p><i class="mdi mdi-check text-primary mr-2"></i> Itaque earum rerum hic tenetur a sapiente</p>
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="home-content text-center mb-4">
+                        <h1 class="home-title mb-4 text-white">Minton is a fully featured premium admin template</h1>
+                        <p class="text-white-50 home-desc mb-4">Minton is a fully featured premium admin template built on top of awesome Bootstrap 4.3.1, modern web technology HTML5, CSS3 and jQuery.</p>
+                        <div>
+                            <a href="#" class="btn btn-light mr-1">Contact us</a>
+                            <a href="#" class="btn btn-purple">Our Works</a>
                         </div>
-                        <div class="pt-4">
-                            <a href="#" class="btn btn-purple">Read more <i class="mdi mdi-arrow-right ml-1"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 offset-lg-1">
-                    <div class="home-img">
-                        <img src="images/home-img.png" alt="" class="img-fluid mx-auto d-block">
                     </div>
                 </div>
             </div>
             <!-- end row -->
 
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="home-img">
+                        <img src="~/images/home-img.png" alt="" class="img-fluid mx-auto d-block">
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
         </div>
         <!-- end container-fluid -->
     </section>
-    <!-- about end -->
+    <!-- home end -->
     <!-- services start -->
-    <section class="section bg-light">
+    <section class="section" id="services">
         <div class="container-fluid">
             <div class="row justify-content-center">
                 <div class="col-lg-7">
-                    <div class="title text-center mb-4">
+                    <div class="title text-center my-4">
                         <h3 class="mb-3">The theme is fully responsive and easy to customize</h3>
                         <p class="text-muted">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae</p>
                     </div>
@@ -188,79 +168,60 @@
             <!-- end row -->
             <div class="row">
                 <div class="col-lg-4 col-sm-6">
-                    <div class="about-box card">
-                        <div class="p-4">
-                            <div class="clearfix mb-2">
-                                <h4 class="float-left mr-3 text-primary about-index-number mt-0">
-                                    01</h3>
-                                    <h5 class="font-18 mt-0 pt-2">Bootstrap UI based</h5>
-                            </div>
-                            <p class="text-muted mb-0">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae.</p>
+                    <div class="services-box text-center mt-3 p-3">
+                        <div class="services-icon mb-3">
+                            <i class="pe-7s-display1 h2 mt-0"></i>
                         </div>
+                        <h4>Bootstrap UI based</h4>
+                        <p class="text-muted">Sed ut perspiciatis unde omnis iste natus error sit voluptatem doloremque.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
-                    <div class="about-box card">
-                        <div class="p-4">
-                            <div class="clearfix mb-2">
-                                <h4 class="float-left mr-3 text-primary about-index-number mt-0">
-                                    02</h3>
-                                    <h5 class="font-18 mt-0 pt-2">Creative Design</h5>
-                            </div>
-                            <p class="text-muted mb-0">Quis autem vel eum iure reprehenderit qui in ea voluptatelit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo.</p>
+                    <div class="services-box text-center mt-3 p-3">
+                        <div class="services-icon mb-3">
+                            <i class="pe-7s-science h2 mt-0"></i>
                         </div>
+                        <h4>Creative Design</h4>
+                        <p class="text-muted">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
-                    <div class="about-box card">
-                        <div class="p-4">
-                            <div class="clearfix mb-2">
-                                <h4 class="float-left mr-3 text-primary about-index-number mt-0">
-                                    03</h3>
-                                    <h5 class="font-18 mt-0 pt-2">Responsive Layouts</h5>
-                            </div>
-                            <p class="text-muted mb-0">Neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit sed quia non numquam eius modi incidunt ut </p>
+                    <div class="services-box text-center mt-3 p-3">
+                        <div class="services-icon mb-3">
+                            <i class="pe-7s-phone h2 mt-0"></i>
                         </div>
+                        <h4>Responsive Layouts</h4>
+                        <p class="text-muted">Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis maiores alias.</p>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-sm-6">
-                    <div class="about-box card">
-                        <div class="p-4">
-                            <div class="clearfix mb-2">
-                                <h4 class="float-left mr-3 text-primary about-index-number mt-0">
-                                    04</h3>
-                                    <h5 class="font-18 mt-0 pt-2">Strategy Solutions</h5>
-                            </div>
-                            <p class="text-muted mb-0">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium deleniti atque corrupti quos dolores et quas.</p>
+                    <div class="services-box text-center mt-3 p-3">
+                        <div class="services-icon mb-3">
+                            <i class="pe-7s-exapnd2 h2 mt-0"></i>
                         </div>
+                        <h4>Strategy Solutions</h4>
+                        <p class="text-muted">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
-                    <div class="about-box card">
-                        <div class="p-4">
-                            <div class="clearfix mb-2">
-                                <h4 class="float-left mr-3 text-primary about-index-number mt-0">
-                                    05</h3>
-                                    <h5 class="font-18 mt-0 pt-2">Awesome Support</h5>
-                            </div>
-                            <p class="text-muted mb-0">Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit</p>
+                    <div class="services-box text-center mt-3 p-3">
+                        <div class="services-icon mb-3">
+                            <i class="pe-7s-headphones h2 mt-0"></i>
                         </div>
+                        <h4>Awesome Support</h4>
+                        <p class="text-muted">Et harum quidem rerum facilis est et expedita distinctio nam soluta nobis est.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
-                    <div class="about-box card">
-                        <div class="p-4">
-                            <div class="clearfix mb-2">
-                                <h4 class="float-left mr-3 text-primary about-index-number mt-0">
-                                    06</h3>
-                                    <h5 class="font-18 mt-0 pt-2">Easy to customize</h5>
-                            </div>
-                            <p class="text-muted mb-0">Itaque earum rerum hic tenetur a sapiente delectus ut aut reiciendis maiores alias aut perferendis doloribus asperiores repellat.</p>
+                    <div class="services-box text-center mt-3 p-3">
+                        <div class="services-icon mb-3">
+                            <i class="pe-7s-upload h2 mt-0"></i>
                         </div>
+                        <h4>Easy to customize</h4>
+                        <p class="text-muted">Ut enim ad minima veniam, quis nostrum ullam corporis suscipit.</p>
                     </div>
                 </div>
-
 
             </div>
             <!-- end row -->
@@ -268,6 +229,98 @@
         <!-- end container-fluid -->
     </section>
     <!-- services end -->
+    <!-- features start -->
+    <section class="section bg-light" id="features">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="title text-center mb-5">
+                        <i class="pe-7s-helm h1 text-primary mb-3"></i>
+                        <h3 class="font-22 mb-3">Key features of the product</h3>
+                        <p class="text-muted">If several languages coalesce the grammar of the resulting language</p>
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
+
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-5 col-sm-6">
+                    <div>
+                        <img src="~/images/features/img-1.png" alt="" class="img-fluid mx-auto d-block">
+                    </div>
+                </div>
+                <div class="col-lg-5 offset-lg-1">
+                    <div class="mb-4">
+                        <div class="feature-icon float-left">
+                            <i class="pe-7s-notebook text-primary font-24 mr-3"></i>
+                        </div>
+                        <h4 class="mb-3">Quality Code</h4>
+                        <p class="text-muted">It will be as simple as Occidental in fact, it will be Occidental. To an English person it will seem like simplified English.</p>
+
+                    </div>
+                    <div class="mb-4">
+                        <div class="feature-icon float-left">
+                            <i class="pe-7s-edit text-primary font-24 mr-3"></i>
+                        </div>
+                        <h4 class="mb-3">Easy to customize</h4>
+                        <p class="text-muted">If several languages coalesce, the grammar of the resulting language is more simple and regular than of the individual languages.</p>
+
+                    </div>
+                    <div>
+                        <div class="feature-icon float-left">
+                            <i class="pe-7s-headphones text-primary font-24 mr-3"></i>
+                        </div>
+                        <h4 class="mb-3">Awesome Support</h4>
+                        <p class="text-muted">New common language will be more simple and regular than the existing European languages occidental.</p>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- end row -->
+
+            <div class="row align-items-center justify-content-center mt-5 pt-4">
+
+                <div class="col-lg-5 ">
+                    <div class="mb-4">
+                        <div class="feature-icon float-left">
+                            <i class="pe-7s-exapnd2 text-primary  font-24 mr-3"></i>
+                        </div>
+                        <h4 class="mb-3">Strategy Solutions</h4>
+                        <p class="text-muted">It will be as simple as Occidental in fact, it will be Occidental. To an English person it will seem like simplified English.</p>
+
+                    </div>
+                    <div class="mb-4">
+                        <div class="feature-icon float-left">
+                            <i class="pe-7s-headphones text-primary  font-24 mr-3"></i>
+                        </div>
+                        <h5 class="mb-3 font-18">Awesome Support</h5>
+                        <p class="text-muted">New common language will be more simple and regular than the existing European languages occidental.</p>
+
+                    </div>
+                    <div>
+                        <div class="feature-icon float-left">
+                            <i class="pe-7s-edit text-primary  font-24 mr-3"></i>
+                        </div>
+                        <h5 class="mb-3 font-18">Easy to customize</h5>
+                        <p class="text-muted">If several languages coalesce, the grammar of the resulting language is more simple and regular than of the individual languages.</p>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-5 col-sm-6 offset-lg-1">
+                    <div>
+                        <img src="~/images/features/img-2.png" alt="" class="img-fluid mx-auto d-block">
+                    </div>
+                </div>
+
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- end container-fluid -->
+    </section>
+    <!-- features end -->
     <!-- counter start -->
     <section class="py-5 bg-primary">
         <div class="container-fluid">
@@ -322,8 +375,100 @@
         </div>
     </section>
     <!-- counter end -->
+    <!-- pricing start -->
+    <section class="section" id="pricing">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="title text-center mb-4">
+                        <i class="pe-7s-notebook h1 text-primary mb-3"></i>
+                        <h3 class="font-22 mb-3">Our Pricing plans</h3>
+                        <p class="text-muted">If several languages coalesce the grammar of the resulting language</p>
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="pricing-plan mt-3 p-3">
+                        <div class="plan-header px-3 mt-3">
+                            <div class="pricing-icon float-right">
+                                <i class="pe-7s-helm h1 mt-0 text-primary"></i>
+                            </div>
+                            <h5 class="plan-title font-18">Single Application</h5>
+                            <p class="text-muted">Sed ut perspiciatis unde</p>
+                            <h2 class="pt-4"><sup><span class="font-18">$</span></sup> <span class="text-primary">24</span> <span class="font-18">Per License</span></h2>
+                        </div>
+                        <hr class="my-4">
+                        <div class="plan-content text-muted mb-4 px-3">
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 5 Projects</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 1 GB Storage</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> No Domain</p>
+                            <p><i class="mdi mdi-close text-danger mr-2"></i> 1 User</p>
+                            <p><i class="mdi mdi-close text-danger mr-2"></i> Free Support</p>
+                        </div>
+                        <div class="text-center py-3">
+                            <a href="#" class="btn btn-purple">Purchase now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="pricing-plan mt-3 p-3 active">
+                        <div class="plan-header px-3 mt-3">
+                            <div class="pricing-icon float-right">
+                                <i class="pe-7s-diamond h1 mt-0 text-primary"></i>
+                            </div>
+                            <h5 class="plan-title font-18">Multiple Application</h5>
+                            <p class="text-muted">Sed ut perspiciatis unde</p>
+                            <h2 class="pt-4"><sup><span class="font-18">$</span></sup> <span class="text-primary">120</span> <span class="font-18">Per License</span></h2>
+                        </div>
+                        <hr class="my-4">
+                        <div class="plan-content text-muted mb-4 px-3">
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 5 Projects</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 1 GB Storage</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> No Domain</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 1 User</p>
+                            <p><i class="mdi mdi-close text-danger mr-2"></i> Free Support</p>
+                        </div>
+                        <div class="text-center py-3">
+                            <a href="#" class="btn btn-purple">Purchase now</a>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-4">
+                    <div class="pricing-plan mt-3 p-3">
+                        <div class="plan-header px-3 mt-3">
+                            <div class="pricing-icon float-right">
+                                <i class="pe-7s-shield h1 mt-0 text-primary"></i>
+                            </div>
+                            <h5 class="plan-title font-18">Extended </h5>
+                            <p class="text-muted">Sed ut perspiciatis unde</p>
+                            <h2 class="pt-4"><sup><span class="font-18">$</span></sup> <span class="text-primary">999</span> <span class="font-18">Per License</span></h2>
+                        </div>
+                        <hr class="my-4">
+                        <div class="plan-content text-muted mb-4 px-3">
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 5 Projects</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 1 GB Storage</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> No Domain</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> 1 User</p>
+                            <p><i class="mdi mdi-check text-primary mr-2"></i> Free Support</p>
+                        </div>
+                        <div class="text-center py-3">
+                            <a href="#" class="btn btn-purple">Purchase now</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- end container-fluid -->
+    </section>
+    <!-- pricing end -->
     <!-- testimonial start -->
-    <section class="section bg-light">
+    <section class="section bg-light" id="testimonial">
         <div class="container-fluid">
             <div class="row justify-content-center">
                 <div class="col-lg-6">
@@ -345,7 +490,7 @@
 
                         <div class="p-4">
                             <div class="testi-img float-left mr-3">
-                                <img src="images/users/img-1.png" alt="" class="rounded-circle avatar-md">
+                                <img src="~/images/users/img-1.png" alt="" class="rounded-circle avatar-md">
                             </div>
                             <div>
                                 <h4 class="font-16 mb-1">James Barrett</h4>
@@ -362,7 +507,7 @@
 
                         <div class="p-4">
                             <div class="testi-img float-left mr-3">
-                                <img src="images/users/img-2.png" alt="" class="rounded-circle avatar-md">
+                                <img src="~/images/users/img-2.png" alt="" class="rounded-circle avatar-md">
                             </div>
                             <div>
                                 <h4 class="font-16 mb-1">Glenn Ziegler</h4>
@@ -379,7 +524,7 @@
 
                         <div class="p-4">
                             <div class="testi-img float-left mr-3">
-                                <img src="images/users/img-3.png" alt="" class="rounded-circle avatar-md">
+                                <img src="~/images/users/img-3.png" alt="" class="rounded-circle avatar-md">
                             </div>
                             <div>
                                 <h4 class="font-16 mb-1">Samuel Hicks</h4>
@@ -390,117 +535,152 @@
                 </div>
             </div>
             <!-- end row -->
+
+            <div class="row mt-4 pt-4">
+                <div class="col-lg-3 col-sm-6">
+                    <div class="client-images">
+                        <img src="~/images/clients/1.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="client-images">
+                        <img src="~/images/clients/2.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="client-images">
+                        <img src="~/images/clients/3.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6">
+                    <div class="client-images">
+                        <img src="~/images/clients/4.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
         </div>
         <!-- end container-fluid -->
     </section>
     <!-- testimonial end -->
-    <!-- team start -->
-    <section class="section">
+    <!-- faq start -->
+    <section class="section" id="faq">
         <div class="container-fluid">
             <div class="row justify-content-center">
                 <div class="col-lg-6">
-                    <div class="title text-center mb-4">
-                        <i class="pe-7s-users h1 text-primary mb-3"></i>
-                        <h3 class="font-22 mb-3">Meet Our Expert</h3>
+                    <div class="title text-center mb-5">
+                        <i class="pe-7s-help1 h1 text-primary mb-3"></i>
+                        <h3 class="font-22 mb-3">Frequently Asked Questions</h3>
                         <p class="text-muted">If several languages coalesce the grammar of the resulting language</p>
                     </div>
                 </div>
             </div>
             <!-- end row -->
 
-            <div class="row">
-                <div class="col-lg-3 col-sm-6">
-                    <div class="team-box mt-4">
-                        <div class="team-box-img">
-                            <img src="images/team/img-1.jpg" alt="" class="img-fluid mx-auto d-block">
-                        </div>
-                        <div class="team-overlay">
-                            <div class="team-content text-center">
-                                <div class="team-name">
-                                    <h4 class="mb-1"><a href="#" class="text-white">Mitchell Dicken</a></h4>
-                                    <p class="text-white">CEO/Founder</p>
-                                </div>
-                                <div class="social-icon">
-                                    <a href="#" class="m-1"><i class="mdi mdi-facebook"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-twitter"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-instagram"></i></a>
-                                </div>
-                            </div>
-                        </div>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div>
+                        <img src="~/images/faq-img.png" alt="" class="img-fluid mx-auto d-block">
                     </div>
-                    <!-- end team box -->
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="team-box mt-4">
-                        <div class="team-box-img">
-                            <img src="images/team/img-2.jpg" alt="" class="img-fluid mx-auto d-block">
-                        </div>
-                        <div class="team-overlay">
-                            <div class="team-content text-center">
-                                <div class="team-name">
-                                    <h4 class="mb-1"><a href="#" class="text-white">Patricia Fleming</a></h4>
-                                    <p class="text-white">Project Manager</p>
-                                </div>
-                                <div class="social-icon">
-                                    <a href="#" class="m-1"><i class="mdi mdi-facebook"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-twitter"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-instagram"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end team box -->
                 </div>
 
-                <div class="col-lg-3 col-sm-6">
-                    <div class="team-box mt-4">
-                        <div class="team-box-img">
-                            <img src="images/team/img-3.jpg" alt="" class="img-fluid mx-auto d-block">
-                        </div>
-                        <div class="team-overlay">
-                            <div class="team-content text-center">
-                                <div class="team-name">
-                                    <h4 class="mb-1"><a href="#" class="text-white">Richard Bailey</a></h4>
-                                    <p class="text-white">Web Designer</p>
+                <div class="col-lg-7">
+                    <ul class="nav nav-pills faq-nav-tabs nav-justified mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item text-sm-left">
+                            <a class="nav-link active" id="pills-general-tab" data-toggle="pill" href="#pills-general" role="tab" aria-controls="pills-general" aria-selected="true">
+                                <div class="clearfix">
+                                    <i class="pe-7s-wallet text-purple float-md-right text-md-center h2 m-0"></i>
+                                    <h4 class="mr-2 d-none d-sm-inline-block">General Questions</h4>
                                 </div>
-                                <div class="social-icon">
-                                    <a href="#" class="m-1"><i class="mdi mdi-facebook"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-twitter"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-instagram"></i></a>
+                            </a>
+                        </li>
+                        <li class="nav-item text-sm-left">
+                            <a class="nav-link" id="pills-pricing-tab" data-toggle="pill" href="#pills-pricing" role="tab" aria-controls="pills-pricing" aria-selected="false">
+                                <div class="clearfix">
+                                    <i class="pe-7s-notebook text-purple float-md-right h2 m-0"></i>
+                                    <h4 class="mr-2 d-none d-sm-inline-block">Pricing & Plans</h4>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end team box -->
-                </div>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content faq-tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-general" role="tabpanel" aria-labelledby="pills-general-tab">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="p-4">
+                                        <div class="faq-box mb-4">
+                                            <div class="faq-question-q-box float-left mr-4">Q.</div>
+                                            <div class="overflow-hidden">
+                                                <h5 class="font-16 mt-0">What is Lorem Ipsum?</h5>
+                                                <p class="text-muted">The new common language will be more simple and regular than the existing European languages It will be as simple as occidental.</p>
+                                            </div>
+                                        </div>
 
-                <div class="col-lg-3 col-sm-6">
-                    <div class="team-box mt-4">
-                        <div class="team-box-img">
-                            <img src="images/team/img-4.jpg" alt="" class="img-fluid mx-auto d-block">
-                        </div>
-                        <div class="team-overlay">
-                            <div class="team-content text-center">
-                                <div class="team-name">
-                                    <h4 class="mb-1"><a href="#" class="text-white">Emily Johnson</a></h4>
-                                    <p class="text-white">Graphic Designer</p>
-                                </div>
-                                <div class="social-icon">
-                                    <a href="#" class="m-1"><i class="mdi mdi-facebook"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-twitter"></i></a>
-                                    <a href="#" class="m-1"><i class="mdi mdi-instagram"></i></a>
+                                        <div class="faq-box mb-4">
+                                            <div class="faq-question-q-box float-left mr-4">Q.</div>
+                                            <div class="overflow-hidden">
+                                                <h5 class="font-16 mt-0">Why do we use it?</h5>
+                                                <p class="text-muted">It is a long established fact that a reader will be distracted by the readable content.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="faq-box">
+                                            <div class="faq-question-q-box float-left mr-4">Q.</div>
+                                            <div class="overflow-hidden">
+                                                <h5 class="font-16 mt-0">Where does it come from?</h5>
+                                                <p class="text-muted">If several languages coalesce, the grammar of the resulting language is more simple and regular of the individual languages.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <!-- end row -->
                         </div>
+                        <!-- end tab-pane -->
+                        <div class="tab-pane fade" id="pills-pricing" role="tabpanel" aria-labelledby="pills-pricing-tab">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="p-4">
+                                        <div class="faq-box mb-4">
+                                            <div class="faq-question-q-box float-left mr-4">Q.</div>
+                                            <div class="overflow-hidden">
+                                                <h5 class="font-16 mt-0">Why do we use it?</h5>
+                                                <p class="text-muted">It is a long established fact that a reader will be distracted by the readable content.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="faq-box mb-4">
+                                            <div class="faq-question-q-box float-left mr-4">Q.</div>
+                                            <div class="overflow-hidden">
+                                                <h5 class="font-16 mt-0">Where does it come from?</h5>
+                                                <p class="text-muted">If several languages coalesce, the grammar of the resulting language is more simple and regular of the individual languages.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="faq-box">
+                                            <div class="faq-question-q-box float-left mr-4">Q.</div>
+                                            <div class="overflow-hidden">
+                                                <h5 class="font-16 mt-0">What is Lorem Ipsum?</h5>
+                                                <p class="text-muted">The new common language will be more simple and regular than the existing European languages It will be as simple as occidental.</p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- end row -->
+                        </div>
+                        <!-- end tab-pane -->
                     </div>
-                    <!-- end team box -->
                 </div>
             </div>
             <!-- end row -->
+
         </div>
         <!-- end container-fluid -->
     </section>
-    <!-- team end -->
+    <!-- faq end -->
     <!-- footer start -->
     <footer class="bg-dark footer text-white">
         <div class="container-fluid">
@@ -512,6 +692,7 @@
                                 <div class="cta-content">
                                     <h3 class="text-white mb-2">Best Solutions for your Business</h3>
                                     <p class="text-white-50 mo-mb-20 mb-0">It is a long established fact that a reader will by of a page when looking at its layout.</p>
+
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -526,7 +707,7 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="mb-3">
-                        <img src="images/logo-light.png" alt="" height="20">
+                        <img src="~/images/logo-light.png" alt="" height="20">
                     </div>
                     <p class="pt-1 text-white-50">Bootstrap 4 Landing Page Template</p>
                     <p class="text-white-50">If several languages coalesce the grammar of the resulting language </p>
@@ -595,16 +776,16 @@
     </footer>
     <!-- footer end -->
     <!-- javascript -->
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/jquery.easing.min.js"></script>
-    <script src="js/scrollspy.min.js"></script>
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/jquery.easing.min.js"></script>
+    <script src="~/js/scrollspy.min.js"></script>
 
     <!-- counter js -->
-    <script src="js/counter.init.js"></script>
+    <script src="~/js/counter.init.js"></script>
 
     <!-- custom js -->
-    <script src="js/app.js"></script>
+    <script src="~/js/app.js"></script>
 </body>
 
 </html>
