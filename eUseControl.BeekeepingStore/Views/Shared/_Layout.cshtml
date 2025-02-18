@@ -1,0 +1,80 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title - Magazin Apicol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Magazin Apicol - Produse apicole de calitate" name="description" />
+    <meta content="Coderthemes" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="~/images/favicon.ico">
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" type="text/css">
+
+    <!--Material Icon -->
+    <link rel="stylesheet" type="text/css" href="~/css/materialdesignicons.min.css" />
+
+    <!--pe-icon-7 Icon -->
+    <link rel="stylesheet" type="text/css" href="~/css/pe-icon-7-stroke.css" />
+
+    <!-- Custom  css -->
+    <link rel="stylesheet" type="text/css" href="~/css/style.css" />
+</head>
+
+<body>
+    <header class="sticky">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-custom" id="navbar">
+            <div class="container-fluid">
+                <!-- LOGO -->
+                <a class="logo text-uppercase" href="@Url.Action("Index", "Home")">
+                    <img src="~/images/logo-light.png" alt="" class="logo-light" height="20" />
+                    <img src="~/images/logo-dark.png" alt="" class="logo-dark" height="20" />
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="mdi mdi-menu"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav ml-auto navbar-center" id="mySidenav">
+                        <li class="nav-item">
+                            <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Products", "Home")" class="nav-link">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("About", "Home")" class="nav-link">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Contact", "Home")" class="nav-link">Contact</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("Login", "Home")" class="nav-link">Logare</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        @RenderBody()
+    </div>
+
+    <!-- javascript -->
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/jquery.easing.min.js"></script>
+    <script src="~/js/scrollspy.min.js"></script>
+    <script src="~/js/app.js"></script>
+</body>
+
+</html>
