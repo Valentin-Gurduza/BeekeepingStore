@@ -23,5 +23,20 @@ namespace eUseControl.BeekeepingStore.Controllers
         {
             return View();
         }
+
+        public ActionResult About()
+        {
+            return View();
+        }
+
+        public ActionResult Blog()
+        {
+            return View();
+        }
+
+        public ActionResult BlogDetails()
+        {
+            return View();
+        }
     }
 }
