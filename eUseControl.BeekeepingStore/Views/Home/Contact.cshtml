@@ -1,9 +1,14 @@
-﻿<!DOCTYPE html>
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
-    <title>Logare - Magazin Apicol</title>
+    <title>Contact - Magazin Apicol</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Magazin Apicol - Produse apicole de calitate" name="description" />
     <meta content="Coderthemes" name="author" />
@@ -43,16 +48,13 @@
                             <a href="index.html#home" class="nav-link">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a href="index.html#products" class="nav-link">Products
+                            <a href="index.html#products" class="nav-link">Products</a>
                         </li>
                         <li class="nav-item">
                             <a href="index.html#about" class="nav-link">About</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item active">
                             <a href="contact.html" class="nav-link">Contact</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="login.html" class="nav-link">Logare</a>
                         </li>
                     </ul>
                 </div>
@@ -60,31 +62,47 @@
         </nav>
     </header>
 
-    <section class="section" id="login">
+    <section class="section" id="contact">
         <div class="container-fluid">
             <div class="row justify-content-center">
                 <div class="col-lg-6">
                     <div class="title text-center mb-4">
-                        <h3 class="font-22 mb-3">Logare</h3>
-                        <p class="text-muted">Introduceți username-ul sau email-ul și parola pentru a vă autentifica.</p>
+                        <h3 class="font-22 mb-3">Contactează-ne</h3>
+                        <p class="text-muted">Pentru orice întrebări sau comenzi, nu ezitați să ne contactați.</p>
                     </div>
                 </div>
             </div>
             <!-- end row -->
 
-            <div class="row justify-content-center">
+            <div class="row">
                 <div class="col-lg-6">
-                    <form action="authenticate.php" method="post">
+                    <form action="send_email.php" method="post">
                         <div class="form-group">
-                            <label for="username">Username sau Email</label>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username sau Email" required>
+                            <label for="firstName">Prenume</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Prenumele dvs." required>
                         </div>
                         <div class="form-group">
-                            <label for="password">Parola</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Parola" required>
+                            <label for="lastName">Nume</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Numele dvs." required>
                         </div>
-                        <button type="submit" class="btn btn-primary">Logare</button>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email-ul dvs." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mesaj</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Mesajul dvs." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Trimite</button>
                     </form>
+                </div>
+                <div class="col-lg-6">
+                    <div class="contact-info">
+                        <h4>Informații de Contact</h4>
+                        <p><i class="mdi mdi-map-marker"></i> Strada Exemplu, Nr. 123, Oraș, Țară</p>
+                        <p><i class="mdi mdi-phone"></i> +1 234 567 89 01</p>
+                        <p><i class="mdi mdi-email"></i> support@mail.com</p>
+                    </div>
                 </div>
             </div>
             <!-- end row -->

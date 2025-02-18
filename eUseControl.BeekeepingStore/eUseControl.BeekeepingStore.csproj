@@ -8640,52 +8640,46 @@
     <Content Include="HTML\Vertical\red\src\js\vendor\jquery.waypoints.min.js" />
     <Content Include="HTML\Vertical\red\src\js\vendor\metisMenu.js" />
     <Content Include="HTML\Vertical\red\src\js\vendor\waves.js" />
-    <Content Include="Landing\about.html" />
-    <Content Include="Landing\blog-details.html" />
-    <Content Include="Landing\blog.html" />
-    <Content Include="Landing\contact.html" />
-    <Content Include="Landing\css\bootstrap.min.css" />
-    <Content Include="Landing\css\materialdesignicons.min.css" />
-    <Content Include="Landing\css\pe-icon-7-stroke.css" />
-    <Content Include="Landing\css\style.css" />
-    <Content Include="Landing\fonts\materialdesignicons-webfont.svg" />
-    <Content Include="Landing\fonts\Pe-icon-7-stroke.svg" />
-    <Content Include="Landing\images\blog\blog-details.jpg" />
-    <Content Include="Landing\images\blog\img-1.jpg" />
-    <Content Include="Landing\images\blog\img-2.jpg" />
-    <Content Include="Landing\images\blog\img-3.jpg" />
-    <Content Include="Landing\images\blog\img-4.jpg" />
-    <Content Include="Landing\images\blog\img-5.jpg" />
-    <Content Include="Landing\images\blog\img-6.jpg" />
-    <Content Include="Landing\images\clients\1.png" />
-    <Content Include="Landing\images\clients\2.png" />
-    <Content Include="Landing\images\clients\3.png" />
-    <Content Include="Landing\images\clients\4.png" />
-    <Content Include="Landing\images\clients\5.png" />
-    <Content Include="Landing\images\clients\6.png" />
-    <Content Include="Landing\images\faq-img.png" />
-    <Content Include="Landing\images\favicon.ico" />
-    <Content Include="Landing\images\features\img-1.png" />
-    <Content Include="Landing\images\features\img-2.png" />
-    <Content Include="Landing\images\home-img.png" />
-    <Content Include="Landing\images\logo-dark.png" />
-    <Content Include="Landing\images\logo-light.png" />
-    <Content Include="Landing\images\team\img-1.jpg" />
-    <Content Include="Landing\images\team\img-2.jpg" />
-    <Content Include="Landing\images\team\img-3.jpg" />
-    <Content Include="Landing\images\team\img-4.jpg" />
-    <Content Include="Landing\images\users\img-1.png" />
-    <Content Include="Landing\images\users\img-2.png" />
-    <Content Include="Landing\images\users\img-3.png" />
-    <Content Include="Landing\index.html" />
-    <Content Include="Landing\js\app.js" />
-    <Content Include="Landing\js\bootstrap.bundle.min.js" />
-    <Content Include="Landing\js\counter.init.js" />
-    <Content Include="Landing\js\jquery.easing.min.js" />
-    <Content Include="Landing\js\jquery.min.js" />
-    <Content Include="Landing\js\scrollspy.min.js" />
-    <Content Include="Landing\login.html" />
-    <Content Include="Landing\php\contact.php" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\materialdesignicons.min.css" />
+    <Content Include="Content\pe-icon-7-stroke.css" />
+    <Content Include="Content\style.css" />
+    <Content Include="Content\fonts\materialdesignicons-webfont.svg" />
+    <Content Include="Content\fonts\Pe-icon-7-stroke.svg" />
+    <Content Include="Content\images\blog\blog-details.jpg" />
+    <Content Include="Content\images\blog\img-1.jpg" />
+    <Content Include="Content\images\blog\img-2.jpg" />
+    <Content Include="Content\images\blog\img-3.jpg" />
+    <Content Include="Content\images\blog\img-4.jpg" />
+    <Content Include="Content\images\blog\img-5.jpg" />
+    <Content Include="Content\images\blog\img-6.jpg" />
+    <Content Include="Content\images\clients\1.png" />
+    <Content Include="Content\images\clients\2.png" />
+    <Content Include="Content\images\clients\3.png" />
+    <Content Include="Content\images\clients\4.png" />
+    <Content Include="Content\images\clients\5.png" />
+    <Content Include="Content\images\clients\6.png" />
+    <Content Include="Content\images\faq-img.png" />
+    <Content Include="Content\images\favicon.ico" />
+    <Content Include="Content\images\features\img-1.png" />
+    <Content Include="Content\images\features\img-2.png" />
+    <Content Include="Content\images\home-img.png" />
+    <Content Include="Content\images\logo-dark.png" />
+    <Content Include="Content\images\logo-light.png" />
+    <Content Include="Content\images\team\img-1.jpg" />
+    <Content Include="Content\images\team\img-2.jpg" />
+    <Content Include="Content\images\team\img-3.jpg" />
+    <Content Include="Content\images\team\img-4.jpg" />
+    <Content Include="Content\images\users\img-1.png" />
+    <Content Include="Content\images\users\img-2.png" />
+    <Content Include="Content\images\users\img-3.png" />
+    <Content Include="Scripts\app.js" />
+    <Content Include="Scripts\bootstrap.bundle.min.js" />
+    <Content Include="Scripts\counter.init.js" />
+    <Content Include="Scripts\jquery.easing.min.js" />
+    <Content Include="Scripts\jquery.min.js" />
+    <Content Include="Scripts\scrollspy.min.js" />
+    <Content Include="Content\php\contact.php" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -8698,16 +8692,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
-    <Content Include="Landing\css\style.css.map" />
-    <Content Include="Landing\fonts\materialdesignicons-webfont.eot" />
-    <Content Include="Landing\fonts\materialdesignicons-webfont.ttf" />
-    <Content Include="Landing\fonts\materialdesignicons-webfont.woff" />
-    <Content Include="Landing\fonts\materialdesignicons-webfont.woff2" />
-    <Content Include="Landing\fonts\Pe-icon-7-stroke.eot" />
-    <Content Include="Landing\fonts\Pe-icon-7-stroke.ttf" />
-    <Content Include="Landing\fonts\Pe-icon-7-stroke.woff" />
-    <Content Include="Landing\scss\style.scss" />
-    <Content Include="Landing\scss\_variable.scss" />
+    <Content Include="Content\style.css.map" />
+    <Content Include="Content\fonts\materialdesignicons-webfont.eot" />
+    <Content Include="Content\fonts\materialdesignicons-webfont.ttf" />
+    <Content Include="Content\fonts\materialdesignicons-webfont.woff" />
+    <Content Include="Content\fonts\materialdesignicons-webfont.woff2" />
+    <Content Include="Content\fonts\Pe-icon-7-stroke.eot" />
+    <Content Include="Content\fonts\Pe-icon-7-stroke.ttf" />
+    <Content Include="Content\fonts\Pe-icon-7-stroke.woff" />
+    <Content Include="Content\scss\style.scss" />
+    <Content Include="Content\scss\_variable.scss" />
     <Content Include="HTML\.DS_Store" />
     <Content Include="HTML\Horizontal\blue\dist\assets\css\app-rtl.min.css.map" />
     <Content Include="HTML\Horizontal\blue\dist\assets\css\app.min.css.map" />
@@ -11460,6 +11454,11 @@
     <Content Include="HTML\Vertical\red\src\scss\_variables.scss" />
     <None Include="packages.config" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\About.cshtml" />
+    <Content Include="Views\Home\Blog.cshtml" />
+    <Content Include="Views\Home\BlogDetails.cshtml" />
+    <Content Include="Views\Home\Contact.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -11469,9 +11468,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\" />
     <Folder Include="Models\" />
-    <Folder Include="Scripts\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
