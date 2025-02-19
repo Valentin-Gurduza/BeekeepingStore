@@ -10,7 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="shortcut icon" href="~/Content/images/favicon.ico">
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="~/Content/bootstrap.min.css" type="text/css">
@@ -72,8 +72,8 @@
             <div class="container-fluid">
                 <!-- LOGO -->
                 <a class="logo text-uppercase" href="index.html">
-                    <img src="images/beekeeping-logo-light.png" alt="" class="logo-light" height="20" />
-                    <img src="images/beekeeping-logo-dark.png" alt="" class="logo-dark" height="20" />
+                    <img src="Content/images/logo-light.png" alt="" class="logo-light" height="20" />
+                    <img src="Content/images/logo-dark.png" alt="" class="logo-dark" height="20" />
                 </a>
 
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,13 +88,13 @@
                             <a href="#products" class="nav-link">Produse</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#about" class="nav-link">Despre</a>
+                            <a href="@Url.Action("About", "Home")" class="nav-link">Despre</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#contact" class="nav-link">Contact</a>
+                            <a href="@Url.Action("Contact", "Home")" class="nav-link">Contact</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#blog" class="nav-link">Blog</a>
+                            <a href="@Url.Action("Blog", "Home")" class="nav-link">Blog</a>
                         </li>
                     </ul>
                 </div>
@@ -112,7 +112,7 @@
                         <h1 class="home-title mb-4 text-white">Bine ați venit la Magazinul Apicol</h1>
                         <p class="text-white-50 home-desc mb-4">Magazinul tău pentru toate nevoile apicole. Produse de calitate și sfaturi de specialitate pentru apicultori de toate nivelurile.</p>
                         <div>
-                            <a href="#contact" class="btn btn-light mr-1">Contactați-ne</a>
+                            <a href="@Url.Action("Contact", "Home")" class="btn btn-light mr-1">Contactați-ne</a>
                             <a href="#products" class="btn btn-purple">Produsele noastre</a>
                         </div>
                     </div>
