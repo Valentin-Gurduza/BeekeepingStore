@@ -1,4 +1,3 @@
-
 /*
 Template Name: Minton - Bootstrap 4 Landing Page Tamplat
 Author: CoderThemes
@@ -49,31 +48,31 @@ p {
     2.Helper
 *******************/
 
-.card{
+.card {
     border: none;
     box-shadow: $shadow;
 }
 
 .bg-gradient {
-    background: $bg-gradient;
+    background: $primary;
 }
 
-.btn{
+.btn {
     font-weight: 500;
 }
 
-.avatar-sm{
+.avatar-sm {
     width: 32px;
     height: 32px;
 }
 
-.avatar-md{
+.avatar-md {
     width: 56px;
     height: 56px;
 }
 
 
-.section{
+.section {
     position: relative;
     padding-top: 80px;
     padding-bottom: 80px;
@@ -84,27 +83,32 @@ p {
     3.Navbar
 *******************/
 
-.tagline{
+.tagline {
     position: absolute;
     width: 100%;
     z-index: 9;
-    .info-link{
+
+    .info-link {
         color: rgba($white,0.7);
-        li{
+
+        li {
             line-height: 50px;
             padding: 0px 7px;
-            a{
+
+            a {
                 color: rgba($white,0.7);
             }
         }
     }
-    .social-links{
-        li{
-            a{
+
+    .social-links {
+        li {
+            a {
                 line-height: 50px;
                 padding: 0px 7px;
                 color: rgba($white,0.7);
-                &:hover{
+
+                &:hover {
                     color: $white;
                 }
             }
@@ -117,27 +121,32 @@ p {
     width: 100%;
     z-index: 999;
     transition: all 0.4s;
-    background: rgba($white, 0.1);
+    background: $primary;
     top: 50px;
-    .logo{
+
+    .logo {
         .logo-light {
             display: inline-block;
         }
+
         .logo-dark {
             display: none;
         }
     }
-    .navbar-nav{
-        .nav-item{
+
+    .navbar-nav {
+        .nav-item {
             position: relative;
-            .dropdown{
-                .dropdown-menu{
-                    .dropdown-item{
+
+            .dropdown {
+                .dropdown-menu {
+                    .dropdown-item {
                         color: $muted;
                     }
                 }
             }
-            .nav-link{
+
+            .nav-link {
                 line-height: 26px;
                 color: rgba($white, 0.6);
                 transition: all 0.4s;
@@ -145,38 +154,40 @@ p {
                 padding: 16px 10px;
                 margin: 0 7px;
                 font-weight: 500;
-                &:hover, &:active{
+
+                &:hover, &:active {
+                    color: $primary;
+                }
+            }
+
+            &.active {
+                .nav-link {
                     color: $white;
                 }
             }
-            &.active{
-                .nav-link{
-                    color: $white;
-                }
-            }
-            &:last-child{
-                .nav-link{
+
+            &:last-child {
+                .nav-link {
                     padding-right: 0px;
                 }
             }
         }
     }
-
 }
 
 .navbar-toggler {
     font-size: 24px;
     margin-top: 5px;
     margin-bottom: 0px;
-    color:$white;
+    color: $white;
 }
 
 @media (min-width: 992px) {
     .navbar-custom {
-        .navbar-nav{
-            .nav-item{
-                .dropdown{
-                    &:hover{
+        .navbar-nav {
+            .nav-item {
+                .dropdown {
+                    &:hover {
                         .dropdown-menu {
                             display: block;
                         }
@@ -184,7 +195,6 @@ p {
                 }
             }
         }
-    
     }
 }
 
@@ -197,25 +207,29 @@ p {
         background-color: $white;
         box-shadow: $shadow;
         top: 0px;
-        .logo{
+
+        .logo {
             .logo-dark {
                 display: inline-block;
             }
+
             .logo-light {
-                display:none;
+                display: none;
             }
         }
-    
-        .navbar-nav{
-            .nav-item{
-                .nav-link{
+
+        .navbar-nav {
+            .nav-item {
+                .nav-link {
                     color: rgba($dark, 0.8);
-                    &:hover, &:active{
+
+                    &:hover, &:active {
                         color: $purple;
                     }
                 }
-                &.active{
-                    .nav-link{
+
+                &.active {
+                    .nav-link {
                         color: $purple;
                     }
                 }
@@ -237,21 +251,23 @@ p {
     5.Services
 *******************/
 
-.services-box{
-    .services-icon{
+.services-box {
+    .services-icon {
         display: inline-block;
         position: relative;
-        i{
+
+        i {
             width: 64px;
             height: 64px;
             line-height: 64px;
-            background: rgba($primary, 0.6);
+            background: $primary;
             color: $white;
             border-radius: 92% 50% 80% 50%;
             z-index: 99;
             position: relative;
         }
-        &:before{
+
+        &:before {
             content: "";
             position: absolute;
             width: 80px;
@@ -274,8 +290,9 @@ p {
     border: 2px solid rgba($white, 0.1);
     overflow: hidden;
     border-radius: 7px;
-    .counter-icon{
-        i{
+
+    .counter-icon {
+        i {
             position: absolute;
             right: 14px;
             bottom: -20px;
@@ -288,12 +305,12 @@ p {
     6.pricing
 *******************/
 
-.pricing-plan{
+.pricing-plan {
     border-radius: 7px;
     max-width: 523px;
     margin: 0px auto;
 
-    &.active{
+    &.active {
         border: 2px solid $primary;
     }
 }
@@ -302,7 +319,7 @@ p {
     7.testimonial
 *******************/
 
-.testi-desc{
+.testi-desc {
     background-color: $white;
     box-shadow: $shadow;
     border-radius: 7px;
@@ -317,14 +334,14 @@ p {
         bottom: -6px;
         left: 52px;
         transform: rotate(45deg);
-      }
+    }
 }
 
 .client-images {
     img {
         margin: 10px auto;
         opacity: 0.7;
-    }    
+    }
 }
 
 
@@ -332,24 +349,29 @@ p {
     8.Faq
 *******************/
 
-.faq-nav-tabs{
-    .nav-item{
+.faq-nav-tabs {
+    .nav-item {
         margin: 0px 12px;
         box-shadow: $shadow;
-        &:first-child{
+
+        &:first-child {
             margin-left: 0px;
         }
-        &:last-child{
+
+        &:last-child {
             margin-right: 0px;
         }
-        .nav-link{
+
+        .nav-link {
             padding: 1.2rem;
             color: $dark;
-            &.active{
-                h4{
+
+            &.active {
+                h4 {
                     color: $white;
                 }
-                i{
+
+                i {
                     color: $white !important;
                 }
             }
@@ -357,8 +379,8 @@ p {
     }
 }
 
-.faq-tab-content{
-    .faq-question-q-box{
+.faq-tab-content {
+    .faq-question-q-box {
         height: 30px;
         width: 30px;
         color: $primary;
@@ -369,27 +391,30 @@ p {
         line-height: 30px;
         background-color: rgba($primary, 0.15);
     }
-    
 }
 
 /*******************
     9.Footer
 *******************/
 
-.footer{
-    .footer-cta{
+.footer {
+    .footer-cta {
         border-bottom: 1px solid rgba($white, 0.1);
     }
-    .footer-title{
+
+    .footer-title {
         font-size: 16px;
     }
-    .footer-list{
-        li{
+
+    .footer-list {
+        li {
             padding: 7px 0px;
-            a{
+
+            a {
                 color: rgba($white, 0.4);
                 transition: all 0.4s;
-                &:hover{
+
+                &:hover {
                     color: $white;
                 }
             }
@@ -401,23 +426,27 @@ p {
     10.Page title box
 *******************/
 
-.page-header-box{
+.page-header-box {
     padding: 175px 0px 60px 0px;
     color: $white;
-    .breadcrumb{
+
+    .breadcrumb {
         background: transparent;
         justify-content: center;
-        .breadcrumb-item{
-            a{
+
+        .breadcrumb-item {
+            a {
                 color: rgba($white, 0.6);
             }
-            &.active{
+
+            &.active {
                 color: $white;
             }
         }
     }
-    .breadcrumb-item+.breadcrumb-item{
-        &:before{
+
+    .breadcrumb-item + .breadcrumb-item {
+        &:before {
             color: $white;
         }
     }
@@ -427,8 +456,8 @@ p {
     11.about
 *******************/
 
-.about-box{
-    .about-index-number{
+.about-box {
+    .about-index-number {
         width: 46px;
         height: 46px;
         line-height: 46px;
@@ -444,9 +473,10 @@ p {
 
 .team-box {
     position: relative;
-    overflow:  hidden;
+    overflow: hidden;
     transition: all 0.4s ease;
     border-radius: 7px;
+
     .team-overlay {
         background: none repeat scroll 0 0 rgba($dark, 0.7);
         position: absolute;
@@ -470,6 +500,7 @@ p {
         padding-right: 30px;
         transition: all 0.5s ease-in-out 0s;
         opacity: 0;
+
         .social-icon {
             a {
                 display: inline-block;
@@ -480,6 +511,7 @@ p {
                 border: 1px solid $white;
                 border-radius: 50%;
                 transition: all 0.5s;
+
                 &:hover {
                     background: $primary;
                     border-color: $primary;
@@ -487,25 +519,26 @@ p {
             }
         }
     }
+
     &:hover {
         .team-overlay {
             opacity: 1;
             visibility: visible;
         }
-        .team-content{
+
+        .team-content {
             bottom: 50%;
             transform: translateY(50%);
             opacity: 1;
         }
     }
-    
 }
 
 /*******************
     12.blog
 *******************/
 
-.blog-content{
+.blog-content {
     position: relative;
     bottom: 14px;
     background: $white;
@@ -514,13 +547,15 @@ p {
 
 // blog sidebar
 
-.blog-right-sidebar{
+.blog-right-sidebar {
     .widget-search {
         form {
             position: relative;
-            .form-control{
+
+            .form-control {
                 font-size: 14px;
             }
+
             .search-button {
                 position: absolute;
                 top: 5px;
@@ -529,43 +564,49 @@ p {
                 border: none;
                 font-size: 18px;
                 transition: all .3s ease-out;
-                &:focus{
+
+                &:focus {
                     outline: 0;
                 }
             }
         }
     }
 
-    .widget{
-        ul{
-            li{
+    .widget {
+        ul {
+            li {
                 padding: 12px 0px;
-                &:last-child{
+
+                &:last-child {
                     padding-bottom: 0px;
                 }
-                a{
+
+                a {
                     color: $dark;
                     display: block;
                 }
             }
         }
 
-        &.widget-popular-post{
-            
-            .popular-post{
+        &.widget-popular-post {
+
+            .popular-post {
                 border-bottom: 1px solid lighten($lightdark, 4%);
                 padding: 15px 0px;
-                img{
+
+                img {
                     width: 64px;
                 }
-                &:last-of-type{
+
+                &:last-of-type {
                     border: none;
                 }
             }
         }
-        &.widget-tag-cloud{
+
+        &.widget-tag-cloud {
             .tagcloud {
-                    > a {
+                > a {
                     display: inline-block;
                     padding: 5px 10px;
                     border: 1px solid rgba($dark, 0.1);
@@ -583,7 +624,6 @@ p {
                 }
             }
         }
-        
     }
 }
 
@@ -591,21 +631,23 @@ p {
     13.blog Details
 *******************/
 
-.blog-details-box{
-    .post-meta{
-        .list-inline-item{
+.blog-details-box {
+    .post-meta {
+        .list-inline-item {
             margin-right: 24px;
             color: $muted;
-            a{
+
+            a {
                 color: $muted;
             }
         }
     }
-    .blockquote{
+
+    .blockquote {
         position: relative;
-        
-        .blockquote-icon{
-            i{
+
+        .blockquote-icon {
+            i {
                 position: absolute;
                 right: 0;
                 bottom: 0;
@@ -620,22 +662,23 @@ p {
     14.contact
 *******************/
 
-.map{
-    iframe{
+.map {
+    iframe {
         width: 100%;
         height: 300px;
         border: 0;
     }
 }
 
-.custom-form{
-    form{
-        .form-control{
+.custom-form {
+    form {
+        .form-control {
             height: 43px;
             font-size: $font-base;
             border-color: lighten($muted, 38%);
         }
-        textarea{
+
+        textarea {
             height: auto !important;
         }
     }
@@ -673,6 +716,7 @@ p {
 #success_page {
     text-align: center;
     margin-bottom: 50px;
+
     h3 {
         color: $success;
         font-size: 22px;
@@ -683,19 +727,19 @@ p {
     15.Responsive
 *******************/
 @media (min-width: 200px) and (max-width: 1199px) {
-    .container-fluid{
+    .container-fluid {
         max-width: 95%;
     }
 }
 
 @media (min-width: 1200px) {
-    .container-fluid{
+    .container-fluid {
         max-width: 85%;
     }
 }
 
 @media (min-width: 1600px) {
-    .container-fluid{
+    .container-fluid {
         max-width: 70%;
     }
 }
@@ -706,35 +750,40 @@ p {
         padding: 10px 0px !important;
         background-color: $white !important;
         box-shadow: $shadow;
-        
-        .logo{
+
+        .logo {
             .logo-dark {
                 display: inline-block;
             }
+
             .logo-light {
                 display: none;
             }
         }
-        .navbar-nav{
-            .nav-item{
-                .nav-link{
+
+        .navbar-nav {
+            .nav-item {
+                .nav-link {
                     transition: all 0.4s;
                     color: rgba($dark, 0.8) !important;
                     margin: 0px;
                     padding: 6px 0px;
-                    i{
-                        &.mdi-chevron-down{
+
+                    i {
+                        &.mdi-chevron-down {
                             position: absolute;
                             right: 14px;
                         }
                     }
                 }
             }
-            .nav-item.active .nav-link{
+
+            .nav-item.active .nav-link {
                 color: $primary !important;
             }
         }
     }
+
     .navbar-toggler {
         font-size: 24px;
         margin-top: 0px;
@@ -742,32 +791,36 @@ p {
         color: $dark;
     }
 
-    .mo-mb-20{
+    .mo-mb-20 {
         margin-bottom: 20px !important;
     }
 
-    .page-header-box{
+    .page-header-box {
         padding: 100px 0px 40px 0px;
     }
 }
 
 @media (max-width: 540px) {
-    .bg-home{
+    .bg-home {
         padding-top: 130px;
     }
+
     .home-title {
         font-size: 26px;
     }
-    .media-list{
+
+    .media-list {
         padding: 0px !important;
-        .media{
-            .media-body{
-                margin-left: 1rem!important;
+
+        .media {
+            .media-body {
+                margin-left: 1rem !important;
             }
         }
     }
-    .post-meta{
-        .list-inline-item{
+
+    .post-meta {
+        .list-inline-item {
             padding: 10px 0px;
         }
     }
