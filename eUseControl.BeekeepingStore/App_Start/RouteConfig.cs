@@ -19,11 +19,11 @@ namespace eUseControl.BeekeepingStore
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
                 );
 
-            routes.MapRoute(
-            name: "About",
-            url: "about",
-            defaults: new { controller = "Home", action = "About" }
-        );
+                routes.MapRoute(
+                name: "About",
+                url: "about",
+                defaults: new { controller = "Home", action = "About" }
+            );
 
             routes.MapRoute(
                 name: "Blog",
@@ -45,3 +45,4 @@ namespace eUseControl.BeekeepingStore
         }
     }
 }
+
