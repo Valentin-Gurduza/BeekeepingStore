@@ -1,120 +1,26 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Contact Us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8" />
-    <title>Contact - Magazin Apicol</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Magazin Apicol - Produse apicole de calitate" name="description" />
-    <meta content="Coderthemes" name="author" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-    <!-- App favicon -->
-    <link rel="shortcut icon" href="Content/images/favicon.ico">
-
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="/Content/bootstrap.min.css" type="text/css">
-
-    <!--Material Icon -->
-    <link rel="stylesheet" type="text/css" href="/Content/materialdesignicons.min.css" />
-
-    <!--pe-icon-7 Icon -->
-    <link rel="stylesheet" type="text/css" href="/Content/pe-icon-7-stroke.css" />
-
-    <!-- Custom  css -->
-    <link rel="stylesheet" type="text/css" href="/Content/style.css" />
-</head>
-
-<body>
-    <header class="sticky">
-        <nav class="navbar navbar-expand-lg fixed-top navbar-custom" id="navbar">
-            <div class="container-fluid">
-                <!-- LOGO -->
-                <a class="logo text-uppercase" href="index.html">
-                    <img src="~/Content/images/logo-light.png" alt="" class="logo-light" height="20" />
-                    <img src="~/Content/images/logo-dark.png" alt="" class="logo-dark" height="20" />
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="mdi mdi-menu"></i>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav ml-auto navbar-center" id="mySidenav">
-                        <li class="nav-item">
-                            <a href="index.html#home" class="nav-link">Acasă</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="index.html#products" class="nav-link">Produse</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="index.html#about" class="nav-link">Despre noi</a>
-                        </li>
-                        <li class="nav-item active">
-                            <a href="contact.html" class="nav-link">Contact</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <section class="section" id="contact">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="title text-center mb-4">
-                        <h3 class="font-22 mb-3">Contactează-ne</h3>
-                        <p class="text-muted">Pentru orice întrebări sau comenzi, nu ezitați să ne contactați.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- end row -->
-
-            <div class="row">
-                <div class="col-lg-6">
-                    <form action="send_email.php" method="post">
-                        <div class="form-group">
-                            <label for="firstName">Prenume</label>
-                            <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Prenumele dvs." required>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastName">Nume</label>
-                            <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Numele dvs." required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email-ul dvs." required>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Mesaj</label>
-                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Mesajul dvs." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Trimite</button>
-                    </form>
-                </div>
-                <div class="col-lg-6">
-                    <div class="contact-info">
-                        <h4>Informații de Contact</h4>
-                        <p><i class="mdi mdi-map-marker"></i> Strada Exemplu, Nr. 123, Oraș, Țară</p>
-                        <p><i class="mdi mdi-phone"></i> +1 234 567 89 01</p>
-                        <p><i class="mdi mdi-email"></i> support@mail.com</p>
-                    </div>
-                </div>
-            </div>
-            <!-- end row -->
+<div class="container">
+    <h1>Contact Us</h1>
+    <p>If you have any questions or need assistance, please feel free to contact us. You can reach us via email at support@beekeepingstore.com or call us at (123) 456-7890. We are here to help you with all your beekeeping needs.</p>
+</div>
+<div class="container">
+    <form asp-action="SendEmail" method="post">
+        <div class="form-group">
+            <label for="Username">Username</label>
+            <input type="text" class="form-control" id="Username" name="Username" required>
         </div>
-        <!-- end container-fluid -->
-    </section>
-
-    <!-- javascript -->
-    <script src="/Scripts/jquery.min.js"></script>
-    <script src="/Scripts/bootstrap.bundle.min.js"></script>
-    <script src="/Scripts/jquery.easing.min.js"></script>
-    <script src="/Scripts/scrollspy.min.js"></script>
-    <script src="/Scripts/app.js"></script>
-</body>
-
-</html>
+        <div class="form-group">
+            <label for="Email">Email</label>
+            <input type="email" class="form-control" id="Email" name="Email" required>
+        </div>
+        <div class="form-group">
+            <label for="Message">Message</label>
+            <textarea class="form-control" id="Message" name="Message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
