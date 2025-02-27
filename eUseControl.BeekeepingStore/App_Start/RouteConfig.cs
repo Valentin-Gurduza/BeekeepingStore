@@ -42,6 +42,17 @@ namespace eUseControl.BeekeepingStore
                 url: "contact",
                 defaults: new { controller = "Home", action = "Contact" }
             );
+            routes.MapRoute(
+               name: "Login",
+               url: "login",
+               defaults: new { controller = "Home", action = "Login" }
+           );
+
+            routes.MapRoute(
+                name: "Register",
+                url: "register",
+                defaults: new { controller = "Home", action = "Register" }
+            );
         }
     }
 }
