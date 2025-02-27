@@ -32,5 +32,13 @@ namespace eUseControl.BeekeepingStore.Controllers
         {
             return View();
         }
+        public ActionResult Login()
+        {
+            return View();
+        }
+        public ActionResult Register()
+        {
+            return View();
+        }
     }
 }
