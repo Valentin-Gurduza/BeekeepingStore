@@ -1,4 +1,5 @@
 ﻿﻿
+﻿
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,6 +7,7 @@
     <title>@ViewBag.Title</title>
     <link rel="stylesheet" href="~/Content/bootstrap.min.css" />
     <link rel="stylesheet" href="~/Content/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
 </head>
 <body>
@@ -35,8 +37,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#search-bar">Search</a>
                     </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Login", "Home")">Login</a>
+                        <a class="nav-link" href="@Url.Action("Login", "Home")">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
                     </li>
                 </ul>
             </div>
