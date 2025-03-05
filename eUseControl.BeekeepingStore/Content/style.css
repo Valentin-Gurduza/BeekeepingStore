@@ -105,7 +105,7 @@ p {
   z-index: 999;
   -webkit-transition: all 0.4s;
   transition: all 0.4s;
-  background: rgba(255, 255, 255, 0.1);
+  background: #ffffff;
   top: 50px;
 }
 
@@ -122,7 +122,7 @@ p {
 }
 
 .navbar-custom .navbar-nav .nav-item .dropdown .dropdown-menu .dropdown-item {
-  color: #7a7d84;
+  color: #ffffff;
 }
 
 .navbar-custom .navbar-nav .nav-item .nav-link {
@@ -196,6 +196,13 @@ p {
 .bg-home {
   position: relative;
   padding-top: 190px;
+}
+
+/**
+    Gray to white 
+*/
+.jumbotron {
+    background-color: #ffffff;
 }
 
 /*******************
