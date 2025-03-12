@@ -21,8 +21,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 new Product
                 {
                     Name = "Beekeeping Kit",
-                    Image = "~/Views/products/beehive.jpg",
-
+                    Image = "~/Content/images/products/beehive.jpg",
                     Description = "Everything you need to get started with beekeeping.",
                     Price = 99.99m,
                     Category = "Kits"
