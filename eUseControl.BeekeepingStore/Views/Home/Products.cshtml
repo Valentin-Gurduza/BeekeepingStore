@@ -6,20 +6,13 @@
 <div class="container products-page">
     <h1>Our Products</h1>
     <div class="row">
-        <div class="product col-md-4">
-            <img src="~/Content/Images/beekeeping-kit.jpg" alt="Beekeeping Kit" class="img-responsive" />
-            <h2>Beekeeping Kit</h2>
-            <p>Everything you need to get started with beekeeping.</p>
-        </div>
-        <div class="product col-md-4">
-            <img src="~/Content/Images/protective-gear.jpg" alt="Protective Gear" class="img-responsive" />
-            <h2>Protective Gear</h2>
-            <p>Stay safe while working with your bees.</p>
-        </div>
-        <div class="product col-md-4">
-            <img src="~/Content/Images/honey-extractor.jpg" alt="Honey Extractor" class="img-responsive" />
-            <h2>Honey Extractor</h2>
-            <p>Tools and equipment for extracting honey.</p>
-        </div>
-    </div>
-</div>
+        @foreach (var product in Model)
+        {
+            <div class="product col-md-4">
+                <img src="@product.Image" alt="@product.Name" class="img-responsive" />
+                <h2>@product.Name</h2>
+                <p>@product.Description</p>
+                <p>Price: @product.Price.ToString("C")</p>
+                <p>Category: @product.Category</p>
+            </div>
+        }
