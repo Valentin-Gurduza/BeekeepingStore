@@ -21,7 +21,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 new Product
                 {
                     Name = "Beekeeping Kit",
-                    Image = "~/Content/images/products/beehive.jpg",
+                    Image = "~/Content/images/products/beekeepingkit.jpg",
                     Description = "Everything you need to get started with beekeeping.",
                     Price = 99.99m,
                     Category = "Kits"
@@ -37,7 +37,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 new Product
                 {
                     Name = "Honey Extractor",
-                    Image = "~/Content/images/products/extractorrforhoney.jpg",
+                    Image = "~/Content/images/products/extractorforhoney.jpg",
                     Description = "Tools and equipment for extracting honey.",
                     Price = 199.99m,
                     Category = "Equipment"
@@ -61,7 +61,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 new Product
                 {
                     Name = "Bee Feeder",
-                    Image = "~/Content/images/products//beefeeder.png",
+                    Image = "~/Content/images/products/beefeeder.png",
                     Description = "A feeder to provide food for your bees.",
                     Price = 19.99m,
                     Category = "Tools"
