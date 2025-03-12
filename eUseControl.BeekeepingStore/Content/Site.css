@@ -124,3 +124,12 @@ footer {
         .products-page .product p {
             color: #666;
         }
+        .products-page .product .price {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .products-page .product .category {
+            font-style: italic;
+            color: #999;
+        }

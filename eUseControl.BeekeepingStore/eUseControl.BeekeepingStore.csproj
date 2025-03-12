@@ -100,6 +100,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\images\products\beefeeder.png" />
+    <Content Include="Content\images\products\beehive.jpg" />
+    <Content Include="Content\images\products\beekeepingkit.jpg" />
+    <Content Include="Content\images\products\beesmoker.jpg" />
+    <Content Include="Content\images\products\extractorforhoney.jpg" />
+    <Content Include="Content\images\products\protectivegear.png" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\bootstrap.min.css" />
@@ -121,13 +127,8 @@
     <Content Include="Content\images\clients\4.png" />
     <Content Include="Content\images\clients\5.png" />
     <Content Include="Content\images\clients\6.png" />
-    <Content Include="Content\images\faq-img.png" />
-    <Content Include="Content\images\favicon.ico" />
     <Content Include="Content\images\features\img-1.png" />
     <Content Include="Content\images\features\img-2.png" />
-    <Content Include="Content\images\home-img.png" />
-    <Content Include="Content\images\logo-dark.png" />
-    <Content Include="Content\images\logo-light.png" />
     <Content Include="Content\images\team\img-1.jpg" />
     <Content Include="Content\images\team\img-2.jpg" />
     <Content Include="Content\images\team\img-3.jpg" />
@@ -144,6 +145,12 @@
     <Content Include="Scripts\jquery.min.js" />
     <Content Include="Scripts\scrollspy.min.js" />
     <Content Include="Content\php\contact.php" />
+    <Content Include="Views\products\beefeeder.png" />
+    <Content Include="Views\products\beehive.jpg" />
+    <Content Include="Views\products\beekeepingkit.jpg" />
+    <Content Include="Views\products\beesmoker.jpg" />
+    <Content Include="Views\products\extractorforhoney.jpg" />
+    <Content Include="Views\products\protectivegear.png" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -179,6 +186,8 @@
     <Content Include="Views\Home\Products.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Shared\_Header.cshtml" />
+    <Content Include="Views\Shared\_Footer.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
