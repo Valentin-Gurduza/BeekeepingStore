@@ -145,12 +145,6 @@
     <Content Include="Scripts\jquery.min.js" />
     <Content Include="Scripts\scrollspy.min.js" />
     <Content Include="Content\php\contact.php" />
-    <Content Include="Views\products\beefeeder.png" />
-    <Content Include="Views\products\beehive.jpg" />
-    <Content Include="Views\products\beekeepingkit.jpg" />
-    <Content Include="Views\products\beesmoker.jpg" />
-    <Content Include="Views\products\extractorforhoney.jpg" />
-    <Content Include="Views\products\protectivegear.png" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
