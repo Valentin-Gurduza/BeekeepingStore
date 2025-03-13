@@ -9,7 +9,7 @@
         @foreach (var product in Model)
         {
             <div class="product col-md-4">
-                <img src="@product.Image" alt="@product.Name" class="img-responsive" />
+                <img src="@Url.Content(product.Image)" alt="@product.Name" class="img-responsive" />
                 <h2>@product.Name</h2>
                 <p>@product.Description</p>
                 <p>Price: @product.Price.ToString("C")</p>
