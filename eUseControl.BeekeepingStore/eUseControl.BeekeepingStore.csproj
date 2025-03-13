@@ -193,6 +193,16 @@
     <Folder Include="App_Data\" />
     <Folder Include="Views\BundleConfig\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eUseControl.BeekeepingStore.BusinessLogic\eUseControl.BeekeepingStore.BusinessLogic.csproj">
+      <Project>{7c1a7416-d441-41b1-8914-9f04d20b4187}</Project>
+      <Name>eUseControl.BeekeepingStore.BusinessLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\eUseControl.BeekeepingStore.Domain\eUseControl.BeekeepingStore.Domain.csproj">
+      <Project>{8acd4b35-070a-425c-8b48-482389899997}</Project>
+      <Name>eUseControl.BeekeepingStore.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
