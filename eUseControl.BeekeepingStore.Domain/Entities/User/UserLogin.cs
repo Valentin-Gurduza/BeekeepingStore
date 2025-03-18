@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace eUseControl.BeekeepingStore.Domain.Entities.User
 {
-    class UserLogin
+    public class UserLogin
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
