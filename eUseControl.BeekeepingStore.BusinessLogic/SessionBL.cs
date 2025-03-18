@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using eUseControl.BeekeepingStore.BusinessLogic.Core;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
+using eUseControl.BeekeepingStore.Domain.Entities.User;
 
 
 namespace eUseControl.BeekeepingStore.BusinessLogic
