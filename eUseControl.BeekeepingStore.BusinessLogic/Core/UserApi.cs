@@ -8,5 +8,14 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
 {
      internal class UserApi
      {
-     }
+        public void RegisterUser()
+        {
+        }
+        public void LoginUser()
+        {
+        }
+        public void UpdateUserProfile()
+        { 
+        }
+    }
 }
