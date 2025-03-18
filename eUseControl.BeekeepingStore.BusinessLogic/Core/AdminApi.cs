@@ -8,5 +8,17 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
 {
      internal class AdminApi
      {
-     }
+        public void ManageUsers()
+        {
+
+        }
+        public void ManageProducts()
+        {
+
+        }
+        public void ViewReports()
+        {
+
+        }
+    }
 }
