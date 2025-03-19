@@ -1,0 +1,42 @@
+﻿@{ 
+    ViewBag.Title = "Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h1>Shopping Cart</h1>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Example product row -->
+            <tr>
+                <td>Beekeeping Kit</td>
+                <td>
+                    <input type="number" class="form-control" value="1" min="1">
+                </td>
+                <td>$100.00</td>
+                <td>$100.00</td>
+                <td>
+                    <button class="btn btn-danger">Remove</button>
+                </td>
+            </tr>
+            <!-- Add more product rows as needed -->
+        </tbody>
+    </table>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Total: $100.00</h3>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="Checkout" class="btn btn-primary">Proceed to Checkout</a>
+        </div>
+    </div>
+</div>
