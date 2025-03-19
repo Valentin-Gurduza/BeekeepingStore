@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace eUseControl.BeekeepingStore.BusinessLogic.Core
 {
-     internal class UserApi
+     public class UserApi
      {
         public void RegisterUser()
         {
