@@ -9,18 +9,6 @@ using eUseControl.BeekeepingStore.BusinessLogic.Core;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
 
-
-namespace eUseControl.BeekeepingStore.BusinessLogic
-{
-    public class UserApi
-    {
-        public void RegisterUser()
-        { }
-        public void LoginUser()
-        { }
-        public void UpdateUserProfile()
-        { }
-    }
     public class SessionBL : UserApi, ISession
     {
         public UserLogin UserLogin(ULoginData data)
@@ -35,4 +23,3 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             }
         }
     }
-}
