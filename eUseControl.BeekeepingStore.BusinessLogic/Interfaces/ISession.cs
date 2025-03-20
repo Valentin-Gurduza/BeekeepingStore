@@ -9,7 +9,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Interfaces
 {
      public interface ISession
      {
-          UserLogin UserLogin(ULoginData data);
+        UserLoginResult UserLogin(ULoginData data);
         void RegisterUser(ULoginData data);
         void UpdateUserProfile(UProfileData data);
         void LogoutUser(UUserData data);
