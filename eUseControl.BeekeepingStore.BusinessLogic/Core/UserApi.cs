@@ -10,12 +10,15 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
      {
         public void RegisterUser()
         {
+
         }
         public void LoginUser()
         {
+
         }
         public void UpdateUserProfile()
         { 
+
         }
     }
 }

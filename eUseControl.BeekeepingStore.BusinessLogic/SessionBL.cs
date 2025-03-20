@@ -11,7 +11,42 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
 
     public class SessionBL : UserApi, ISession
     {
-        public UserLogin UserLogin(ULoginData data)
+    public void CreateSession(UUserData data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void LogError(Exception ex)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void LogoutUser(UUserData data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void LogUserActivity(UUserData data, string activity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void RegisterUser(ULoginData data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void TerminateSession(string sessionId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void UpdateUserProfile(UProfileData data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public UserLogin UserLogin(ULoginData data)
         {
             if (data.Credential == "admin" && data.Password == "admin")
             {
@@ -22,4 +57,9 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
                 return new UserLogin { IsSuccess = false, Message = "Invalid credentials" };
             }
         }
+
+    public bool ValidateSession(string sessionId)
+    {
+        throw new NotImplementedException();
     }
+}
