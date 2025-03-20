@@ -13,4 +13,12 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
         public string LoginIp { get; set; }
         public DateTime LoginDateTime { get; set; }
     }
+
+    public class UserLoginResult
+    {
+        public bool Status { get; set; }
+        public string StatusMsg { get; set; }
+        public bool Success { get; set; }
+        public object UserId { get; set; }
+    }
 }

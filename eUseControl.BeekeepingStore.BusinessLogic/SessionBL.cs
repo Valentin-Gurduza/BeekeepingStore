@@ -13,53 +13,115 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
     {
     public void CreateSession(UUserData data)
     {
-        throw new NotImplementedException();
+        var sessionId = Guid.NewGuid().ToString();
+        data.SessionId = sessionId;
+        using (var context = new DataContext())
+        {
+            var session = new Session { UserId = data.UserId, SessionId = sessionId, CreatedAt = DateTime.UtcNow };
+            context.Sessions.Add(session);
+            context.SaveChanges();
+        }
     }
 
     public void LogError(Exception ex)
     {
-        throw new NotImplementedException();
+        using (var context = new DataContext())
+        {
+            var errorLog = new ErrorLog { Message = ex.Message, StackTrace = ex.StackTrace, CreatedAt = DateTime.UtcNow };
+            context.ErrorLogs.Add(errorLog);
+            context.SaveChanges();
+        }
     }
 
     public void LogoutUser(UUserData data)
     {
-        throw new NotImplementedException();
+        using (var context = new DataContext())
+        {
+            var session = context.Sessions.FirstOrDefault(s => s.UserId == data.UserId && s.SessionId == data.SessionId);
+            if (session != null)
+            {
+                context.Sessions.Remove(session);
+                context.SaveChanges();
+            }
+        }
     }
 
     public void LogUserActivity(UUserData data, string activity)
     {
-        throw new NotImplementedException();
+        using (var context = new DataContext())
+        {
+            var userActivity = new UserActivity { UserId = data.UserId, Activity = activity, CreatedAt = DateTime.UtcNow };
+            context.UserActivities.Add(userActivity);
+            context.SaveChanges();
+        }
     }
 
     public void RegisterUser(ULoginData data)
     {
-        throw new NotImplementedException();
+        using (var context = new DataContext())
+        {
+            if (context.Users.Any(u => u.Username == data.Credential))
+            {
+                throw new Exception("User already exists");
+            }
+
+            var newUser = new User
+            {
+                Username = data.Credential,
+                Password = data.Password, // Ensure you hash the password
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Users.Add(newUser);
+            context.SaveChanges();
+        }
     }
 
     public void TerminateSession(string sessionId)
     {
-        throw new NotImplementedException();
+        using (var context = new DataContext())
+        {
+            var session = context.Sessions.FirstOrDefault(s => s.SessionId == sessionId);
+            if (session != null)
+            {
+                context.Sessions.Remove(session);
+                context.SaveChanges();
+            }
+        }
     }
 
     public void UpdateUserProfile(UProfileData data)
     {
-        throw new NotImplementedException();
-    }
-
-    public UserLogin UserLogin(ULoginData data)
+        using (var context = new DataContext())
         {
-            if (data.Credential == "admin" && data.Password == "admin")
+            var user = context.Users.FirstOrDefault(u => u.UserId == data.UserId);
+            if (user != null)
             {
-                return new UserLogin { IsSuccess = true, Message = "Login successful" };
-            }
-            else
-            {
-                return new UserLogin { IsSuccess = false, Message = "Invalid credentials" };
+                user.Email = data.Email;
+                user.FullName = data.FullName;
+                
+                context.SaveChanges();
             }
         }
+    }
 
     public bool ValidateSession(string sessionId)
     {
-        throw new NotImplementedException();
+        using (var context = new DataContext())
+        {
+            return context.Sessions.Any(s => s.SessionId == sessionId && s.CreatedAt > DateTime.UtcNow.AddHours(-1));
+        }
+    }
+
+    public UserLoginResult UserLogin(ULoginData data)
+    {
+        using (var context = new DataContext())
+        {
+            var user = context.Users.FirstOrDefault(u => u.Username == data.Credential && u.Password == data.Password);
+            if (user != null)
+            {
+                return new UserLoginResult { Success = true, UserId = user.UserId };
+            }
+            return new UserLoginResult { Success = false };
+        }
     }
 }

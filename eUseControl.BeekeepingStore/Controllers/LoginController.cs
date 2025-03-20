@@ -38,7 +38,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 };
                 
                 var userLogin = _session.UserLogin(data);
-                if (userLogiN.Status)
+                if (userLogin.Status)
                 {
                     //ADD COOKIE
                     return RedirectToAction("Index", "Home");
