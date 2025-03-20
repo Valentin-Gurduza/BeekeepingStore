@@ -92,5 +92,9 @@ namespace eUseControl.BeekeepingStore.Controllers
         {
             return View();
         }
+        public ActionResult Cart()
+        {
+            return View();
+        }
     }
 }
