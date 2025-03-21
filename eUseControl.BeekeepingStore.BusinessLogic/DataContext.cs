@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Runtime.Remoting.Contexts;
 
-internal class DataContext : IDisposable
+internal class DataContext : DbContext
 {
+    public DbSet<Session> Sessions { get; set; }
+    public DbSet<ErrorLog> ErrorLogs { get; set; }
+    public DbSet<UserActivity> UserActivities { get; set; }
+    public DbSet<User> Users { get; set; }
 
-    public object Sessions { get; internal set; }
-    public object ErrorLogs { get; internal set; }
-    public object UserActivities { get; internal set; }
-    public object Users { get; internal set; }
-
-    public void Dispose()
+    public DataContext() : base("name=BeekeepingStoreDB")
     {
-        throw new NotImplementedException();
     }
 
-    internal void SaveChanges()
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
-        throw new NotImplementedException();
+        base.OnModelCreating(modelBuilder);
     }
 }
