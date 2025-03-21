@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using eUseControl.BeekeepingStore.BusinessLogic;
+using eUseControl.BeekeepingStore.BusinessLogic.Core;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
 
 namespace eUseControl.BeekeepingStore.Controllers
@@ -32,7 +33,11 @@ namespace eUseControl.BeekeepingStore.Controllers
                 // Add logic to handle registration process, e.g., save user data to the database
                 // For now, just redirect to the login page
                 var userApi = new UserApi();
-                userApi.RegisterUser(fullName, email, password);
+                userApi.RegisterUser(new ULoginData
+                {
+                    Credential = email,
+                    Password = password
+                });
                 return RedirectToAction("Login");
             }
 

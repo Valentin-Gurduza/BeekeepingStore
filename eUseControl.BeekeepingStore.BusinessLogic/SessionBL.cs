@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using eUseControl.BeekeepingStore.BusinessLogic.Core;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
 
-    public class SessionBL : UserApi, ISession
-    {
+public class SessionBL : ISession
+{
     public void CreateSession(UUserData data)
     {
         var sessionId = Guid.NewGuid().ToString();
@@ -56,26 +56,6 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
         }
     }
 
-    public void RegisterUser(ULoginData data)
-    {
-        using (var context = new DataContext())
-        {
-            if (context.Users.Any(u => u.Username == data.Credential))
-            {
-                throw new Exception("User already exists");
-            }
-
-            var newUser = new User
-            {
-                Username = data.Credential,
-                Password = data.Password, // Ensure you hash the password
-                CreatedAt = DateTime.UtcNow
-            };
-            context.Users.Add(newUser);
-            context.SaveChanges();
-        }
-    }
-
     public void TerminateSession(string sessionId)
     {
         using (var context = new DataContext())
@@ -84,21 +64,6 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
             if (session != null)
             {
                 context.Sessions.Remove(session);
-                context.SaveChanges();
-            }
-        }
-    }
-
-    public void UpdateUserProfile(UProfileData data)
-    {
-        using (var context = new DataContext())
-        {
-            var user = context.Users.FirstOrDefault(u => u.UserId == data.UserId);
-            if (user != null)
-            {
-                user.Email = data.Email;
-                user.FullName = data.FullName;
-                
                 context.SaveChanges();
             }
         }
@@ -114,14 +79,31 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
 
     public UserLoginResult UserLogin(ULoginData data)
     {
-        using (var context = new DataContext())
+        try
         {
-            var user = context.Users.FirstOrDefault(u => u.Username == data.Credential && u.Password == data.Password);
-            if (user != null)
+            using (var context = new DataContext())
             {
-                return new UserLoginResult { Success = true, UserId = user.UserId };
+                var user = context.Users.FirstOrDefault(u => u.Username == data.Credential && u.Password == HashPassword(data.Password));
+                if (user != null)
+                {
+                    return new UserLoginResult { Success = true, UserId = user.UserId };
+                }
+                return new UserLoginResult { Success = false };
             }
-            return new UserLoginResult { Success = false };
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            throw;
+        }
+    }
+
+    private string HashPassword(string password)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
         }
     }
 }
