@@ -106,4 +106,39 @@ public class SessionBL : ISession
             return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
         }
     }
+
+    public void RegisterUser(ULoginData data)
+    {
+        using (var context = new DataContext())
+        {
+            if (context.Users.Any(u => u.Username == data.Credential))
+            {
+                throw new Exception("User already exists");
+            }
+
+            var newUser = new User
+            {
+                Username = data.Credential,
+                Password = HashPassword(data.Password),
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Users.Add(newUser);
+            context.SaveChanges();
+        }
+    }
+
+    public void UpdateUserProfile(UProfileData data)
+    {
+        using (var context = new DataContext())
+        {
+            var user = context.Users.FirstOrDefault(u => u.UserId == data.UserId);
+            if (user != null)
+            {
+                user.Email = data.Email;
+                user.FullName = data.FullName;
+
+                context.SaveChanges();
+            }
+        }
+    }
 }

@@ -82,4 +82,7 @@
     <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
   </Target>
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
+<Target Name="EnsureOutputPathExists" BeforeTargets="BeforeBuild">
+    <MakeDir Directories="$(OutputPath)" />
+  </Target>
 </Project>
