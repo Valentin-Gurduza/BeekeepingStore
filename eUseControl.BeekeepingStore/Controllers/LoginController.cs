@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using eUseControl.BeekeepingStore.BusinessLogic;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
+using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
+using eUseControl.BeekeepingStore.BusinessLogic.Core;
 
 namespace eUseControl.BeekeepingStore.Controllers
 {
@@ -14,7 +16,7 @@ namespace eUseControl.BeekeepingStore.Controllers
 
         public LoginController()
         {
-            var bl = new BusinessLogic();
+            var bl = new BusinessLogic.BusinessLogic();
             _session = bl.GetSessionBL;
         }
 
@@ -23,6 +25,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Index(UserLogin login)
@@ -36,7 +39,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                     LoginIp = Request.UserHostAddress,
                     LoginDateTime = DateTime.Now
                 };
-                
+
                 var userLogin = _session.UserLogin(data);
                 if (userLogin.Status)
                 {

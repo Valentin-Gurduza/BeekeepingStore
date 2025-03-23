@@ -10,5 +10,7 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
+        public string Credential { get; set; }
+        public string Password { get; set; }
     }
 }
