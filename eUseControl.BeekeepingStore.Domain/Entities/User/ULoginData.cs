@@ -19,6 +19,6 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
         public bool Status { get; set; }
         public string StatusMsg { get; set; }
         public bool Success { get; set; }
-        public object UserId { get; set; }
+        public int UserId { get; set; }
     }
 }
