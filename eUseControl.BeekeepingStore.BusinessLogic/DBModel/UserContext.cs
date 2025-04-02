@@ -10,7 +10,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.DBModel
 {
     class UserContext : DbContext
     {
-        public UserContext() : base("name=BeekeepingStoreDB")
+        public UserContext() : base("name=eUseControl.BeekeepingStore")
         {
         }
         public virtual DbSet<UDBTable> Users { get; set; }
