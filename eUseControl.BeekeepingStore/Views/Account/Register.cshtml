@@ -8,6 +8,7 @@
     <p>Please fill in the form below to create an account.</p>
     <form action="@Url.Action("Register", "Account")" method="post">
         <div class="form-group">
+            @Html.AntiForgeryToken()
             <label for="fullName">Full Name</label>
             <input type="text" class="form-control" id="fullName" name="fullName" required>
         </div>
