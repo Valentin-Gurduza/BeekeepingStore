@@ -15,7 +15,7 @@ public enum URole
     User = 100,
     Moderator = 200,
     Vip = 300,
-    Administrator = 400;
+    Administrator = 400,
 
     }
 }

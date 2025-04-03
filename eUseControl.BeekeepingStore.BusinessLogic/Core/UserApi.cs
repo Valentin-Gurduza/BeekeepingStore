@@ -26,7 +26,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
                     {
                         Username = data.Credential,
                         Password = HashPassword(data.Password),
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        FullName = data.FullName
                     };
                     context.Users.Add(newUser);
                     context.SaveChanges();
