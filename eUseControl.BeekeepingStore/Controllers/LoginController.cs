@@ -47,7 +47,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                         //ADD COOKIE
                         var sessionCookie = new HttpCookie("sessionId", userLogin.SessionId)
                         {
-                            Expires = DateTime.Now.AddHours(1)
+                            Expires = DateTime.Now.AddHours(1),
                             HttpOnly = true
                         };
                         Response.Cookies.Add(sessionCookie);

@@ -35,7 +35,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 try
                 {
                     var userApi = new UserApi();
-                    userApi.RegisterUser(new UloginData
+                    userApi.RegisterUser(new ULoginData
                     {
                         Credential = email,
                         Password = password,

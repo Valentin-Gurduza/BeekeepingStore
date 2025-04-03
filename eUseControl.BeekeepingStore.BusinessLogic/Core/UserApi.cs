@@ -49,7 +49,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
                     var user = context.Users.FirstOrDefault(u => u.Username == data.Credential && u.Password == HashPassword(data.Password));
                     if (user != null)
                     {
-                        return new UserLoginResult { Success = true, UserId = user.UserId };
+                        return new UserLoginResult { Success = true, UserId = user.UserId, FullName = user.FullName };
                     }
                     return new UserLoginResult { Success = false };
                 }
