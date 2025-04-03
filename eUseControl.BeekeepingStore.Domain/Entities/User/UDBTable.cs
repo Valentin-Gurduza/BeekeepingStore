@@ -37,12 +37,14 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
 
         public string Address { get; set; }
 
-        public string UserIP { get; set; }
-
-        [Display(Name = "Registration Date")]
+        [Display(Name = "UserIp")]
+        [StringLength(50, MinimumLength = 8, ErrorMessage = "IP cannot be longer than 50 characters")]
+        public string UserIp { get; set; }
+        
+        [Display(Name = "Registration_Date")]
         public DateTime RegistrationDateTime { get; set; }
 
-        [Display(Name = "Last Login")]
+        [Display(Name = "Last_Login")]
         public DateTime LoginDateTime { get; set; }
 
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using eUseControl.BeekeepingStore.BusinessLogic;
 using eUseControl.BeekeepingStore.BusinessLogic.Core;
@@ -30,15 +32,21 @@ namespace eUseControl.BeekeepingStore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Add logic to handle registration process, e.g., save user data to the database
-                // For now, just redirect to the login page
-                var userApi = new UserApi();
-                userApi.RegisterUser(new ULoginData
+                try
                 {
-                    Credential = email,
-                    Password = password
-                });
-                return RedirectToAction("Login");
+                    var userApi = new UserApi();
+                    userApi.RegisterUser(new UloginData
+                    {
+                        Credential = email,
+                        Password = password,
+                        FullName = fullName
+                    });
+                    return RedirectToAction("Login");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while registering the user: " + ex.Message);
+                }
             }
 
             return View();

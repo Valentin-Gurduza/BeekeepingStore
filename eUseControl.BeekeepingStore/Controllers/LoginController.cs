@@ -39,17 +39,29 @@ namespace eUseControl.BeekeepingStore.Controllers
                     LoginIp = Request.UserHostAddress,
                     LoginDateTime = DateTime.Now
                 };
+                try
+                {
+                    var userLogin = _session.UserLogin(data);
+                    if(userLogin.Status)
+                    {
+                        //ADD COOKIE
+                        var sessionCookie = new HttpCookie("sessionId", userLogin.SessionId)
+                        {
+                            Expires = DateTime.Now.AddHours(1)
+                            HttpOnly = true
+                        };
+                        Response.Cookies.Add(sessionCookie);
 
-                var userLogin = _session.UserLogin(data);
-                if (userLogin.Status)
-                {
-                    //ADD COOKIE
-                    return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", userLogin.StatusMsg);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    ModelState.AddModelError("", userLogin.StatusMsg);
-                    return View();
+                    ModelState.AddModelError("", "An error occurred while logging in: " + ex.Message);
                 }
             }
             return View();
