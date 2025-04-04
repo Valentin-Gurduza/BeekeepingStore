@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 // Display notification
-                showNotification(`${productName} has been added to your cart.`);
+                showNotification(`${productName} has been added to your cart. <a href="/Home/Cart" class="text-white fw-bold"><u>View Cart</u></a>`, 'success', 5000);
                 
                 // Update cart badge
                 updateCartBadge();
@@ -51,6 +51,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 2000);
             });
         });
+    }
+    
+    // Check if we're on the cart page
+    if (document.querySelector('.cart-items')) {
+        // Initialize cart page
+        renderCartItems();
+        
+        // Attach event to clear cart button if it exists
+        const clearCartButton = document.querySelector('.clear-cart-btn');
+        if (clearCartButton) {
+            clearCartButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear your cart?')) {
+                    clearCart();
+                    renderCartItems();
+                }
+            });
+        }
     }
     
     // Product image gallery functionality
@@ -181,6 +198,9 @@ function addToCart(product) {
     
     // Save the cart
     localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Log for debugging
+    console.log('Cart updated:', cart);
 }
 
 /**
@@ -203,6 +223,17 @@ function removeFromCart(productId) {
     if (document.querySelector('.cart-items')) {
         renderCartItems();
     }
+}
+
+/**
+ * Clear the entire cart
+ */
+function clearCart() {
+    // Clear the cart in localStorage
+    localStorage.setItem('cart', JSON.stringify([]));
+    
+    // Update the cart badge
+    updateCartBadge();
 }
 
 /**
@@ -271,6 +302,8 @@ function renderCartItems() {
     if (!cartItemsContainer) return;
     
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    console.log('Rendering cart items:', cart);
     
     if (cart.length === 0) {
         // Show empty cart message
@@ -416,8 +449,9 @@ function attachCartItemEvents() {
  * Show a notification toast
  * @param {string} message - Message to display
  * @param {string} type - Type of notification (success, danger, warning, info)
+ * @param {number} duration - How long to show the toast in milliseconds
  */
-function showNotification(message, type = 'success') {
+function showNotification(message, type = 'success', duration = 3000) {
     // Create toast container if it doesn't exist
     let toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) {
@@ -433,6 +467,7 @@ function showNotification(message, type = 'success') {
     toastEl.setAttribute('aria-live', 'assertive');
     toastEl.setAttribute('aria-atomic', 'true');
     
+    // Allow HTML in messages
     // Create toast content
     toastEl.innerHTML = `
         <div class="d-flex">
@@ -449,7 +484,7 @@ function showNotification(message, type = 'success') {
     // Initialize toast
     const toast = new bootstrap.Toast(toastEl, {
         autohide: true,
-        delay: 3000
+        delay: duration
     });
     
     // Show toast
