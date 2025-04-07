@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Beekeeping Store - Main JavaScript file
  */
 
