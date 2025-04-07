@@ -3,104 +3,351 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    <div class="jumbotron">
-        <h1>Welcome to the Beekeeping Store</h1>
-        <p>Your one-stop shop for all beekeeping supplies and equipment.</p>
+<!-- Hero Section -->
+<section class="hero-section container">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1>Welcome to the Beekeeping Store</h1>
+            <p>Your one-stop shop for all beekeeping supplies and equipment. Quality products for both hobbyist and professional beekeepers.</p>
+            <div class="d-flex gap-3">
+                <a href="@Url.Action("Products", "Home")" class="btn btn-dark btn-lg px-4">Shop Now</a>
+                <a href="@Url.Action("About", "Home")" class="btn btn-outline-dark btn-lg px-4">Learn More</a>
+            </div>
+        </div>
+        <div class="col-lg-6 d-none d-lg-block">
+            <img src="~/Content/Images/hero-beekeeper.png" alt="Beekeeper" class="img-fluid rounded">
+        </div>
     </div>
-    <div id="productCarousel" class="carousel slide" data-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="~/Content/Images/beekeeping-kit.jpg" class="d-block w-100" alt="Beekeeping Kit">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>Beekeeping Kit</h5>
-                    <p>Everything you need to get started with beekeeping.</p>
+</section>
+
+<!-- Categories Section -->
+<section class="container py-5">
+    <div class="section-title">
+        <h2>Shop by Category</h2>
+        <p>Browse our extensive collection of beekeeping supplies and equipment</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="category-card">
+                <div class="category-card-img">
+                    <img src="~/Content/Images/category-kits.jpg" alt="Beekeeping Kits">
+                    <div class="category-card-overlay">
+                        <a href="#" class="btn btn-primary">View Products</a>
+                    </div>
                 </div>
-            </div>
-            <div class="carousel-item">
-                <img src="~/Content/Images/protective-gear.jpg" class="d-block w-100" alt="Protective Gear">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>Protective Gear</h5>
-                    <p>Stay safe while working with your bees.</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="~/Content/Images/honey-extractor.jpg" class="d-block w-100" alt="Honey Extractor">
-                <div class="carousel-caption d-none d-md-block">
-                    <h5>Honey Extractor</h5>
-                    <p>Tools and equipment for extracting honey.</p>
+                <div class="category-card-body">
+                    <h3>Beekeeping Kits</h3>
+                    <p>Everything you need to get started with beekeeping</p>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-4 col-sm-6">
+            <div class="category-card">
+                <div class="category-card-img">
+                    <img src="~/Content/Images/category-gear.jpg" alt="Protective Gear">
+                    <div class="category-card-overlay">
+                        <a href="#" class="btn btn-primary">View Products</a>
+                    </div>
+                </div>
+                <div class="category-card-body">
+                    <h3>Protective Gear</h3>
+                    <p>Stay safe while working with your bees</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <div class="category-card">
+                <div class="category-card-img">
+                    <img src="~/Content/Images/category-extraction.jpg" alt="Honey Extraction">
+                    <div class="category-card-overlay">
+                        <a href="#" class="btn btn-primary">View Products</a>
+                    </div>
+                </div>
+                <div class="category-card-body">
+                    <h3>Honey Extraction</h3>
+                    <p>Tools and equipment for extracting honey</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="container py-5">
+    <div class="section-title">
+        <h2>Featured Products</h2>
+        <p>Our most popular and highly rated beekeeping products</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+                <div class="product-card-img">
+                    <img src="~/Content/Images/products/beekeepingkit.jpg" alt="Beekeeping Kit">
+                    <div class="product-badge bg-primary">Best Seller</div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-category">Kits</div>
+                    <h3 class="product-card-title">Complete Beekeeping Kit</h3>
+                    <p class="product-card-text">Everything you need to get started with beekeeping.</p>
+                    <div class="product-card-price">$99.99</div>
+                    <div class="product-card-footer">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="1" data-product-name="Complete Beekeeping Kit" data-product-price="99.99" data-product-image="/Content/Images/products/beekeepingkit.jpg">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+                <div class="product-card-img">
+                    <img src="~/Content/Images/products/protectivegear.png" alt="Protective Gear">
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-category">Gear</div>
+                    <h3 class="product-card-title">Professional Protective Gear</h3>
+                    <p class="product-card-text">Stay safe while working with your bees.</p>
+                    <div class="product-card-price">$49.99</div>
+                    <div class="product-card-footer">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="2" data-product-name="Professional Protective Gear" data-product-price="49.99" data-product-image="/Content/Images/products/protectivegear.png">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+                <div class="product-card-img">
+                    <img src="~/Content/Images/products/extractorforhoney.jpg" alt="Honey Extractor">
+                    <div class="product-badge bg-danger">Sale</div>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-category">Equipment</div>
+                    <h3 class="product-card-title">Premium Honey Extractor</h3>
+                    <p class="product-card-text">Tools and equipment for extracting honey.</p>
+                    <div class="product-card-price">$199.99</div>
+                    <div class="product-card-footer">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="3" data-product-name="Premium Honey Extractor" data-product-price="199.99" data-product-image="/Content/Images/products/extractorforhoney.jpg">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card">
+                <div class="product-card-img">
+                    <img src="~/Content/Images/products/beehive.jpg" alt="Bee Hive">
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-category">Hives</div>
+                    <h3 class="product-card-title">Langstroth Bee Hive</h3>
+                    <p class="product-card-text">A high-quality bee hive for your bees.</p>
+                    <div class="product-card-price">$149.99</div>
+                    <div class="product-card-footer">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="4" data-product-name="Langstroth Bee Hive" data-product-price="149.99" data-product-image="/Content/Images/products/beehive.jpg">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="@Url.Action("Products", "Home")" class="btn btn-outline-primary btn-lg">View All Products</a>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section py-5 bg-light">
+    <div class="container">
+        <div class="section-title">
+            <h2>Why Choose Us</h2>
+            <p>We are dedicated to providing the best beekeeping supplies and customer service</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="benefit-card">
+                    <div class="benefit-icon mb-3">
+                        <i class="fas fa-medal fa-3x text-primary"></i>
+                    </div>
+                    <h3>Quality Products</h3>
+                    <p>We provide only the highest quality beekeeping supplies and equipment for both hobbyist and professional beekeepers.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <div class="benefit-card">
+                    <div class="benefit-icon mb-3">
+                        <i class="fas fa-truck fa-3x text-primary"></i>
+                    </div>
+                    <h3>Fast Shipping</h3>
+                    <p>We offer fast and reliable shipping on all orders and free shipping on orders over $50.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <div class="benefit-card">
+                    <div class="benefit-icon mb-3">
+                        <i class="fas fa-headset fa-3x text-primary"></i>
+                    </div>
+                    <h3>Expert Support</h3>
+                    <p>Our team of experienced beekeepers is available to provide expert advice and support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="container py-5">
+    <div class="section-title">
+        <h2>Customer Testimonials</h2>
+        <p>What our customers say about us</p>
     </div>
 
     <div class="row">
-        <div class="col-md-4">
-            <h2>Beekeeping Kits</h2>
-            <p>Everything you need to get started with beekeeping.</p>
-        </div>
-        <div class="col-md-4">
-            <h2>Protective Gear</h2>
-            <p>Stay safe while working with your bees.</p>
-        </div>
-        <div class="col-md-4">
-            <h2>Honey Extraction</h2>
-            <p>Tools and equipment for extracting honey.</p>
-        </div>
-    </div>
+        <div class="col-lg-8 mx-auto">
+            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="testimonial-card text-center p-4">
+                            <div class="testimonial-rating mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                            </div>
+                            <p class="testimonial-text fs-5 mb-4">"I purchased the Complete Beekeeping Kit and it exceeded my expectations. The quality of the products is excellent and the customer service was top-notch."</p>
+                            <div class="testimonial-author">
+                                <h5 class="mb-1">John D.</h5>
+                                <p class="text-muted small">Hobbyist Beekeeper</p>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="blog-section">
-        <h2>Latest Blog Posts</h2>
-        <div class="blog-post">
-            <h3>How to Start Beekeeping</h3>
-            <p>Learn the basics of beekeeping and get started with your own hive.</p>
-        </div>
-        <div class="blog-post">
-            <h3>Top 10 Tips for Beekeepers</h3>
-            <p>Discover essential tips and tricks for successful beekeeping.</p>
-        </div>
-        <div class="blog-post">
-            <h3>The Benefits of Beekeeping</h3>
-            <p>Explore the many benefits of beekeeping for you and the environment.</p>
-        </div>
-    </div>
+                    <div class="carousel-item">
+                        <div class="testimonial-card text-center p-4">
+                            <div class="testimonial-rating mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                            </div>
+                            <p class="testimonial-text fs-5 mb-4">"The protective gear I ordered arrived quickly and is of excellent quality. I've been beekeeping for years and this is some of the best equipment I've used."</p>
+                            <div class="testimonial-author">
+                                <h5 class="mb-1">Sarah W.</h5>
+                                <p class="text-muted small">Professional Beekeeper</p>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="testimonials-section">
-        <h2>Customer Testimonials</h2>
-        <div class="testimonial">
-            <p>"Great products and excellent customer service!" - John D.</p>
-        </div>
-        <div class="testimonial">
-            <p>"I love the beekeeping kit I purchased. Highly recommend!" - Sarah W.</p>
-        </div>
-        <div class="testimonial">
-            <p>"Fast shipping and quality products. Will buy again!" - Michael T.</p>
-        </div>
-    </div>
+                    <div class="carousel-item">
+                        <div class="testimonial-card text-center p-4">
+                            <div class="testimonial-rating mb-3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                            </div>
+                            <p class="testimonial-text fs-5 mb-4">"Great selection of beekeeping supplies at competitive prices. The honey extractor I purchased works perfectly and was delivered quickly. Will definitely shop here again!"</p>
+                            <div class="testimonial-author">
+                                <h5 class="mb-1">Michael T.</h5>
+                                <p class="text-muted small">Commercial Beekeeper</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="newsletter-section">
-        <h2>Subscribe to Our Newsletter</h2>
-        <form>
-            <div class="form-group">
-                <input type="email" class="form-control" placeholder="Enter your email">
+                <div class="carousel-indicators position-relative mt-4">
+                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active bg-primary" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" class="bg-primary" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2" class="bg-primary" aria-label="Slide 3"></button>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Subscribe</button>
-        </form>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5 bg-primary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="text-dark mb-4">Subscribe to Our Newsletter</h2>
+                <p class="text-dark mb-4">Stay updated with our latest products, promotions, and beekeeping tips.</p>
+                <form class="newsletter-form">
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-lg" placeholder="Enter your email" required>
+                        <button class="btn btn-dark btn-lg" type="submit">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Blog Posts Section -->
+<section class="container py-5">
+    <div class="section-title">
+        <h2>Latest from Our Blog</h2>
+        <p>Tips, guides, and news from the world of beekeeping</p>
     </div>
 
-    <div class="special-offers-section">
-        <h2>Special Offers and Promotions</h2>
-        <div class="offer">
-            <h3>10% Off Beekeeping Kits</h3>
-            <p>Get 10% off all beekeeping kits for a limited time.</p>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="blog-post">
+                <div class="blog-post-img">
+                    <img src="~/Content/Images/blog-1.jpg" alt="How to Start Beekeeping">
+                </div>
+                <div class="blog-post-body">
+                    <div class="blog-post-meta">April 1, 2023</div>
+                    <h3 class="blog-post-title">How to Start Beekeeping</h3>
+                    <p class="blog-post-text">Learn the basics of beekeeping and get started with your own hive.</p>
+                    <a href="@Url.Action("Blog", "Home")" class="btn btn-link ps-0">Read More <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
-        <div class="offer">
-            <h3>Free Shipping on Orders Over $50</h3>
-            <p>Enjoy free shipping on all orders over $50.</p>
+
+        <div class="col-md-4">
+            <div class="blog-post">
+                <div class="blog-post-img">
+                    <img src="~/Content/Images/blog-2.jpg" alt="Top 10 Tips for Beekeepers">
+                </div>
+                <div class="blog-post-body">
+                    <div class="blog-post-meta">March 15, 2023</div>
+                    <h3 class="blog-post-title">Top 10 Tips for Beekeepers</h3>
+                    <p class="blog-post-text">Discover essential tips and tricks for successful beekeeping.</p>
+                    <a href="@Url.Action("Blog", "Home")" class="btn btn-link ps-0">Read More <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
-        <div class="offer">
-            <h3>Buy One, Get One Free on Protective Gear</h3>
-            <p>Buy one protective gear item and get another one free.</p>
+
+        <div class="col-md-4">
+            <div class="blog-post">
+                <div class="blog-post-img">
+                    <img src="~/Content/Images/blog-3.jpg" alt="The Benefits of Beekeeping">
+                </div>
+                <div class="blog-post-body">
+                    <div class="blog-post-meta">February 28, 2023</div>
+                    <h3 class="blog-post-title">The Benefits of Beekeeping</h3>
+                    <p class="blog-post-text">Explore the many benefits of beekeeping for you and the environment.</p>
+                    <a href="@Url.Action("Blog", "Home")" class="btn btn-link ps-0">Read More <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>

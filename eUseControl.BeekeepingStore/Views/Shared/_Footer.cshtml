@@ -1,27 +1,70 @@
-﻿<footer>
+﻿<footer class="bg-dark text-white py-5">
     <div class="container">
         <div class="row">
-            <div class="col-md-4">
-                <h4>About Us</h4>
-                <p>We are dedicated to providing high-quality beekeeping supplies and equipment to help you succeed in your beekeeping journey.</p>
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                <h5 class="text-uppercase mb-4">Beekeeping Store</h5>
+                <p class="mb-3">Your one-stop shop for all beekeeping supplies and equipment. Quality products for both hobbyist and professional beekeepers.</p>
+                <div class="d-flex social-links">
+                    <a href="#" class="me-3 social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="me-3 social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="me-3 social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="me-3 social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h4>Contact Us</h4>
-                <p>Email: support@beekeepingstore.com</p>
-                <p>Phone: (123) 456-7890</p>
-            </div>
-            <div class="col-md-4">
-                <h4>Follow Us</h4>
-                <ul class="social-links">
-                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                <h5 class="text-uppercase mb-4">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="@Url.Action("About", "Home")" class="footer-link">About Us</a></li>
+                    <li class="mb-2"><a href="@Url.Action("Products", "Home")" class="footer-link">Shop</a></li>
+                    <li class="mb-2"><a href="@Url.Action("Blog", "Home")" class="footer-link">Blog</a></li>
+                    <li class="mb-2"><a href="@Url.Action("Contact", "Home")" class="footer-link">Contact Us</a></li>
+                    <li class="mb-2"><a href="#" class="footer-link">FAQs</a></li>
                 </ul>
             </div>
+
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                <h5 class="text-uppercase mb-4">Categories</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="footer-link">Starter Kits</a></li>
+                    <li class="mb-2"><a href="#" class="footer-link">Bee Hives</a></li>
+                    <li class="mb-2"><a href="#" class="footer-link">Protective Gear</a></li>
+                    <li class="mb-2"><a href="#" class="footer-link">Tools & Equipment</a></li>
+                    <li class="mb-2"><a href="#" class="footer-link">Honey Extraction</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+                <h5 class="text-uppercase mb-4">Contact Us</h5>
+                <ul class="list-unstyled contact-info">
+                    <li class="mb-3"><i class="fas fa-map-marker-alt me-2"></i> 123 Beekeeping Lane, Honey Valley, BZ 12345</li>
+                    <li class="mb-3"><i class="fas fa-phone me-2"></i> (123) 456-7890</li>
+                    <li class="mb-3"><i class="fas fa-envelope me-2"></i> support@beekeepingstore.com</li>
+                </ul>
+                <div class="mt-4">
+                    <h6 class="mb-2">Subscribe to our newsletter</h6>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Your email">
+                        <button class="btn btn-primary" type="button">Subscribe</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <p>&copy; @DateTime.Now.Year Beekeeping Store. All rights reserved.</p>
+    </div>
+
+    <div class="footer-bottom py-3 mt-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; @DateTime.Now.Year Beekeeping Store. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="#" class="footer-link small">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="#" class="footer-link small">Terms of Service</a></li>
+                        <li class="list-inline-item"><a href="#" class="footer-link small">Shipping Policy</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
