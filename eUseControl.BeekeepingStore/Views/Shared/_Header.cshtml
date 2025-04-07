@@ -1,48 +1,48 @@
-﻿<header>
+<header>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="@Url.Action("Index", "Home")">
                 <i class="fas fa-bee"></i> Beekeeping Store
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")" 
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")"
                            href="@Url.Action("Index", "Home")">
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Products" ? "active" : "")" 
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Products" ? "active" : "")"
                            href="@Url.Action("Products", "Home")">
                             <i class="fas fa-shopping-bag"></i> Products
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "About" ? "active" : "")" 
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "About" ? "active" : "")"
                            href="@Url.Action("About", "Home")">
                             <i class="fas fa-info-circle"></i> About
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Contact" ? "active" : "")" 
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Contact" ? "active" : "")"
                            href="@Url.Action("Contact", "Home")">
                             <i class="fas fa-envelope"></i> Contact
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Blog" ? "active" : "")" 
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Blog" ? "active" : "")"
                            href="@Url.Action("Blog", "Home")">
                             <i class="fas fa-blog"></i> Blog
                         </a>
                     </li>
                 </ul>
-                
+
                 <div class="d-flex align-items-center">
                     <form class="d-flex me-3">
                         <div class="input-group">
@@ -50,17 +50,17 @@
                             <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
                         </div>
                     </form>
-                    
+
                     <a class="nav-link position-relative me-3" href="@Url.Action("Cart", "Home")">
                         <i class="fas fa-shopping-cart fs-5"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
                             0
                             <span class="visually-hidden">items in cart</span>
                         </span>
                     </a>
-                    
+
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle fs-5"></i>
                         </a>
@@ -76,7 +76,7 @@
             </div>
         </div>
     </nav>
-    
+
     <!-- Category navigation for desktop -->
     <div class="category-nav d-none d-lg-block">
         <div class="container">

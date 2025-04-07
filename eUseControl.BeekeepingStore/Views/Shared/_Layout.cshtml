@@ -1,4 +1,4 @@
-﻿@using System.Web.Optimization
+@using System.Web.Optimization
 ﻿
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Beekeeping Store</title>
     <meta name="description" content="Your one-stop shop for all beekeeping supplies and equipment">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -19,19 +19,19 @@
     <!-- Custom CSS -->
     @Styles.Render("~/Content/css")
     <link href="~/Content/modern-site.css" rel="stylesheet" />
-    
+
     <!-- Modernizr -->
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
 </head>
 <body>
     @Html.Partial("_Header")
-    
+
     <main>
         @RenderBody()
     </main>
-    
+
     @Html.Partial("_Footer")
-    
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS Bundle with Popper -->

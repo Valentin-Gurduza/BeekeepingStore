@@ -14,6 +14,13 @@ namespace eUseControl.BeekeepingStore
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Home",
+                url: "home",
+                defaults: new { controller = "Home", action = "Index" }
+                );
+
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
@@ -42,6 +49,13 @@ namespace eUseControl.BeekeepingStore
                 url: "contact",
                 defaults: new { controller = "Home", action = "Contact" }
             );
+
+            routes.MapRoute(
+            name: "Cart",
+            url: "cart",
+                    defaults: new { controller = "Home", action = "Cart" }
+            );
+
             routes.MapRoute(
                name: "Login",
                url: "login",

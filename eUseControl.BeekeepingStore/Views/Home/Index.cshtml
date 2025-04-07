@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Home Page";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -26,7 +26,7 @@
         <h2>Shop by Category</h2>
         <p>Browse our extensive collection of beekeeping supplies and equipment</p>
     </div>
-    
+
     <div class="row g-4">
         <div class="col-md-4 col-sm-6">
             <div class="category-card">
@@ -42,7 +42,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 col-sm-6">
             <div class="category-card">
                 <div class="category-card-img">
@@ -57,7 +57,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 col-sm-6">
             <div class="category-card">
                 <div class="category-card-img">
@@ -81,7 +81,7 @@
         <h2>Featured Products</h2>
         <p>Our most popular and highly rated beekeeping products</p>
     </div>
-    
+
     <div class="row g-4">
         <div class="col-lg-3 col-md-6">
             <div class="product-card">
@@ -95,14 +95,14 @@
                     <p class="product-card-text">Everything you need to get started with beekeeping.</p>
                     <div class="product-card-price">$99.99</div>
                     <div class="product-card-footer">
-                        <button class="btn btn-primary add-to-cart-btn" data-product-id="1" data-product-name="Complete Beekeeping Kit">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="1" data-product-name="Complete Beekeeping Kit" data-product-price="99.99" data-product-image="/Content/Images/products/beekeepingkit.jpg">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6">
             <div class="product-card">
                 <div class="product-card-img">
@@ -114,14 +114,14 @@
                     <p class="product-card-text">Stay safe while working with your bees.</p>
                     <div class="product-card-price">$49.99</div>
                     <div class="product-card-footer">
-                        <button class="btn btn-primary add-to-cart-btn" data-product-id="2" data-product-name="Professional Protective Gear">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="2" data-product-name="Professional Protective Gear" data-product-price="49.99" data-product-image="/Content/Images/products/protectivegear.png">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6">
             <div class="product-card">
                 <div class="product-card-img">
@@ -134,14 +134,14 @@
                     <p class="product-card-text">Tools and equipment for extracting honey.</p>
                     <div class="product-card-price">$199.99</div>
                     <div class="product-card-footer">
-                        <button class="btn btn-primary add-to-cart-btn" data-product-id="3" data-product-name="Premium Honey Extractor">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="3" data-product-name="Premium Honey Extractor" data-product-price="199.99" data-product-image="/Content/Images/products/extractorforhoney.jpg">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6">
             <div class="product-card">
                 <div class="product-card-img">
@@ -153,7 +153,7 @@
                     <p class="product-card-text">A high-quality bee hive for your bees.</p>
                     <div class="product-card-price">$149.99</div>
                     <div class="product-card-footer">
-                        <button class="btn btn-primary add-to-cart-btn" data-product-id="4" data-product-name="Langstroth Bee Hive">
+                        <button class="btn btn-primary add-to-cart-btn" data-product-id="4" data-product-name="Langstroth Bee Hive" data-product-price="149.99" data-product-image="/Content/Images/products/beehive.jpg">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                     </div>
@@ -161,7 +161,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="text-center mt-5">
         <a href="@Url.Action("Products", "Home")" class="btn btn-outline-primary btn-lg">View All Products</a>
     </div>
@@ -174,7 +174,7 @@
             <h2>Why Choose Us</h2>
             <p>We are dedicated to providing the best beekeeping supplies and customer service</p>
         </div>
-        
+
         <div class="row g-4">
             <div class="col-md-4 text-center">
                 <div class="benefit-card">
@@ -185,7 +185,7 @@
                     <p>We provide only the highest quality beekeeping supplies and equipment for both hobbyist and professional beekeepers.</p>
                 </div>
             </div>
-            
+
             <div class="col-md-4 text-center">
                 <div class="benefit-card">
                     <div class="benefit-icon mb-3">
@@ -195,7 +195,7 @@
                     <p>We offer fast and reliable shipping on all orders and free shipping on orders over $50.</p>
                 </div>
             </div>
-            
+
             <div class="col-md-4 text-center">
                 <div class="benefit-card">
                     <div class="benefit-icon mb-3">
@@ -215,7 +215,7 @@
         <h2>Customer Testimonials</h2>
         <p>What our customers say about us</p>
     </div>
-    
+
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -236,7 +236,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="carousel-item">
                         <div class="testimonial-card text-center p-4">
                             <div class="testimonial-rating mb-3">
@@ -253,7 +253,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="carousel-item">
                         <div class="testimonial-card text-center p-4">
                             <div class="testimonial-rating mb-3">
@@ -271,7 +271,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="carousel-indicators position-relative mt-4">
                     <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active bg-primary" aria-current="true" aria-label="Slide 1"></button>
                     <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" class="bg-primary" aria-label="Slide 2"></button>
@@ -306,7 +306,7 @@
         <h2>Latest from Our Blog</h2>
         <p>Tips, guides, and news from the world of beekeeping</p>
     </div>
-    
+
     <div class="row g-4">
         <div class="col-md-4">
             <div class="blog-post">
@@ -321,7 +321,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <div class="blog-post">
                 <div class="blog-post-img">
@@ -335,7 +335,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <div class="blog-post">
                 <div class="blog-post-img">

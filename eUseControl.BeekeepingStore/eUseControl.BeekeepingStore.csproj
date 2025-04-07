@@ -113,6 +113,7 @@
     <Content Include="Content\images\products\beesmoker.jpg" />
     <Content Include="Content\images\products\extractorforhoney.jpg" />
     <Content Include="Content\images\products\protectivegear.png" />
+    <Content Include="Content\modern-site.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\bootstrap.min.css" />
