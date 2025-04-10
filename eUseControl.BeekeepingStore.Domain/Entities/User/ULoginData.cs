@@ -23,5 +23,6 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
         public int UserId { get; set; }
         public string FullName { get; set; }
         public string SessionId { get; set; }
+        public int UserLevel { get; set; }
     }
 }
