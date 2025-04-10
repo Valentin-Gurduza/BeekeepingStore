@@ -17,20 +17,35 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
             {
                 using (var context = new DataContext())
                 {
-                    if (context.Users.Any(u => u.Username == data.Credential))
+                    // Check if user already exists by email
+                    if (context.UDBTables.Any(u => u.Email == data.Credential))
                     {
-                        throw new Exception("User already exists");
+                        throw new Exception("Email already exists in the system");
                     }
 
-                    var newUser = new User
+                    // Create new user in UDBTables
+                    var newUser = new UDBTable
+                    {
+                        UserName = data.Credential,
+                        Email = data.Credential,
+                        Password = HashPassword(data.Password),
+                        Last_Login = DateTime.Now,
+                        UserIp = data.LoginIp ?? "127.0.0.1",
+                        Level = 1 // Default level for new users
+                    };
+
+                    context.UDBTables.Add(newUser);
+                    context.SaveChanges();
+
+                    // Also add to Users table for backward compatibility
+                    var legacyUser = new User
                     {
                         Username = data.Credential,
                         Password = HashPassword(data.Password),
-
                         CreatedAt = DateTime.UtcNow,
                         FullName = data.FullName
                     };
-                    context.Users.Add(newUser);
+                    context.Users.Add(legacyUser);
                     context.SaveChanges();
                 }
             }
@@ -47,11 +62,41 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Core
             {
                 using (var context = new DataContext())
                 {
-                    var user = context.Users.FirstOrDefault(u => u.Username == data.Credential && u.Password == HashPassword(data.Password));
+                    // Try to find user in UDBTables first
+                    var udbUser = context.UDBTables.FirstOrDefault(u =>
+                        (u.Email == data.Credential || u.UserName == data.Credential) &&
+                        u.Password == HashPassword(data.Password));
+
+                    if (udbUser != null)
+                    {
+                        // Update last login time and IP
+                        udbUser.Last_Login = DateTime.Now;
+                        udbUser.UserIp = data.LoginIp ?? udbUser.UserIp;
+                        context.SaveChanges();
+
+                        return new UserLoginResult
+                        {
+                            Success = true,
+                            UserId = udbUser.Id,
+                            UserLevel = udbUser.Level
+                        };
+                    }
+
+                    // Fallback to legacy Users table
+                    var user = context.Users.FirstOrDefault(u =>
+                        u.Username == data.Credential &&
+                        u.Password == HashPassword(data.Password));
+
                     if (user != null)
                     {
-                        return new UserLoginResult { Success = true, UserId = user.UserId, FullName = user.FullName };
+                        return new UserLoginResult
+                        {
+                            Success = true,
+                            UserId = user.UserId,
+                            FullName = user.FullName
+                        };
                     }
+
                     return new UserLoginResult { Success = false };
                 }
             }
