@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eUseControl.BeekeepingStore.Domain.Entities.User
 {
+    [Table("UDBTables")]
     public class UDBTable
     {
         [Key]
@@ -18,14 +19,13 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
         public int Id { get; set; }
 
         [Required]
-        [Display(Name = "UserName")]
-        [StringLength(30, MinimumLength = 5, ErrorMessage = "User cannot be longer than 30 characters")]
+        [Display(Name = "Username")]
+        [StringLength(30, MinimumLength = 5, ErrorMessage = "Username cannot be longer than 30 characters")]
         public string UserName { get; set; }
 
         [Required]
         [Display(Name = "Password")]
-        [StringLength(50, MinimumLength = 8, ErrorMessage = "Password cannot be longer than 50 characters")]
-
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password cannot be longer than 50 characters")]
         public string Password { get; set; }
 
         [Required]
@@ -33,20 +33,17 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
         [StringLength(50, MinimumLength = 8, ErrorMessage = "Email cannot be longer than 50 characters")]
         public string Email { get; set; }
 
-        public string Phone { get; set; }
-
-        public string Address { get; set; }
-
-        [Display(Name = "UserIp")]
-        [StringLength(50, MinimumLength = 8, ErrorMessage = "IP cannot be longer than 50 characters")]
-        public string UserIp { get; set; }
-        
-        [Display(Name = "Registration_Date")]
-        public DateTime RegistrationDateTime { get; set; }
-
+        [Required]
         [Display(Name = "Last_Login")]
-        public DateTime LoginDateTime { get; set; }
+        public DateTime Last_Login { get; set; }
 
+        [Required]
+        [Display(Name = "UserIp")]
+        [StringLength(30, MinimumLength = 7, ErrorMessage = "IP cannot be longer than 30 characters")]
+        public string UserIp { get; set; }
 
+        [Required]
+        [Display(Name = "Level")]
+        public int Level { get; set; }
     }
 }
