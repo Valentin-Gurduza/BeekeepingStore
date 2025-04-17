@@ -19,7 +19,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             data.SessionId = sessionId;
             using (var context = new DataContext())
             {
-                var session = new Session { UserId = data.UserId, SessionId = sessionId, CreatedAt = DateTime.UtcNow };
+                var session = new Session { UserId = data.UserId, SessionId = sessionId, CreatedAt = DateTime.Now };
                 context.Sessions.Add(session);
                 context.SaveChanges();
             }
@@ -29,7 +29,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             using (var context = new DataContext())
             {
-                var errorLog = new ErrorLog { Message = ex.Message, StackTrace = ex.StackTrace, CreatedAt = DateTime.UtcNow };
+                var errorLog = new ErrorLog { Message = ex.Message, StackTrace = ex.StackTrace, CreatedAt = DateTime.Now };
                 context.ErrorLogs.Add(errorLog);
                 context.SaveChanges();
             }
@@ -42,6 +42,9 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                 var session = context.Sessions.FirstOrDefault(s => s.UserId == data.UserId && s.SessionId == data.SessionId);
                 if (session != null)
                 {
+                    // Log the logout activity
+                    LogUserActivity(data, "Logout");
+
                     context.Sessions.Remove(session);
                     context.SaveChanges();
                 }
@@ -52,7 +55,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             using (var context = new DataContext())
             {
-                var userActivity = new UserActivity { UserId = data.UserId, Activity = activity, CreatedAt = DateTime.UtcNow };
+                var userActivity = new UserActivity { UserId = data.UserId, Activity = activity, CreatedAt = DateTime.Now };
                 context.UserActivities.Add(userActivity);
                 context.SaveChanges();
             }
@@ -75,7 +78,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             using (var context = new DataContext())
             {
-                return context.Sessions.Any(s => s.SessionId == sessionId && s.CreatedAt > DateTime.UtcNow.AddHours(-1));
+                return context.Sessions.Any(s => s.SessionId == sessionId && s.CreatedAt > DateTime.Now.AddHours(-1));
             }
         }
 
@@ -83,12 +86,14 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             try
             {
+                string hashedPassword = HashPassword(data.Password);
+
                 using (var context = new DataContext())
                 {
                     // Try to find user in UDBTables first
                     var udbUser = context.UDBTables.FirstOrDefault(u =>
-                        (u.Email == data.Credential || u.UserName == data.Credential) &&
-                        u.Password == HashPassword(data.Password));
+                        (u.Email == data.Credential) &&
+                        u.Password == hashedPassword);
 
                     if (udbUser != null)
                     {
@@ -99,6 +104,10 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                         // Generate a session ID
                         var sessionId = Guid.NewGuid().ToString();
+
+                        // Log Login Activity
+                        var userData = new UUserData { UserId = udbUser.Id, SessionId = sessionId };
+                        LogUserActivity(userData, "Login");
 
                         return new UserLoginResult
                         {
@@ -112,20 +121,27 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                     // Fallback to legacy Users table
                     var user = context.Users.FirstOrDefault(u =>
-                        u.Username == data.Credential &&
-                        u.Password == HashPassword(data.Password));
+                        u.Email == data.Credential &&
+                        u.Password == hashedPassword);
 
                     if (user != null)
                     {
+                        user.LastLogin = DateTime.Now;
+                        user.UserIp = data.LoginIp ?? user.UserIp;
+                        context.SaveChanges();
                         // Generate a session ID
                         var sessionId = Guid.NewGuid().ToString();
+
+                        // Log Login Activity
+                        var userDataLegacy = new UUserData { UserId = user.UserId, SessionId = sessionId };
+                        LogUserActivity(userDataLegacy, "Login");
 
                         return new UserLoginResult
                         {
                             Success = true,
                             Status = true,
                             UserId = user.UserId,
-                            FullName = user.FullName,
+                            FullName = user.Username,
                             SessionId = sessionId
                         };
                     }
@@ -171,11 +187,11 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     System.Diagnostics.Debug.WriteLine("Connection string: " + context.Database.Connection.ConnectionString);
 
                     // Validăm lungimea datelor pentru a evita erori de validare
-                    string userName = data.FullName ?? data.Credential.Split('@')[0];
-                    if (userName.Length < 5)
+                    string fullName = data.FullName ?? data.Credential.Split('@')[0];
+                    if (fullName.Length < 5)
                     {
-                        userName = userName.PadRight(5, '0'); // Adăugăm caractere pentru a îndeplini constrângerea
-                        System.Diagnostics.Debug.WriteLine($"Username padded to: {userName}");
+                        fullName = fullName.PadRight(5, '0'); // Adăugăm caractere pentru a îndeplini constrângerea
+                        System.Diagnostics.Debug.WriteLine($"Username padded to: {fullName}");
                     }
 
                     string email = data.Credential;
@@ -225,14 +241,13 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                         throw new Exception("User with this email already exists");
                     }
 
+                    string hashedPassword = HashPassword(password);
+                    System.Diagnostics.Debug.WriteLine("Hashed password length: " + hashedPassword.Length);
                     // Încercăm inserarea folosind ExecuteSqlCommand
                     try
                     {
-                        string hashedPassword = HashPassword(password);
-                        System.Diagnostics.Debug.WriteLine("Hashed password length: " + hashedPassword.Length);
-
                         System.Diagnostics.Debug.WriteLine("Trying direct SQL insertion");
-                        System.Diagnostics.Debug.WriteLine($"Username: {userName}");
+                        System.Diagnostics.Debug.WriteLine($"Username: {fullName}");
                         System.Diagnostics.Debug.WriteLine($"Email: {email}");
                         System.Diagnostics.Debug.WriteLine($"UserIp: {userIp}");
 
@@ -248,7 +263,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                             var p0 = command.CreateParameter();
                             p0.ParameterName = "@p0";
-                            p0.Value = userName;
+                            p0.Value = fullName;
                             command.Parameters.Add(p0);
 
                             var p1 = command.CreateParameter();
@@ -283,10 +298,12 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                         // Adăugăm și în tabelul Users pentru compatibilitate
                         var legacyUser = new User
                         {
-                            Username = email,
+                            Username = fullName,
                             Password = hashedPassword,
-                            CreatedAt = DateTime.UtcNow,
-                            FullName = userName
+                            CreatedAt = DateTime.Now,
+                            Email = email,
+                            LastLogin = DateTime.Now,
+                            UserIp = userIp
                         };
 
                         context.Users.Add(legacyUser);
@@ -308,12 +325,9 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     System.Diagnostics.Debug.WriteLine("Creating new UDBTable entry with Entity Framework");
                     try
                     {
-                        string hashedPassword = HashPassword(password);
-                        System.Diagnostics.Debug.WriteLine("Hashed password length for EF: " + hashedPassword.Length);
-
                         var udbUser = new UDBTable
                         {
-                            UserName = userName,
+                            UserName = fullName,
                             Email = email,
                             Password = hashedPassword,
                             Last_Login = DateTime.Now,
@@ -344,10 +358,13 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                         System.Diagnostics.Debug.WriteLine("Creating legacy User entry");
                         var legacyUserEF = new User
                         {
-                            Username = email,
+                            Username = fullName,
                             Password = hashedPassword,
-                            CreatedAt = DateTime.UtcNow,
-                            FullName = userName
+                            CreatedAt = DateTime.Now,
+                            Email = email,
+                            LastLogin = DateTime.Now,
+                            UserIp = userIp
+
                         };
 
                         context.Users.Add(legacyUserEF);
