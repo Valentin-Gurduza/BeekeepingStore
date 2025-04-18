@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Diagnostics;
 using System.Runtime.Remoting.Contexts;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
+using eUseControl.BeekeepingStore.Domain.Entities.Product;
 
 internal class DataContext : DbContext
 {
@@ -12,6 +13,7 @@ internal class DataContext : DbContext
     public DbSet<UserActivity> UserActivities { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UDBTable> UDBTables { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     public DataContext() : base("eUseControl.BeekeepingStore")
     {
@@ -90,5 +92,31 @@ internal class DataContext : DbContext
         // Configurare pentru User
         modelBuilder.Entity<User>()
             .HasKey(e => e.UserId);
+        
+        modelBuilder.Entity<User>()
+            .Property(e => e.Username)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<User>()
+            .Property(e => e.Password)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<User>()
+            .Property(e => e.UserIp)
+            .HasMaxLength(60);
+
+        modelBuilder.Entity<Product>()
+            .HasKey(e => e.ProductId);
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.Name)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.Price)
+            .IsRequired();
     }
 }
