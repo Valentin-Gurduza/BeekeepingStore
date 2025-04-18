@@ -15,16 +15,18 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                    {
-                        <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded mb-3">
-                    }
-                    else
-                    {
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
-                            <p class="text-muted">No image</p>
-                        </div>
-                    }
+                    <div class="image-container" style="height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 100%; height: 100%;">
+                                <p class="text-muted">Fără imagine</p>
+                            </div>
+                        }
+                    </div>
                 </div>
                 <div class="col-md-8">
                     <dl class="row">
