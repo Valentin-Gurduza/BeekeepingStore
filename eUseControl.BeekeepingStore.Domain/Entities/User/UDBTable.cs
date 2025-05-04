@@ -45,5 +45,20 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.User
         [Required]
         [Display(Name = "Level")]
         public int Level { get; set; }
+
+        [Display(Name = "RegisterDate")]
+        public DateTime RegisterDate { get; set; }
+
+        [Display(Name = "PhoneNumber")]
+        [StringLength(20, ErrorMessage = "Phone number cannot be longer than 20 characters")]
+        public string PhoneNumber { get; set; }
+
+        [Display(Name = "Address")]
+        [StringLength(200, ErrorMessage = "Address cannot be longer than 200 characters")]
+        public string Address { get; set; }
+
+        [Display(Name = "ProfilePicture")]
+        [StringLength(500, ErrorMessage = "Profile picture URL cannot be longer than 500 characters")]
+        public string ProfilePicture { get; set; }
     }
 }

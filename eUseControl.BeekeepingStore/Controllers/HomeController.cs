@@ -4,11 +4,20 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using eUseControl.BeekeepingStore.Models;
+using eUseControl.BeekeepingStore.BusinessLogic;
+using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 
 namespace eUseControl.BeekeepingStore.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IProduct _productBL;
+
+        public HomeController()
+        {
+            _productBL = new ProductBL();
+        }
+
         public ActionResult Index()
         {
             return View();
@@ -16,57 +25,22 @@ namespace eUseControl.BeekeepingStore.Controllers
 
         public ActionResult Products()
         {
-            var products = new List<Product>
+            // Obținem toate produsele din baza de date
+            var dbProducts = _productBL.GetAllProducts();
+
+            // Convertim entitățile din baza de date în modelul pentru view
+            var products = dbProducts.Select(p => new Product
             {
-                new Product
-                {
-                    Name = "Beekeeping Kit",
-                    Image = "~/Content/images/products/beekeepingkit.jpg",
-                    Description = "Everything you need to get started with beekeeping.",
-                    Price = 99.99m,
-                    Category = "Kits"
-                },
-                new Product
-                {
-                    Name = "Protective Gear",
-                    Image = "~/Content/images/products/protectivegear.png",
-                    Description = "Stay safe while working with your bees.",
-                    Price = 49.99m,
-                    Category = "Gear"
-                },
-                new Product
-                {
-                    Name = "Honey Extractor",
-                    Image = "~/Content/images/products/extractorforhoney.jpg",
-                    Description = "Tools and equipment for extracting honey.",
-                    Price = 199.99m,
-                    Category = "Equipment"
-                },
-                new Product
-                {
-                    Name = "Bee Hive",
-                    Image = "~/Content/images/products/beehive.jpg",
-                    Description = "A high-quality bee hive for your bees.",
-                    Price = 149.99m,
-                    Category = "Hives"
-                },
-                new Product
-                {
-                    Name = "Bee Smoker",
-                    Image = "~/Content/images/products/beesmoker.jpg",
-                    Description = "A smoker to calm your bees.",
-                    Price = 29.99m,
-                    Category = "Tools"
-                },
-                new Product
-                {
-                    Name = "Bee Feeder",
-                    Image = "~/Content/images/products/beefeeder.png",
-                    Description = "A feeder to provide food for your bees.",
-                    Price = 19.99m,
-                    Category = "Tools"
-                }
-            };
+                Id = p.ProductId.ToString(),
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Category = p.Category,
+                Image = !string.IsNullOrEmpty(p.ImageUrl)
+                        ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : Url.Content(p.ImageUrl))
+                        : Url.Content("~/Content/Images/products/default-product.png")
+            }).ToList();
+
             return View(products);
         }
 
@@ -93,6 +67,10 @@ namespace eUseControl.BeekeepingStore.Controllers
             return View();
         }
         public ActionResult Cart()
+        {
+            return View();
+        }
+        public ActionResult Checkout()
         {
             return View();
         }

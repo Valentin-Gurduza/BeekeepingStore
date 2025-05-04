@@ -1,0 +1,203 @@
+﻿@{
+    ViewBag.Title = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="mb-3">Checkout</h1>
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 66%;" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100">Pasul 2 din 3: Date livrare</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Date livrare</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkout-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first-name" class="form-label">Prenume</label>
+                                <input type="text" class="form-control" id="first-name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last-name" class="form-label">Nume</label>
+                                <input type="text" class="form-control" id="last-name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Adresă</label>
+                            <input type="text" class="form-control" id="address" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">Oraș</label>
+                                <input type="text" class="form-control" id="city" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="postal-code" class="form-label">Cod Poștal</label>
+                                <input type="text" class="form-control" id="postal-code">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Observații (opțional)</label>
+                            <textarea class="form-control" id="notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Metodă de plată</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment-method" id="payment-cash" checked>
+                        <label class="form-check-label" for="payment-cash">
+                            <i class="fas fa-money-bill-wave me-2"></i> Plată la livrare
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment-method" id="payment-card">
+                        <label class="form-check-label" for="payment-card">
+                            <i class="fas fa-credit-card me-2"></i> Card bancar
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment-method" id="payment-transfer">
+                        <label class="form-check-label" for="payment-transfer">
+                            <i class="fas fa-university me-2"></i> Transfer bancar
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Sumar comandă</h5>
+                </div>
+                <div class="card-body">
+                    <div class="cart-summary-items mb-3">
+                        <!-- Items will be displayed here via JavaScript -->
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span class="checkout-subtotal">0,00 MDL</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Livrare</span>
+                        <span class="checkout-shipping">0,00 MDL</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold checkout-total">0,00 MDL</span>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100 place-order-btn">
+                        Plasează comanda
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the cart from localStorage
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Display cart items in the summary
+            const summaryItemsContainer = document.querySelector('.cart-summary-items');
+            if (summaryItemsContainer) {
+                let itemsHTML = '';
+
+                cart.forEach(item => {
+                    itemsHTML += `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="fw-bold">${item.name}</span>
+                                <span class="text-muted"> x ${item.quantity}</span>
+                            </div>
+                            <span>${formatCurrency(item.price * item.quantity)}</span>
+                        </div>
+                    `;
+                });
+
+                summaryItemsContainer.innerHTML = itemsHTML;
+            }
+
+            // Update totals
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const shipping = subtotal > 900 ? 0 : 150;
+            const total = subtotal + shipping;
+
+            const subtotalEl = document.querySelector('.checkout-subtotal');
+            const shippingEl = document.querySelector('.checkout-shipping');
+            const totalEl = document.querySelector('.checkout-total');
+
+            if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
+            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : formatCurrency(shipping);
+            if (totalEl) totalEl.textContent = formatCurrency(total);
+
+            // Handle order placement
+            const placeOrderBtn = document.querySelector('.place-order-btn');
+            if (placeOrderBtn) {
+                placeOrderBtn.addEventListener('click', function() {
+                    const form = document.getElementById('checkout-form');
+
+                    // Add form validation
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    // Show confirmation
+                    alert('Order has been placed successfully! A confirmation email will be sent soon.');
+
+                    // Clear cart and redirect to home
+                    localStorage.setItem('cart', JSON.stringify([]));
+                    window.location.href = '/Home/Index';
+                });
+            }
+        });
+
+        // Currency formatter from site.js
+        function formatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
+            return new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: currency
+            }).format(price);
+        }
+    </script>
+} 

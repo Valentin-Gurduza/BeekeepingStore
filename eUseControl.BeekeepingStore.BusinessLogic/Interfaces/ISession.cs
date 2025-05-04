@@ -7,8 +7,8 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
 
 namespace eUseControl.BeekeepingStore.BusinessLogic.Interfaces
 {
-     public interface ISession
-     {
+    public interface ISession
+    {
         UserLoginResult UserLogin(ULoginData data);
         void RegisterUser(ULoginData data);
         void UpdateUserProfile(UProfileData data);
@@ -18,5 +18,6 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Interfaces
         void TerminateSession(string sessionId);
         void LogError(Exception ex);
         void LogUserActivity(UUserData data, string activity);
+        UProfileData GetUserProfile(string username);
     }
 }
