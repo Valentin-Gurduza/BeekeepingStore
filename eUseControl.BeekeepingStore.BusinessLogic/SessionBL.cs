@@ -19,7 +19,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             data.SessionId = sessionId;
             using (var context = new DataContext())
             {
-                var session = new Session { UserId = data.UserId, SessionId = sessionId, CreatedAt = DateTime.Now };
+                var session = new Session { UserId = data.UserId, SessionId = sessionId, CreatedAt = DateTime.UtcNow };
                 context.Sessions.Add(session);
                 context.SaveChanges();
             }
@@ -29,7 +29,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             using (var context = new DataContext())
             {
-                var errorLog = new ErrorLog { Message = ex.Message, StackTrace = ex.StackTrace, CreatedAt = DateTime.Now };
+                var errorLog = new ErrorLog { Message = ex.Message, StackTrace = ex.StackTrace, CreatedAt = DateTime.UtcNow };
                 context.ErrorLogs.Add(errorLog);
                 context.SaveChanges();
             }
@@ -42,7 +42,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                 var session = context.Sessions.FirstOrDefault(s => s.UserId == data.UserId && s.SessionId == data.SessionId);
                 if (session != null)
                 {
-                    // Log the logout activity
+                    // Log logout activity
                     LogUserActivity(data, "Logout");
 
                     context.Sessions.Remove(session);
@@ -78,7 +78,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             using (var context = new DataContext())
             {
-                return context.Sessions.Any(s => s.SessionId == sessionId && s.CreatedAt > DateTime.Now.AddHours(-1));
+                return context.Sessions.Any(s => s.SessionId == sessionId && s.CreatedAt > DateTime.UtcNow.AddHours(-1));
             }
         }
 
@@ -86,6 +86,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         {
             try
             {
+                // Calculăm hash-ul parolei în afara query-ului
                 string hashedPassword = HashPassword(data.Password);
 
                 using (var context = new DataContext())
@@ -105,7 +106,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                         // Generate a session ID
                         var sessionId = Guid.NewGuid().ToString();
 
-                        // Log Login Activity
+                        // Log login activity
                         var userData = new UUserData { UserId = udbUser.Id, SessionId = sessionId };
                         LogUserActivity(userData, "Login");
 
@@ -126,13 +127,15 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                     if (user != null)
                     {
+                        // Update login date for legacy users
                         user.LastLogin = DateTime.Now;
                         user.UserIp = data.LoginIp ?? user.UserIp;
                         context.SaveChanges();
+
                         // Generate a session ID
                         var sessionId = Guid.NewGuid().ToString();
 
-                        // Log Login Activity
+                        // Log login activity
                         var userDataLegacy = new UUserData { UserId = user.UserId, SessionId = sessionId };
                         LogUserActivity(userDataLegacy, "Login");
 
@@ -142,7 +145,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                             Status = true,
                             UserId = user.UserId,
                             FullName = user.Username,
-                            SessionId = sessionId
+                            SessionId = sessionId,
+                            UserLevel = 100 // User role (100 conform enum URole)
                         };
                     }
 
@@ -241,8 +245,10 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                         throw new Exception("User with this email already exists");
                     }
 
+                    // Calculăm hash-ul parolei o singură dată
                     string hashedPassword = HashPassword(password);
                     System.Diagnostics.Debug.WriteLine("Hashed password length: " + hashedPassword.Length);
+
                     // Încercăm inserarea folosind ExecuteSqlCommand
                     try
                     {
@@ -252,8 +258,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                         System.Diagnostics.Debug.WriteLine($"UserIp: {userIp}");
 
                         // Folosim parametri explicit pentru a evita probleme de formatare
-                        var sql = "INSERT INTO UDBTables (Username, Password, Email, Last_Login, UserIp, Level) " +
-                                  "VALUES (@p0, @p1, @p2, @p3, @p4, @p5)";
+                        var sql = "INSERT INTO UDBTables (Username, Password, Email, Last_Login, UserIp, Level, RegisterDate) " +
+                                  "VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)";
 
                         // Folosim un command explicit pentru a avea mai mult control
                         using (var command = context.Database.Connection.CreateCommand())
@@ -288,8 +294,13 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                             var p5 = command.CreateParameter();
                             p5.ParameterName = "@p5";
-                            p5.Value = 1;
+                            p5.Value = 100; // Utilizator normal (100 = User conform enum URole)
                             command.Parameters.Add(p5);
+
+                            var p6 = command.CreateParameter();
+                            p6.ParameterName = "@p6";
+                            p6.Value = DateTime.Now; // Data înregistrării este aceeași cu data curentă
+                            command.Parameters.Add(p6);
 
                             int result = command.ExecuteNonQuery();
                             System.Diagnostics.Debug.WriteLine($"Direct SQL insertion result: {result} rows affected");
@@ -332,7 +343,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                             Password = hashedPassword,
                             Last_Login = DateTime.Now,
                             UserIp = userIp,
-                            Level = 1
+                            Level = 100, // Utilizator normal (100 = User conform enum URole)
+                            RegisterDate = DateTime.Now // Setăm data înregistrării
                         };
 
                         context.UDBTables.Add(udbUser);
@@ -364,7 +376,6 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                             Email = email,
                             LastLogin = DateTime.Now,
                             UserIp = userIp
-
                         };
 
                         context.Users.Add(legacyUserEF);
@@ -423,16 +434,97 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
         public void UpdateUserProfile(UProfileData data)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data), "Profile data cannot be null");
+
+            if (string.IsNullOrEmpty(data.Email))
+                throw new ArgumentException("Email cannot be empty", nameof(data.Email));
+
+            if (string.IsNullOrEmpty(data.FullName))
+                throw new ArgumentException("Full name cannot be empty", nameof(data.FullName));
+
             using (var context = new DataContext())
             {
+                // First try to update in UDBTables
+                var udbUser = context.UDBTables.FirstOrDefault(u => u.Id == data.UserId);
+                if (udbUser != null)
+                {
+                    udbUser.Email = data.Email;
+                    udbUser.UserName = data.FullName;
+                    udbUser.PhoneNumber = data.PhoneNumber;
+                    udbUser.Address = data.Address;
+                    udbUser.ProfilePicture = data.ProfilePicture;
+                    context.SaveChanges();
+                    return;
+                }
+
+                // If not found in UDBTables, try Users table
                 var user = context.Users.FirstOrDefault(u => u.UserId == data.UserId);
                 if (user != null)
                 {
                     user.Email = data.Email;
                     user.FullName = data.FullName;
-
+                    user.Username = data.FullName;
+                    user.PhoneNumber = data.PhoneNumber;
+                    user.Address = data.Address;
+                    user.ProfilePicture = data.ProfilePicture;
                     context.SaveChanges();
+                    return;
                 }
+
+                throw new InvalidOperationException("User not found");
+            }
+        }
+
+        public UProfileData GetUserProfile(string username)
+        {
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    // Căutăm mai întâi în tabela UDBTables
+                    var udbUser = context.UDBTables.FirstOrDefault(u => u.Email == username || u.UserName == username);
+
+                    if (udbUser != null)
+                    {
+                        return new UProfileData
+                        {
+                            UserId = udbUser.Id,
+                            FullName = udbUser.UserName,
+                            Email = udbUser.Email,
+                            RegisterDate = udbUser.RegisterDate,
+                            LastLogin = udbUser.Last_Login,
+                            PhoneNumber = udbUser.PhoneNumber,
+                            Address = udbUser.Address,
+                            ProfilePicture = udbUser.ProfilePicture
+                        };
+                    }
+
+                    // Dacă nu găsim în UDBTables, căutăm în tabela legacy Users
+                    var user = context.Users.FirstOrDefault(u => u.Username == username || u.Email == username);
+
+                    if (user != null)
+                    {
+                        return new UProfileData
+                        {
+                            UserId = user.UserId,
+                            FullName = user.FullName,
+                            Email = user.Email,
+                            RegisterDate = user.CreatedAt,
+                            LastLogin = user.LastLogin,
+                            PhoneNumber = user.PhoneNumber,
+                            Address = user.Address,
+                            ProfilePicture = user.ProfilePicture
+                        };
+                    }
+
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                throw;
             }
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using eUseControl.BeekeepingStore.BusinessLogic;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 using eUseControl.BeekeepingStore.Domain.Entities.Product;
+using eUseControl.BeekeepingStore.Filters;
 
 namespace eUseControl.BeekeepingStore.Controllers
 {
@@ -19,6 +20,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         }
 
         // GET: Product
+        [AdminMod]
         public ActionResult Index()
         {
             var products = _productBL.GetAllProducts();
@@ -37,7 +39,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         }
 
         // GET: Product/Create
-       // [Authorize(Roles = "Admin")]
+        [AdminMod]
         public ActionResult Create()
         {
             return View();
@@ -46,7 +48,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         // POST: Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Admin")]
+        [AdminMod]
         public ActionResult Create(Product product)
         {
             if (ModelState.IsValid)
@@ -54,12 +56,12 @@ namespace eUseControl.BeekeepingStore.Controllers
                 try
                 {
                     int productId = _productBL.AddProduct(product);
-                    TempData["SuccessMessage"] = "Product created successfully!";
+                    TempData["SuccessMessage"] = "Produsul a fost adăugat cu succes!";
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "An error occurred while creating the product: " + ex.Message);
+                    ModelState.AddModelError("", "Eroare la salvare: " + ex.Message);
                     return View(product);
                 }
             }
@@ -67,7 +69,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         }
 
         // GET: Product/Edit/5
-        //[Authorize(Roles = "Admin")]
+        [AdminMod]
         public ActionResult Edit(int id)
         {
             var product = _productBL.GetProductById(id);
@@ -81,7 +83,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         // POST: Product/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        //[Authorize(Roles = "Admin")]
+        [AdminMod]
         public ActionResult Edit(Product product)
         {
             if (ModelState.IsValid)
@@ -89,6 +91,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 try
                 {
                     _productBL.UpdateProduct(product);
+                    TempData["SuccessMessage"] = "Produsul a fost actualizat cu succes!";
                     return RedirectToAction("Index");
                 }
                 catch
@@ -100,7 +103,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         }
 
         // GET: Product/Delete/5
-        //[Authorize(Roles = "Admin")]
+        [AdminMod]
         public ActionResult Delete(int id)
         {
             var product = _productBL.GetProductById(id);
@@ -114,12 +117,13 @@ namespace eUseControl.BeekeepingStore.Controllers
         // POST: Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-       // [Authorize(Roles = "Admin")]
+        [AdminMod]
         public ActionResult DeleteConfirmed(int id)
         {
             try
             {
                 _productBL.DeleteProduct(id);
+                TempData["SuccessMessage"] = "Produsul a fost șters cu succes!";
                 return RedirectToAction("Index");
             }
             catch

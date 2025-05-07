@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 
 namespace eUseControl.BeekeepingStore.Domain.Enums
 {
-public enum URole
+    public enum URole
     {
-    None = 0,
-    Banned = 1,
-    Deleted = 3,
-    User = 100,
-    Moderator = 200,
-    Vip = 300,
-    Administrator = 400,
+        None = 0,
+        Visitor = 10,
+        Banned = 20,
+        Deleted = 30,
+        User = 100,
+        Moderator = 200,
+        Admin = 400,
+        Administrator = 400
 
     }
 }
