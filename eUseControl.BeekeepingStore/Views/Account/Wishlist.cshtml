@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "Lista mea de dorințe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Lista mea de dorințe</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <div class="text-center py-5">
+                        <i class="fas fa-heart fa-5x text-muted mb-4"></i>
+                        <h5>Lista ta de dorințe este goală</h5>
+                        <p class="text-muted">Adaugă produse în lista de dorințe pentru a le găsi mai ușor data viitoare.</p>
+                        <a href="@Url.Action("Products", "Home")" class="btn btn-primary mt-3">Explorează produse</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="@Url.Action("Profile", "Account")" class="btn btn-secondary">Înapoi la profil</a>
+            </div>
+        </div>
+    </div>
+</div> 

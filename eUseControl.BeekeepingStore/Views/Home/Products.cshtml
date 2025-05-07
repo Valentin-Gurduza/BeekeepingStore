@@ -1,20 +1,94 @@
-﻿@{
+﻿@model List<eUseControl.BeekeepingStore.Models.Product>
+
+@{
     ViewBag.Title = "Products";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container products-page">
-    <h1>Our Products</h1>
-    <div class="row">
-        @foreach (var product in Model)
+<div class="container py-5">
+    <div class="section-title text-center mb-5">
+        <h1>Our Products</h1>
+        <p class="text-muted">Discover our complete range of beekeeping products</p>
+    </div>
+
+    <!-- Product filters -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search products...">
+                <button class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-md-end">
+                <select class="form-select me-2" style="max-width: 180px;">
+                    <option selected>All Categories</option>
+                    <option>Tools</option>
+                    <option>Equipment</option>
+                    <option>Hives</option>
+                    <option>Kits</option>
+                </select>
+                <select class="form-select" style="max-width: 150px;">
+                    <option selected>Sort By</option>
+                    <option>Price: Low-High</option>
+                    <option>Price: High-Low</option>
+                    <option>Newest</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product list -->
+    <div class="row g-4">
+        @if (Model.Count == 0)
         {
-            <div class="product col-md-4">
-                <img src="@Url.Content(product.Image)" alt="@product.Name" class="img-responsive" />
-                <h2>@product.Name</h2>
-                <p>@product.Description</p>
-                <p>Price: @product.Price.ToString("C")</p>
-                <p>Category: @product.Category</p>
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No products available</h4>
+                    <p>We couldn't find any products matching your search criteria.</p>
+                </div>
             </div>
         }
-     </div>
+        else
+        {
+            foreach (var product in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="product-card h-100">
+                        <div class="product-card-img">
+                            <img src="@Url.Content(product.Image)"
+                                 alt="@product.Name"
+                                 class="img-fluid"
+                                 onerror="this.src='@Url.Content("~/Content/Images/products/default-product.png")'">
+                        </div>
+                        <div class="product-card-body">
+                            <div class="product-card-category">@(string.IsNullOrEmpty(product.Category) ? "Miscellaneous" : product.Category)</div>
+                            <h3 class="product-card-title">@product.Name</h3>
+                            <p class="product-card-text text-truncate">@product.Description</p>
+                            <div class="product-card-price">@product.Price.ToString("C", new System.Globalization.CultureInfo("ro-MD"))</div>
+                            <div class="product-card-footer">
+                                <button class="btn btn-primary add-to-cart-btn"
+                                        data-product-id="@product.Id"
+                                        data-product-name="@product.Name"
+                                        data-product-price="@product.Price"
+                                        data-product-image="@product.Image">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
 </div>
+
+@section scripts {
+    <script>
+        // Product filtering script
+        $(document).ready(function () {
+            // Add filtering and sorting functionality here
+        });
+    </script>
+}
