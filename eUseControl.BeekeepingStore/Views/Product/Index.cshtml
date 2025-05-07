@@ -37,9 +37,9 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Price.ToString("C")</td>
-                        <td>@item.Category</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("ro-MD"))</td>
+                        <td>@Html.DisplayFor(modelItem => item.Category)</td>
                         <td>@item.StockQuantity</td>
                         <td>@(item.IsActive ? "Yes" : "No")</td>
                         <td>

@@ -12,6 +12,9 @@
                     <button class="btn btn-outline-danger me-2 clear-cart-btn">
                         <i class="fas fa-trash me-2"></i>Clear Cart
                     </button>
+                    <button class="btn btn-outline-warning me-2 reset-storage-btn">
+                        <i class="fas fa-sync me-2"></i>Reset Cache
+                    </button>
                     <a href="@Url.Action("Products", "Home")" class="btn btn-outline-primary">
                         <i class="fas fa-arrow-left me-2"></i>Continue Shopping
                     </a>
@@ -34,19 +37,19 @@
 
                     <div class="d-flex justify-content-between mb-3">
                         <span>Subtotal</span>
-                        <span class="cart-subtotal">$0.00</span>
+                        <span class="cart-subtotal">0,00 MDL</span>
                     </div>
 
                     <div class="d-flex justify-content-between mb-3">
                         <span>Shipping</span>
-                        <span class="cart-shipping">$0.00</span>
+                        <span class="cart-shipping">0,00 MDL</span>
                     </div>
 
                     <hr>
 
                     <div class="d-flex justify-content-between mb-4">
                         <span class="fw-bold">Total</span>
-                        <span class="fw-bold cart-total">$0.00</span>
+                        <span class="fw-bold cart-total">0,00 MDL</span>
                     </div>
 
                     <div class="mb-3">
@@ -80,9 +83,403 @@
 
 @section scripts {
     <script>
-        // Render cart items when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            renderCartItems();
+        /**
+         * Format currency based on locale
+         */
+        function cartFormatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
+            // Create a better currency formatter that ensures correct display
+            try {
+                // Format using Intl API
+                const formatter = new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+                // Get the formatted result
+                let formatted = formatter.format(price);
+
+                // Fix common formatting issues
+                if (formatted.includes('MDL MDL') || formatted.includes('L MDL')) {
+                    // Clean up the duplication
+                    formatted = formatted.replace(' MDL', '');
+                }
+
+                // Handle any other odd formatting
+                if (!formatted.includes('MDL') && !formatted.includes('L')) {
+                    formatted = formatted + ' MDL';
+                }
+
+                console.log(`[CART FIX] Formatted price: ${price} -> ${formatted}`);
+                return formatted;
+
+            } catch (error) {
+                // Fallback formatting
+                console.error('[CART FIX] Currency formatting error:', error);
+                return price.toFixed(2) + ' MDL';
+            }
+        }
+
+        /**
+         * Function that completely overrides the quantity buttons
+         */
+        function fixCartQuantityButtons() {
+            console.log("[CART FIX] Starting complete cart button override...");
+
+            // Wait for the DOM to be fully loaded
+            if (!document.querySelector('.cart-items')) {
+                console.log("[CART FIX] Cart items container not found");
+                return;
+            }
+
+            // Get all increase buttons USING ANY POSSIBLE CLASS NAME (including our own fixed class)
+            const plusButtons = document.querySelectorAll('.increase-btn, .cart-plus-btn, .cart-plus-fixed');
+            console.log("[CART FIX] Found", plusButtons.length, "plus buttons");
+
+            if (plusButtons.length === 0) {
+                console.log("[CART FIX] Problema detectată: Nu s-au găsit butoane plus. Așteptăm...");
+                // Reîncercăm mai târziu
+                setTimeout(fixCartQuantityButtons, 500);
+                return;
+            }
+
+            plusButtons.forEach(btn => {
+                // Skip buttons that are already fixed
+                if (btn.classList.contains('cart-plus-fixed')) {
+                    return;
+                }
+
+                // Completely replace the button with a new one
+                const newBtn = document.createElement('button');
+                newBtn.className = "btn btn-sm btn-outline-secondary cart-plus-fixed";
+                newBtn.type = "button";
+                newBtn.innerHTML = "+";
+
+                // Replace the old button
+                if (btn.parentNode) {
+                    btn.parentNode.replaceChild(newBtn, btn);
+                }
+
+                // Add direct event handler
+                newBtn.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Get product details
+                    const item = this.closest('.cart-item');
+                    if (!item) return;
+
+                    const productId = item.getAttribute('data-product-id');
+                    if (!productId) {
+                        console.error("[CART FIX] Product ID not found");
+                        return;
+                    }
+
+                    // Direct cart manipulation
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const itemIndex = cart.findIndex(x => x.id === productId);
+
+                    if (itemIndex === -1) {
+                        console.error("[CART FIX] Product not found in cart:", productId);
+                        return;
+                    }
+
+                    const oldQty = cart[itemIndex].quantity;
+                    const newQty = oldQty + 1;
+
+                    // Log changes
+                    console.log("[CART FIX] Increment:", productId, "from", oldQty, "to", newQty);
+
+                    // Update quantity in localStorage
+                    cart[itemIndex].quantity = newQty;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+
+                    // Update UI
+                    const qtyInput = item.querySelector('.quantity-input');
+                    if (qtyInput) qtyInput.value = newQty;
+
+                    const totalPrice = cart[itemIndex].price * newQty;
+                    const priceEl = item.querySelector('.col-lg-2.col-md-2.col-sm-4.mt-3.mt-sm-0.text-end .fw-bold');
+                    if (priceEl) priceEl.textContent = cartFormatCurrency(totalPrice);
+
+                    // Update cart badge
+                    const cartBadge = document.querySelector('.cart-badge');
+                    if (cartBadge) {
+                        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+                        cartBadge.textContent = totalItems;
+
+                        if (totalItems > 0) {
+                            cartBadge.classList.remove('d-none');
+                        }
+                    }
+
+                    // Update totals
+                    updateCartTotals();
+
+                    return false;
+                };
+            });
+
+            // Get all decrease buttons USING ANY POSSIBLE CLASS NAME (including our own fixed class)
+            const minusButtons = document.querySelectorAll('.decrease-btn, .cart-minus-btn, .cart-minus-fixed');
+            console.log("[CART FIX] Found", minusButtons.length, "minus buttons");
+
+            minusButtons.forEach(btn => {
+                // Skip buttons that are already fixed
+                if (btn.classList.contains('cart-minus-fixed')) {
+                    return;
+                }
+
+                // Completely replace the button with a new one
+                const newBtn = document.createElement('button');
+                newBtn.className = "btn btn-sm btn-outline-secondary cart-minus-fixed";
+                newBtn.type = "button";
+                newBtn.innerHTML = "-";
+
+                // Replace the old button
+                if (btn.parentNode) {
+                    btn.parentNode.replaceChild(newBtn, btn);
+                }
+
+                // Add direct event handler
+                newBtn.onclick = function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Get product details
+                    const item = this.closest('.cart-item');
+                    if (!item) return;
+
+                    const productId = item.getAttribute('data-product-id');
+                    if (!productId) {
+                        console.error("[CART FIX] Product ID not found");
+                        return;
+                    }
+
+                    // Direct cart manipulation
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const itemIndex = cart.findIndex(x => x.id === productId);
+
+                    if (itemIndex === -1) {
+                        console.error("[CART FIX] Product not found in cart:", productId);
+                        return;
+                    }
+
+                    const oldQty = cart[itemIndex].quantity;
+                    const newQty = Math.max(1, oldQty - 1);
+
+                    // Log changes
+                    console.log("[CART FIX] Decrement:", productId, "from", oldQty, "to", newQty);
+
+                    // Update quantity in localStorage
+                    cart[itemIndex].quantity = newQty;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+
+                    // Update UI
+                    const qtyInput = item.querySelector('.quantity-input');
+                    if (qtyInput) qtyInput.value = newQty;
+
+                    const totalPrice = cart[itemIndex].price * newQty;
+                    const priceEl = item.querySelector('.col-lg-2.col-md-2.col-sm-4.mt-3.mt-sm-0.text-end .fw-bold');
+                    if (priceEl) priceEl.textContent = cartFormatCurrency(totalPrice);
+
+                    // Update cart badge
+                    const cartBadge = document.querySelector('.cart-badge');
+                    if (cartBadge) {
+                        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+                        cartBadge.textContent = totalItems;
+
+                        if (totalItems > 0) {
+                            cartBadge.classList.remove('d-none');
+                        }
+                    }
+
+                    // Update totals
+                    updateCartTotals();
+
+                    return false;
+                };
+            });
+
+            console.log("[CART FIX] Cart button override complete!");
+        }
+
+        /**
+         * Update cart totals
+         */
+        function updateCartTotals() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Calculate values
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const shipping = subtotal > 900 ? 0 : 150;
+            const total = subtotal + shipping;
+
+            // Update display elements
+            const subtotalEl = document.querySelector('.cart-subtotal');
+            const shippingEl = document.querySelector('.cart-shipping');
+            const totalEl = document.querySelector('.cart-total');
+
+            if (subtotalEl) subtotalEl.textContent = cartFormatCurrency(subtotal);
+            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : cartFormatCurrency(shipping);
+            if (totalEl) totalEl.textContent = cartFormatCurrency(total);
+
+            console.log("[CART FIX] Updated totals. Subtotal:", subtotal, "Shipping:", shipping, "Total:", total);
+        }
+
+        /**
+         * BRUTAL FIX: Completely replace the renderCartItems function
+         */
+        function hijackRenderCartItems() {
+            console.log("[CART FIX] Attempting to override renderCartItems...");
+
+            // Save the original function
+            if (!window._originalRenderCartItems && typeof window.renderCartItems === 'function') {
+                window._originalRenderCartItems = window.renderCartItems;
+
+                // Replace with our own
+                window.renderCartItems = function () {
+                    console.log("[CART FIX] Using hijacked renderCartItems");
+
+                    // Call original function to build the cart
+                    window._originalRenderCartItems();
+
+                    // Apply our fixes
+                    setTimeout(fixCartQuantityButtons, 10);
+
+                    // Additional fix - make quantity inputs wider
+                    setTimeout(function () {
+                        const quantityInputs = document.querySelectorAll('.quantity-input');
+                        quantityInputs.forEach(input => {
+                            // Make the input wider and more visible
+                            input.style.minWidth = "50px";
+                            input.style.width = "50px";
+                            input.style.textAlign = "center";
+                            input.style.fontWeight = "bold";
+                            input.style.fontSize = "1.1rem";
+                            input.style.padding = "0.2rem";
+                            input.style.margin = "0 0.3rem";
+
+                            // Make the parent control more spacious
+                            const controlDiv = input.closest('.quantity-control');
+                            if (controlDiv) {
+                                controlDiv.style.display = "flex";
+                                controlDiv.style.justifyContent = "center";
+                                controlDiv.style.alignItems = "center";
+                                controlDiv.style.padding = "0.5rem 0";
+                            }
+                        });
+                    }, 50);
+                };
+
+                console.log("[CART FIX] Successfully overrode renderCartItems");
+            } else {
+                console.log("[CART FIX] Could not override renderCartItems");
+            }
+        }
+
+        /**
+         * Function to fix all price displays in the cart
+         */
+        function fixPriceDisplays() {
+            // Find all price elements in the cart
+            const priceElements = document.querySelectorAll('.cart-item .fw-bold');
+
+            priceElements.forEach(el => {
+                // Get the current text
+                const currentText = el.textContent.trim();
+
+                // Check if it contains the problematic format
+                if (currentText.includes('L MDL')) {
+                    // Fix the format by removing the duplicate
+                    const fixedText = currentText.replace(' MDL', '');
+                    el.textContent = fixedText;
+                    console.log(`[CART FIX] Fixed price display: ${currentText} -> ${fixedText}`);
+                }
+            });
+
+            // Also fix summary prices
+            const summaryPrices = document.querySelectorAll('.cart-subtotal, .cart-shipping, .cart-total');
+            summaryPrices.forEach(el => {
+                if (el.textContent.includes('L MDL')) {
+                    el.textContent = el.textContent.replace(' MDL', '');
+                }
+            });
+        }
+
+        // Run the fix once the cart is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("[CART FIX] DOM loaded, installing fixes...");
+
+            // Try to hijack the renderCartItems function
+            hijackRenderCartItems();
+
+            // We need to wait a bit for the cart to be rendered
+            setTimeout(fixCartQuantityButtons, 300);
+            setTimeout(fixPriceDisplays, 500);
+
+            // Also register for events that might reload the cart
+            document.addEventListener('cartRendered', function () {
+                console.log("[CART FIX] Cart rendered event detected");
+                setTimeout(fixCartQuantityButtons, 10);
+                setTimeout(fixPriceDisplays, 100);
+            });
+
+            // Add reset storage button event
+            const resetButton = document.querySelector('.reset-storage-btn');
+            if (resetButton) {
+                resetButton.addEventListener('click', function () {
+                    if (confirm('This will clear your cart data from browser storage. Continue?')) {
+                        localStorage.clear();
+                        window.location.reload();
+                    }
+                });
+            }
+        });
+
+        // Run fix on complete page load
+        window.addEventListener('load', function () {
+            console.log("[CART FIX] Window fully loaded, running final fix...");
+            setTimeout(fixCartQuantityButtons, 500);
+            setTimeout(fixPriceDisplays, 600);
+        });
+
+        // Re-run the fix whenever needed
+        window.fixCartButtons = fixCartQuantityButtons;
+        window.fixPrices = fixPriceDisplays;
+
+        // Add custom styles for cart quantity inputs
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add CSS rules for quantity inputs
+            const style = document.createElement('style');
+            style.textContent = `
+                        .quantity-input {
+                            min-width: 50px !important;
+                            width: 50px !important;
+                            text-align: center !important;
+                            font-weight: bold !important;
+                            font-size: 1.1rem !important;
+                            padding: 0.2rem !important;
+                            margin: 0 0.3rem !important;
+                            border-radius: 4px !important;
+                        }
+                        .quantity-control {
+                            display: flex !important;
+                            justify-content: center !important;
+                            align-items: center !important;
+                            padding: 0.5rem 0 !important;
+                        }
+                        .cart-plus-fixed, .cart-minus-fixed {
+                            min-width: 32px !important;
+                            height: 32px !important;
+                            font-weight: bold !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                        }
+                    `;
+            document.head.appendChild(style);
         });
     </script>
 }
