@@ -9,6 +9,7 @@ using eUseControl.BeekeepingStore.BusinessLogic;
 using eUseControl.BeekeepingStore.BusinessLogic.Core;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
+using eUseControl.BeekeepingStore.Filters;
 
 namespace eUseControl.BeekeepingStore.Controllers
 {
@@ -95,6 +96,27 @@ namespace eUseControl.BeekeepingStore.Controllers
 
                             // Înregistrăm activitatea utilizatorului
                             session.LogUserActivity(userData, "User logged in");
+
+                            // Setăm autentificarea prin sesiune (evităm FormsAuthentication)
+                            Session["UserIsAuthenticated"] = true;
+                            Session["UserEmail"] = email;
+                            Session["UserName"] = result.FullName;
+                            Session["UserId"] = result.UserId;
+
+                            // Setăm rolul utilizatorului, folosind o valoare implicită "User" dacă UserLevel nu este definit
+                            if (result.UserLevel == 400)
+                            {
+                                Session["UserRole"] = "Admin";
+                            }
+                            else
+                            {
+                                Session["UserRole"] = "User";
+                            }
+
+                            // Adăugăm un cookie de sesiune pentru identificarea utilizatorului
+                            HttpCookie sessionCookie = new HttpCookie("sessionId", result.SessionId);
+                            sessionCookie.Expires = DateTime.Now.AddHours(1); // cookie valid pentru 1 oră
+                            Response.Cookies.Add(sessionCookie);
 
                             // Redirect to home page after successful login
                             return RedirectToAction("Index", "Home");
@@ -251,6 +273,223 @@ namespace eUseControl.BeekeepingStore.Controllers
             }
 
             return View();
+        }
+
+        // GET: Account/Profile
+        [UserMod]
+        public new ActionResult Profile()
+        {
+            try
+            {
+                // Verificăm dacă utilizatorul este autentificat folosind variabilele de sesiune
+                if (Session["UserIsAuthenticated"] == null || !(bool)Session["UserIsAuthenticated"])
+                {
+                    return RedirectToAction("Login");
+                }
+
+                var sessionBL = _businessLogic.GetSessionBL;
+                string userEmail = Session["UserEmail"] as string;
+
+                // Obținem detaliile utilizatorului
+                var currentUserProfile = sessionBL.GetUserProfile(userEmail);
+
+                if (currentUserProfile == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                return View(currentUserProfile);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Profile: " + ex.ToString());
+                TempData["ErrorMessage"] = "A apărut o eroare la încărcarea profilului: " + ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // GET: Account/EditProfile
+        [UserMod]
+        public ActionResult EditProfile()
+        {
+            try
+            {
+                // Verificăm dacă utilizatorul este autentificat folosind variabilele de sesiune
+                if (Session["UserIsAuthenticated"] == null || !(bool)Session["UserIsAuthenticated"])
+                {
+                    return RedirectToAction("Login");
+                }
+
+                var sessionBL = _businessLogic.GetSessionBL;
+                string userEmail = Session["UserEmail"] as string;
+
+                // Obținem detaliile utilizatorului
+                var currentUserProfile = sessionBL.GetUserProfile(userEmail);
+
+                if (currentUserProfile == null)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                return View(currentUserProfile);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in EditProfile: " + ex.ToString());
+                TempData["ErrorMessage"] = "A apărut o eroare la încărcarea profilului: " + ex.Message;
+                return RedirectToAction("Profile");
+            }
+        }
+
+        // POST: Account/EditProfile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [UserMod]
+        public ActionResult EditProfile(UProfileData model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Vă rugăm să completați toate câmpurile obligatorii.";
+                return View(model);
+            }
+
+            try
+            {
+                var sessionBL = _businessLogic.GetSessionBL;
+
+                // Asigurăm-ne că avem ID-ul utilizatorului din sesiune
+                if (Session["UserId"] == null)
+                {
+                    TempData["ErrorMessage"] = "Sesiunea dumneavoastră a expirat. Vă rugăm să vă autentificați din nou.";
+                    return RedirectToAction("Login");
+                }
+
+                // Setăm ID-ul utilizatorului din sesiune
+                model.UserId = Convert.ToInt32(Session["UserId"]);
+
+                // Actualizăm profilul
+                sessionBL.UpdateUserProfile(model);
+
+                // Actualizăm și datele din sesiune
+                Session["UserEmail"] = model.Email;
+                Session["UserName"] = model.FullName;
+
+                TempData["SuccessMessage"] = "Profilul dumneavoastră a fost actualizat cu succes!";
+                return RedirectToAction("Profile");
+            }
+            catch (ArgumentNullException)
+            {
+                TempData["ErrorMessage"] = "Vă rugăm să completați toate câmpurile obligatorii.";
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (InvalidOperationException)
+            {
+                TempData["ErrorMessage"] = "Nu s-a putut găsi contul dumneavoastră. Vă rugăm să vă autentificați din nou.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in EditProfile POST: " + ex.ToString());
+                TempData["ErrorMessage"] = "A apărut o eroare la actualizarea profilului. Vă rugăm să încercați din nou.";
+            }
+
+            return View(model);
+        }
+
+        // GET: Account/Logout
+        public ActionResult Logout()
+        {
+            try
+            {
+                // Obținem cookie-ul de sesiune pentru a identifica utilizatorul
+                var userSessionCookie = Request.Cookies["sessionId"];
+                if (userSessionCookie != null)
+                {
+                    var sessionBL = _businessLogic.GetSessionBL;
+
+                    // Creăm un obiect cu datele utilizatorului pentru logout
+                    var userData = new UUserData
+                    {
+                        SessionId = userSessionCookie.Value
+                    };
+
+                    // Închidem sesiunea
+                    sessionBL.LogoutUser(userData);
+
+                    // Ștergem cookie-ul
+                    var expiredCookie = new HttpCookie("sessionId")
+                    {
+                        Expires = DateTime.Now.AddDays(-1)
+                    };
+                    Response.Cookies.Add(expiredCookie);
+                }
+
+                // Curățăm sesiunea
+                Session.Clear();
+                Session.Abandon();
+
+                // Mesaj de succes
+                TempData["SuccessMessage"] = "Ați fost deconectat cu succes!";
+
+                // Redirecționăm către pagina de start
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Logout: " + ex.ToString());
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // GET: Account/Wishlist
+        [UserMod]
+        public ActionResult Wishlist()
+        {
+            try
+            {
+                // Verificăm dacă utilizatorul este autentificat folosind variabilele de sesiune
+                if (Session["UserIsAuthenticated"] == null || !(bool)Session["UserIsAuthenticated"])
+                {
+                    return RedirectToAction("Login");
+                }
+
+                // Aici ar trebui să obținem lista de dorințe din baza de date
+                // Pentru moment, afișăm doar o pagină goală
+                return View();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Wishlist: " + ex.ToString());
+                TempData["ErrorMessage"] = "A apărut o eroare la încărcarea listei de dorințe: " + ex.Message;
+                return RedirectToAction("Profile");
+            }
+        }
+
+        // GET: Account/Orders
+        [UserMod]
+        public ActionResult Orders()
+        {
+            try
+            {
+                // Verificăm dacă utilizatorul este autentificat folosind variabilele de sesiune
+                if (Session["UserIsAuthenticated"] == null || !(bool)Session["UserIsAuthenticated"])
+                {
+                    return RedirectToAction("Login");
+                }
+
+                // Aici ar trebui să obținem lista de comenzi din baza de date
+                // Pentru moment, afișăm doar o pagină goală
+                return View();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Orders: " + ex.ToString());
+                TempData["ErrorMessage"] = "A apărut o eroare la încărcarea comenzilor: " + ex.Message;
+                return RedirectToAction("Profile");
+            }
         }
 
         // Metodă pentru a obține IP-ul utilizatorului într-un format utilizabil

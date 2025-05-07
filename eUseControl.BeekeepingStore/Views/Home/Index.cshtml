@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewBag.Title = "Home Page";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -20,25 +20,30 @@
     </div>
 </section>
 
-<!-- Administrare Produse-->
-<section class="container py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card-body">
-                <h3 class="card-title">Manage Products</h3>
-                <p class="card-text">Add, edit or remove products from store.</p>
-                <div class="d-flex gap-2">
-                    <a href="@Url.Action("Index", "Product")" class="btn btn-primary">
-                        <i class="fas fa-list"></i> View Products
-                    </a>
-                    <a href="@Url.Action("Create", "Product")" class="btn btn-success">
-                        <i class="fas fa-plus"></i> Add New Product
-                    </a>
+@if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
+{
+    <!-- Administrare Produse Section -->
+    <section class="container py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">Administrare Produse</h3>
+                        <p class="card-text">Adaugă, editează sau șterge produsele din magazin.</p>
+                        <div class="d-flex gap-2">
+                            <a href="@Url.Action("Index", "Product")" class="btn btn-primary">
+                                <i class="fas fa-list"></i> Vizualizare Produse
+                            </a>
+                            <a href="@Url.Action("Create", "Product")" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Adaugă Produs Nou
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 <!-- Categories Section -->
 <section class="container py-5">
