@@ -8,6 +8,10 @@ internal class ErrorLog
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int ErrorId { get; set; }
     public string Message { get; set; }
+    public string ErrorMessage { get; set; }
+    public string ErrorSource { get; set; }
     public string StackTrace { get; set; }
+    public string ErrorStackTrace { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime ErrorDate { get; set; }
 }

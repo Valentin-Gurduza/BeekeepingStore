@@ -1,0 +1,309 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Finalizare comandă";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container py-5">
+    <h1 class="mb-4">Finalizare comandă</h1>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Detalii comandă</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkout-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first-name" class="form-label">Prenume</label>
+                                <input type="text" class="form-control" id="first-name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last-name" class="form-label">Nume</label>
+                                <input type="text" class="form-control" id="last-name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Telefon</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="shipping-address" class="form-label">Adresa de livrare</label>
+                            <textarea class="form-control" id="shipping-address" rows="3" required></textarea>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="billing-same">
+                            <label class="form-check-label" for="billing-same">
+                                Adresa de facturare este aceeași cu cea de livrare
+                            </label>
+                        </div>
+
+                        <div id="billing-address-container" class="mb-3 d-none">
+                            <label for="billing-address" class="form-label">Adresa de facturare</label>
+                            <textarea class="form-control" id="billing-address" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-notes" class="form-label">Note comandă (opțional)</label>
+                            <textarea class="form-control" id="order-notes" rows="2" placeholder="Instrucțiuni speciale pentru livrare sau alte detalii"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Metoda de plată</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment-method" id="payment-cash" value="cash" checked>
+                        <label class="form-check-label" for="payment-cash">
+                            <i class="fas fa-money-bill-wave me-2"></i> Plata la livrare
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment-method" id="payment-card" value="card">
+                        <label class="form-check-label" for="payment-card">
+                            <i class="fas fa-credit-card me-2"></i> Card de credit
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="payment-method" id="payment-transfer" value="transfer">
+                        <label class="form-check-label" for="payment-transfer">
+                            <i class="fas fa-university me-2"></i> Transfer bancar
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Sumar comandă</h5>
+                </div>
+                <div class="card-body">
+                    <div class="cart-summary-items mb-3">
+                        <!-- Items will be displayed here via JavaScript -->
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span class="checkout-subtotal">0,00 MDL</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Transport</span>
+                        <span class="checkout-shipping">0,00 MDL</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold checkout-total">0,00 MDL</span>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-100 place-order-btn">
+                        Plasează comanda
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Currency formatter
+            function formatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
+                return new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currency
+                }).format(price);
+            }
+
+            // Show/hide billing address based on checkbox
+            const billingSameCheckbox = document.getElementById('billing-same');
+            const billingAddressContainer = document.getElementById('billing-address-container');
+
+            billingSameCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    billingAddressContainer.classList.add('d-none');
+                } else {
+                    billingAddressContainer.classList.remove('d-none');
+                }
+            });
+
+            // Set billing same as shipping by default
+            billingSameCheckbox.checked = true;
+
+            // Get the cart from localStorage
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            // Log cart pentru debugging
+            console.log('Cart items:', cart);
+
+            // Display cart items in the summary
+            const summaryItemsContainer = document.querySelector('.cart-summary-items');
+            if (summaryItemsContainer) {
+                let itemsHTML = '';
+
+                if (cart.length === 0) {
+                    itemsHTML = '<p class="text-center">Coșul tău de cumpărături este gol</p>';
+
+                    // Disable place order button
+                    const placeOrderBtn = document.querySelector('.place-order-btn');
+                    if (placeOrderBtn) {
+                        placeOrderBtn.disabled = true;
+                        placeOrderBtn.textContent = 'Coșul este gol';
+                    }
+                } else {
+                    cart.forEach(item => {
+                        itemsHTML += `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span class="fw-bold">${item.name}</span>
+                                    <span class="text-muted"> x ${item.quantity}</span>
+                                </div>
+                                <span>${formatCurrency(item.price * item.quantity)}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                summaryItemsContainer.innerHTML = itemsHTML;
+            }
+
+            // Update totals
+            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const shipping = subtotal > 500 ? 0 : 50;
+            const total = subtotal + shipping;
+
+            const subtotalEl = document.querySelector('.checkout-subtotal');
+            const shippingEl = document.querySelector('.checkout-shipping');
+            const totalEl = document.querySelector('.checkout-total');
+
+            if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
+            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'GRATUIT' : formatCurrency(shipping);
+            if (totalEl) totalEl.textContent = formatCurrency(total);
+
+            // Handle order placement
+            const placeOrderBtn = document.querySelector('.place-order-btn');
+            if (placeOrderBtn) {
+                placeOrderBtn.addEventListener('click', function() {
+                    const form = document.getElementById('checkout-form');
+
+                    // Add form validation
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    // Get form data
+                    const shippingAddress = document.getElementById('shipping-address').value;
+                    const billingSame = document.getElementById('billing-same').checked;
+                    const billingAddress = billingSame ? shippingAddress : document.getElementById('billing-address').value;
+                    const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+                    const notes = document.getElementById('order-notes').value;
+
+                    // Get CSRF token
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    console.log('CSRF Token:', token); // Verifică dacă token-ul este extras corect
+
+                    // Disable button and show loading state
+                    placeOrderBtn.disabled = true;
+                    placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Se procesează...';
+
+                    // Create order via AJAX
+                    console.log('Sending order data:', {
+                        cartItems: JSON.stringify(cart),
+                        shippingAddress,
+                        billingAddress,
+                        paymentMethod,
+                        notes
+                    });
+
+                    // Construiește un formular ascuns pentru a transmite datele
+                    const formData = new FormData();
+                    formData.append('__RequestVerificationToken', token);
+                    formData.append('cartItems', JSON.stringify(cart));
+                    formData.append('shippingAddress', shippingAddress);
+                    formData.append('billingAddress', billingAddress);
+                    formData.append('paymentMethod', paymentMethod);
+                    formData.append('notes', notes);
+
+                    fetch('@Url.Action("PlaceOrder", "Order")', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response headers:', response.headers);
+
+                        if (!response.ok) {
+                            return response.text().then(errorText => {
+                                console.error('Error response body:', errorText);
+                                throw new Error('Eroare server: ' + response.status);
+                            });
+                        }
+
+                        return response.text().then(text => {
+                            console.log('Response body:', text);
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                console.error('Răspunsul nu este în format JSON valid:', text);
+                                throw new Error('Răspunsul de la server nu este în formatul așteptat');
+                            }
+                        });
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Clear cart
+                            localStorage.setItem('cart', JSON.stringify([]));
+
+                            // Show success message
+                            alert(data.message);
+
+                            // Redirect to confirmation page
+                            window.location.href = '@Url.Action("Confirmation", "Order")/' + data.orderId;
+                        } else {
+                            // Show error message
+                            alert("Eroare: " + data.message);
+
+                            // Re-enable button
+                            placeOrderBtn.disabled = false;
+                            placeOrderBtn.innerHTML = 'Plasează comanda';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert("A apărut o eroare la procesarea comenzii: " + error.message);
+
+                        // Re-enable button
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = 'Plasează comanda';
+                    });
+                });
+            }
+        });
+    </script>
+} 

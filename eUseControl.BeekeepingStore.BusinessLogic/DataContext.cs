@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.Remoting.Contexts;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
 using eUseControl.BeekeepingStore.Domain.Entities.Product;
+using eUseControl.BeekeepingStore.Domain.Entities.Order;
 
 internal class DataContext : DbContext
 {
@@ -14,6 +15,8 @@ internal class DataContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UDBTable> UDBTables { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
 
     public DataContext() : base("eUseControl.BeekeepingStore")
     {
@@ -92,7 +95,7 @@ internal class DataContext : DbContext
         // Configurare pentru User
         modelBuilder.Entity<User>()
             .HasKey(e => e.UserId);
-        
+
         modelBuilder.Entity<User>()
             .Property(e => e.Username)
             .IsRequired()
@@ -107,6 +110,7 @@ internal class DataContext : DbContext
             .Property(e => e.UserIp)
             .HasMaxLength(60);
 
+        // Configurare pentru Product
         modelBuilder.Entity<Product>()
             .HasKey(e => e.ProductId);
 
@@ -118,5 +122,42 @@ internal class DataContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(e => e.Price)
             .IsRequired();
+
+        // Configurare pentru Order
+        modelBuilder.Entity<Order>()
+            .HasKey(e => e.OrderId);
+
+        modelBuilder.Entity<Order>()
+            .Property(e => e.OrderStatus)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<Order>()
+            .Property(e => e.TotalAmount)
+            .IsRequired();
+
+        // Configurare pentru OrderItem
+        modelBuilder.Entity<OrderItem>()
+            .HasKey(e => e.OrderItemId);
+
+        modelBuilder.Entity<OrderItem>()
+            .Property(e => e.ProductName)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<OrderItem>()
+            .Property(e => e.UnitPrice)
+            .IsRequired();
+
+        modelBuilder.Entity<OrderItem>()
+            .Property(e => e.Quantity)
+            .IsRequired();
+
+        // Relația Order - OrderItem
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.OrderItems)
+            .WithRequired(oi => oi.Order)
+            .HasForeignKey(oi => oi.OrderId)
+            .WillCascadeOnDelete(true);
     }
 }

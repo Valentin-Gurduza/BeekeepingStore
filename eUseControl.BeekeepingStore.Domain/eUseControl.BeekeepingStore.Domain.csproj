@@ -51,12 +51,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Order\Order.cs" />
+    <Compile Include="Entities\Order\OrderDTO.cs" />
+    <Compile Include="Entities\Order\OrderItem.cs" />
     <Compile Include="Entities\Product\Product.cs" />
     <Compile Include="Entities\User\UDBTable.cs" />
     <Compile Include="Entities\User\ULoginData.cs" />
     <Compile Include="Entities\User\UProfileData.cs" />
     <Compile Include="Entities\User\UserLogin.cs" />
     <Compile Include="Entities\User\UUserData.cs" />
+    <Compile Include="Enums\OrderStatus.cs" />
     <Compile Include="Enums\URole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

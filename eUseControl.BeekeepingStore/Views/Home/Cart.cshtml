@@ -60,7 +60,7 @@
                         </div>
                     </div>
 
-                    <a href="@Url.Action("Checkout", "Home")" class="btn btn-primary w-100">
+                    <a href="@Url.Action("Checkout", "Order")" class="btn btn-primary w-100">
                         Proceed to Checkout
                     </a>
                 </div>
@@ -454,31 +454,31 @@
             // Add CSS rules for quantity inputs
             const style = document.createElement('style');
             style.textContent = `
-                        .quantity-input {
-                            min-width: 50px !important;
-                            width: 50px !important;
-                            text-align: center !important;
-                            font-weight: bold !important;
-                            font-size: 1.1rem !important;
-                            padding: 0.2rem !important;
-                            margin: 0 0.3rem !important;
-                            border-radius: 4px !important;
-                        }
-                        .quantity-control {
-                            display: flex !important;
-                            justify-content: center !important;
-                            align-items: center !important;
-                            padding: 0.5rem 0 !important;
-                        }
-                        .cart-plus-fixed, .cart-minus-fixed {
-                            min-width: 32px !important;
-                            height: 32px !important;
-                            font-weight: bold !important;
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: center !important;
-                        }
-                    `;
+                    .quantity-input {
+                        min-width: 50px !important;
+                        width: 50px !important;
+                        text-align: center !important;
+                        font-weight: bold !important;
+                        font-size: 1.1rem !important;
+                        padding: 0.2rem !important;
+                        margin: 0 0.3rem !important;
+                        border-radius: 4px !important;
+                    }
+                    .quantity-control {
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
+                        padding: 0.5rem 0 !important;
+                    }
+                    .cart-plus-fixed, .cart-minus-fixed {
+                        min-width: 32px !important;
+                        height: 32px !important;
+                        font-weight: bold !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                    }
+                `;
             document.head.appendChild(style);
         });
     </script>

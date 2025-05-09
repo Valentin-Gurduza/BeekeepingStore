@@ -1,0 +1,6 @@
+﻿<li class="nav-item">
+    <a class="nav-link @(ViewContext.RouteData.Values["controller"].ToString() == "AdminOrder" ? "active" : "")" href="@Url.Action("Index", "AdminOrder")">
+        <i class="fas fa-shopping-cart me-2"></i>
+        <span>Comenzi</span>
+    </a>
+</li> 

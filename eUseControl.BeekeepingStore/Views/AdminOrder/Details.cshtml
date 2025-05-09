@@ -1,0 +1,307 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse
+
+@{
+    ViewBag.Title = "Detalii comandă #" + Model.OrderId;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Comandă #@Model.OrderId</h1>
+                <div>
+                    <a href="@Url.Action("Index", "AdminOrder")" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Înapoi la comenzi
+                    </a>
+                    <div class="btn-group">
+                        <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = Model.OrderId })" class="btn btn-outline-warning">
+                            <i class="fas fa-edit me-2"></i>Actualizează status
+                        </a>
+                        @if (Model.OrderStatus == "Processing")
+                        {
+                            <a href="@Url.Action("AddShipping", "AdminOrder", new { id = Model.OrderId })" class="btn btn-outline-info">
+                                <i class="fas fa-truck me-2"></i>Adaugă informații livrare
+                            </a>
+                        }
+                        @if (Model.OrderStatus == "Pending" || Model.OrderStatus == "Processing")
+                        {
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                                <i class="fas fa-times me-2"></i>Anulează comanda
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Detalii comandă</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tr>
+                                    <th style="width: 200px;">Număr comandă:</th>
+                                    <td>#@Model.OrderId</td>
+                                </tr>
+                                <tr>
+                                    <th>Client:</th>
+                                    <td>@Model.CustomerName (ID: @Model.UserId)</td>
+                                </tr>
+                                <tr>
+                                    <th>Data:</th>
+                                    <td>@Model.OrderDate.ToString("dd.MM.yyyy, HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th>Status comandă:</th>
+                                    <td>
+                                        <span class="badge bg-@(Model.OrderStatus == "Delivered" ? "success" :
+                                                                Model.OrderStatus == "Cancelled" ? "danger" :
+                                                                Model.OrderStatus == "Shipped" ? "info" : "warning")">
+                                            @Model.OrderStatus
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Status plată:</th>
+                                    <td>
+                                        <span class="badge bg-@(Model.PaymentStatus == "Completed" ? "success" :
+                                                                Model.PaymentStatus == "Failed" ? "danger" :
+                                                                "warning")">
+                                            @Model.PaymentStatus
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table">
+                                <tr>
+                                    <th style="width: 200px;">Metodă de plată:</th>
+                                    <td>@Model.PaymentMethod</td>
+                                </tr>
+                                @if (Model.ShippedDate.HasValue)
+                                {
+                                    <tr>
+                                        <th>Data expedierii:</th>
+                                        <td>@Model.ShippedDate.Value.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+                                {
+                                    <tr>
+                                        <th>Număr de tracking:</th>
+                                        <td>@Model.TrackingNumber</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <th>Total:</th>
+                                    <td><strong>@string.Format("{0:C}", Model.TotalAmount)</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Produse comandate</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Produs</th>
+                                    <th class="text-center">Preț</th>
+                                    <th class="text-center">Cantitate</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>@item.ProductId</td>
+                                        <td>
+                                            <div>
+                                                <a href="@Url.Action("Edit", "Product", new { id = item.ProductId })">@item.ProductName</a>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">@string.Format("{0:C}", item.UnitPrice)</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">@string.Format("{0:C}", item.Subtotal)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-end">Subtotal:</td>
+                                    <td class="text-end">@string.Format("{0:C}", Model.Items.Sum(i => i.Subtotal))</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end">Transport:</td>
+                                    @{
+                                        decimal subtotal = Model.Items.Sum(i => i.Subtotal);
+                                        decimal shipping = subtotal > 500 ? 0 : 50;
+                                    }
+                                    <td class="text-end">@(shipping == 0 ? "GRATUIT" : string.Format("{0:C}", shipping))</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                                    <td class="text-end"><strong>@string.Format("{0:C}", Model.TotalAmount)</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Adrese</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6 class="mb-2">Adresa de livrare</h6>
+                        <address class="mb-0">
+                            @Html.Raw(Model.ShippingAddress.Replace(Environment.NewLine, "<br />"))
+                        </address>
+                    </div>
+
+                    <div>
+                        <h6 class="mb-2">Adresa de facturare</h6>
+                        <address class="mb-0">
+                            @Html.Raw(Model.BillingAddress.Replace(Environment.NewLine, "<br />"))
+                        </address>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Note comandă</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">@Html.Raw(Model.Notes.Replace(Environment.NewLine, "<br />"))</p>
+                    </div>
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Acțiuni rapide</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = Model.OrderId })" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Actualizează status
+                        </a>
+
+                        @if (Model.OrderStatus == "Pending")
+                        {
+                            <form action="@Url.Action("UpdateStatus", "AdminOrder")" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="OrderId" value="@Model.OrderId" />
+                                <input type="hidden" name="OrderStatus" value="Processing" />
+                                <input type="hidden" name="Notes" value="Comanda a fost procesată automat" />
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-check me-2"></i>Marchează ca procesată
+                                </button>
+                            </form>
+                        }
+
+                        @if (Model.OrderStatus == "Processing")
+                        {
+                            <a href="@Url.Action("AddShipping", "AdminOrder", new { id = Model.OrderId })" class="btn btn-info">
+                                <i class="fas fa-truck me-2"></i>Adaugă informații livrare
+                            </a>
+                        }
+
+                        @if (Model.OrderStatus == "Shipped")
+                        {
+                            <form action="@Url.Action("UpdateStatus", "AdminOrder")" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="OrderId" value="@Model.OrderId" />
+                                <input type="hidden" name="OrderStatus" value="Delivered" />
+                                <input type="hidden" name="Notes" value="Comanda a fost marcată ca livrată" />
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-check-circle me-2"></i>Marchează ca livrată
+                                </button>
+                            </form>
+                        }
+
+                        @if (Model.OrderStatus == "Pending" || Model.OrderStatus == "Processing")
+                        {
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                                <i class="fas fa-times me-2"></i>Anulează comanda
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+@if (Model.OrderStatus == "Pending" || Model.OrderStatus == "Processing")
+{
+    <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelOrderModalLabel">Confirmare anulare comandă</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Sunteți sigur că doriți să anulați comanda #@Model.OrderId?</p>
+                    <p>Această acțiune nu poate fi anulată și va returna produsele în stoc.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <form action="@Url.Action("Cancel", "AdminOrder", new { id = Model.OrderId })" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Anulează comanda</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+} 
