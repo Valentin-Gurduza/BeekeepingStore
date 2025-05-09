@@ -1,0 +1,189 @@
+﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse>
+
+@{
+    ViewBag.Title = "Administrare comenzi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Administrare comenzi</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Filtrare comenzi</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="@Url.Action("Index", "AdminOrder")" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status comandă</label>
+                            @Html.DropDownList("status", ViewBag.StatusList as SelectList, "Toate statusurile", new { @class = "form-select" })
+                        </div>
+                        <div class="col-md-3">
+                            <label for="userId" class="form-label">ID utilizator</label>
+                            <input type="number" class="form-control" id="userId" name="userId" value="@ViewBag.CurrentUserId" placeholder="Toate comenzile">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="sortBy" class="form-label">Sortare după</label>
+                            <select class="form-select" id="sortBy" name="sortBy">
+                                <option value="date" @(ViewBag.CurrentSortBy == "date" ? "selected" : "")>Data</option>
+                                <option value="status" @(ViewBag.CurrentSortBy == "status" ? "selected" : "")>Status</option>
+                                <option value="total" @(ViewBag.CurrentSortBy == "total" ? "selected" : "")>Total</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="ascending" class="form-label">Direcție</label>
+                            <select class="form-select" id="ascending" name="ascending">
+                                <option value="false" @(ViewBag.CurrentSortDirection == false ? "selected" : "")>Descrescător</option>
+                                <option value="true" @(ViewBag.CurrentSortDirection == true ? "selected" : "")>Crescător</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Filtrare</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            @if (Model.Count == 0)
+            {
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">Nu există comenzi!</h4>
+                    <p class="mb-0">Nu există comenzi care să corespundă criteriilor de filtrare.</p>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Comenzi (@Model.Count)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nr. comandă</th>
+                                        <th>Client</th>
+                                        <th>Data</th>
+                                        <th>Status</th>
+                                        <th>Total</th>
+                                        <th>Plată</th>
+                                        <th class="text-center">Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="fw-bold text-decoration-none">
+                                                    #@order.OrderId
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <div>@order.CustomerName</div>
+                                                <small class="text-muted">ID: @order.UserId</small>
+                                            </td>
+                                            <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td>
+                                                <span class="badge bg-@(order.OrderStatus == "Delivered" ? "success" :
+                                                                        order.OrderStatus == "Cancelled" ? "danger" :
+                                                                        order.OrderStatus == "Shipped" ? "info" : "warning")">
+                                                    @order.OrderStatus
+                                                </span>
+                                            </td>
+                                            <td>@string.Format("{0:C}", order.TotalAmount)</td>
+                                            <td>
+                                                <span class="badge bg-@(order.PaymentStatus == "Completed" ? "success" :
+                                                                        order.PaymentStatus == "Failed" ? "danger" :
+                                                                        "warning")">
+                                                    @order.PaymentStatus
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-primary" title="Vezi detalii">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-warning" title="Actualizează status">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    @if (order.OrderStatus == "Processing")
+                                                    {
+                                                        <a href="@Url.Action("AddShipping", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-info" title="Adaugă informații livrare">
+                                                            <i class="fas fa-truck"></i>
+                                                        </a>
+                                                    }
+                                                    @if (order.OrderStatus == "Pending" || order.OrderStatus == "Processing")
+                                                    {
+                                                        <button type="button" class="btn btn-sm btn-outline-danger cancel-order-btn"
+                                                                data-order-id="@order.OrderId"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#cancelOrderModal"
+                                                                title="Anulează comanda">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Confirmare anulare comandă</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sunteți sigur că doriți să anulați comanda <span id="orderIdToCancel"></span>?</p>
+                <p>Această acțiune nu poate fi anulată și va returna produsele în stoc.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                <form id="cancelOrderForm" action="" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Anulează comanda</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle cancel order buttons
+            document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-order-id');
+                    document.getElementById('orderIdToCancel').textContent = '#' + orderId;
+                    document.getElementById('cancelOrderForm').action = '@Url.Action("Cancel", "AdminOrder")/' + orderId;
+                });
+            });
+        });
+    </script>
+} 

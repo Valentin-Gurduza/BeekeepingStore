@@ -1,0 +1,129 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse
+
+@{
+    ViewBag.Title = "Confirmare comandă";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Confirmare comandă</h1>
+                <a href="@Url.Action("History", "Order")" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-2"></i>Comenzile mele
+                </a>
+            </div>
+            <div class="progress mt-3" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Comandă plasată cu succes!</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-success">
+                <h4 class="alert-heading">Mulțumim pentru comandă!</h4>
+                <p>Comanda cu numărul <strong>#@Model.OrderId</strong> a fost plasată cu succes și se află în curs de procesare.</p>
+                <p>Veți primi un email de confirmare cu detaliile comenzii în curând.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Detalii comandă</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th style="width: 200px;">Număr comandă:</th>
+                            <td>#@Model.OrderId</td>
+                        </tr>
+                        <tr>
+                            <th>Data:</th>
+                            <td>@Model.OrderDate.ToString("dd.MM.yyyy, HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge bg-warning">@Model.OrderStatus</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Metoda de plată:</th>
+                            <td>@Model.PaymentMethod</td>
+                        </tr>
+                        <tr>
+                            <th>Status plată:</th>
+                            <td>
+                                <span class="badge bg-@(Model.PaymentStatus == "Completed" ? "success" : Model.PaymentStatus == "Failed" ? "danger" : "warning")">
+                                    @Model.PaymentStatus
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Adresa de livrare:</th>
+                            <td>@Model.ShippingAddress</td>
+                        </tr>
+                        <tr>
+                            <th>Adresa de facturare:</th>
+                            <td>@Model.BillingAddress</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Sumar comandă</h5>
+                </div>
+                <div class="card-body">
+                    <div class="order-items mb-3">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span class="fw-bold">@item.ProductName</span>
+                                    <span class="text-muted"> x @item.Quantity</span>
+                                </div>
+                                <span>@string.Format("{0:C}", item.Subtotal)</span>
+                            </div>
+                        }
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>@string.Format("{0:C}", Model.Items.Sum(i => i.Subtotal))</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Transport</span>
+                        @{
+                            decimal subtotal = Model.Items.Sum(i => i.Subtotal);
+                            decimal shipping = subtotal > 500 ? 0 : 50;
+                        }
+                        <span>@(shipping == 0 ? "GRATUIT" : string.Format("{0:C}", shipping))</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold">@string.Format("{0:C}", Model.TotalAmount)</span>
+                    </div>
+
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-primary w-100">
+                        <i class="fas fa-home me-2"></i>Înapoi la magazin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

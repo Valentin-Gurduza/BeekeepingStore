@@ -1,0 +1,67 @@
+﻿@model eUseControl.BeekeepingStore.Controllers.ShippingInfoViewModel
+
+@{
+    ViewBag.Title = "Adăugare informații livrare pentru comanda #" + Model.OrderId;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Adăugare informații livrare</h1>
+                <div>
+                    <a href="@Url.Action("Details", "AdminOrder", new { id = Model.OrderId })" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Înapoi la detalii comandă
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Informații livrare pentru comanda #@Model.OrderId</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("AddShipping", "AdminOrder", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        @Html.HiddenFor(model => model.OrderId)
+
+                        <div class="mb-3">
+                            <label for="TrackingNumber" class="form-label">Număr de tracking</label>
+                            @Html.TextBoxFor(model => model.TrackingNumber, new { @class = "form-control", placeholder = "Introduceți numărul de tracking..." })
+                            @Html.ValidationMessageFor(model => model.TrackingNumber, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ShippedDate" class="form-label">Data expedierii</label>
+                            @Html.TextBoxFor(model => model.ShippedDate, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                            @Html.ValidationMessageFor(model => model.ShippedDate, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Adăugarea informațiilor de livrare va actualiza automat statusul comenzii la "Shipped" (Expediată) dacă aceasta este în statusul "Processing" (În procesare).
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-truck me-2"></i>Salvează informații livrare
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+} 
