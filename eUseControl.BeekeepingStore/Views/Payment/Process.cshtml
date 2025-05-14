@@ -1,0 +1,264 @@
+﻿@model eUseControl.BeekeepingStore.Controllers.ProcessPaymentViewModel
+
+@{
+    ViewBag.Title = "Procesare plată";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container py-5">
+    <h1 class="mb-4">Procesare plată</h1>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Detalii plată</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <p class="mb-1"><strong>Număr comandă:</strong> #@Model.OrderId</p>
+                        <p class="mb-1"><strong>Suma de plată:</strong> @Model.Amount.ToString("N2") @Model.Currency</p>
+                    </div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var modelState in ViewData.ModelState.Values)
+                            {
+                                foreach (var error in modelState.Errors)
+                                {
+                                    <p>@error.ErrorMessage</p>
+                                }
+                            }
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <h5>Alegeți metoda de plată</h5>
+                        <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="card-tab" data-bs-toggle="tab" data-bs-target="#card-tab-pane" type="button" role="tab" aria-controls="card-tab-pane" aria-selected="true">
+                                    <i class="fas fa-credit-card me-2"></i> Card de credit
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="transfer-tab" data-bs-toggle="tab" data-bs-target="#transfer-tab-pane" type="button" role="tab" aria-controls="transfer-tab-pane" aria-selected="false">
+                                    <i class="fas fa-university me-2"></i> Transfer bancar
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content pt-4" id="paymentTabsContent">
+                            <!-- Card Payment Form -->
+                            <div class="tab-pane fade show active" id="card-tab-pane" role="tabpanel" aria-labelledby="card-tab" tabindex="0">
+                                @using (Html.BeginForm("ProcessCard", "Payment", FormMethod.Post, new { id = "card-payment-form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="OrderId" value="@Model.OrderId" />
+                                    <input type="hidden" name="Amount" value="@Model.Amount" />
+                                    <input type="hidden" name="Currency" value="@Model.Currency" />
+                                    <input type="hidden" name="CustomerName" value="@Model.CustomerName" />
+
+                                    <div class="mb-3">
+                                        <label for="CardNumber" class="form-label">Număr card</label>
+                                        <input type="text" class="form-control" id="CardNumber" name="CardNumber" placeholder="1234 5678 9012 3456" required>
+                                        <div class="form-text">Introduceți numărul cardului fără spații</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="CardHolderName" class="form-label">Titular card</label>
+                                        <input type="text" class="form-control" id="CardHolderName" name="CardHolderName" placeholder="NUME PRENUME" required>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="ExpiryMonth" class="form-label">Luna expirare</label>
+                                            <select class="form-select" id="ExpiryMonth" name="ExpiryMonth" required>
+                                                <option value="">Luna</option>
+                                                @for (int i = 1; i <= 12; i++)
+                                                {
+                                                    <option value="@i.ToString("D2")">@i.ToString("D2")</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="ExpiryYear" class="form-label">Anul expirare</label>
+                                            <select class="form-select" id="ExpiryYear" name="ExpiryYear" required>
+                                                <option value="">Anul</option>
+                                                @for (int i = DateTime.Now.Year; i <= DateTime.Now.Year + 10; i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label for="Cvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="Cvv" name="Cvv" placeholder="123" required maxlength="4">
+                                            <div class="form-text">Cod de securitate (3-4 cifre)</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="CustomerEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="CustomerEmail" name="CustomerEmail" placeholder="email@example.com">
+                                        <div class="form-text">Pentru confirmarea plății</div>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-lock me-2"></i> Plătește în siguranță
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-3 text-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-shield-alt me-1"></i> Plata este procesată în siguranță
+                                        </small>
+                                        <div class="mt-2">
+                                            <img src="https://cdn.iconscout.com/icon/free/png-256/visa-3-226460.png" alt="Visa" height="30" class="me-2">
+                                            <img src="https://cdn.iconscout.com/icon/free/png-256/mastercard-3-226462.png" alt="MasterCard" height="30" class="me-2">
+                                            <img src="https://cdn.iconscout.com/icon/free/png-256/amex-82969.png" alt="American Express" height="30">
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Bank Transfer Form -->
+                            <div class="tab-pane fade" id="transfer-tab-pane" role="tabpanel" aria-labelledby="transfer-tab" tabindex="0">
+                                @using (Html.BeginForm("ProcessTransfer", "Payment", FormMethod.Post, new { id = "transfer-payment-form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="OrderId" value="@Model.OrderId" />
+                                    <input type="hidden" name="Amount" value="@Model.Amount" />
+                                    <input type="hidden" name="Currency" value="@Model.Currency" />
+                                    <input type="hidden" name="CustomerName" value="@Model.CustomerName" />
+
+                                    <div class="alert alert-info">
+                                        <p><i class="fas fa-info-circle me-2"></i> Prin selectarea acestei opțiuni, veți primi instrucțiuni pentru efectuarea plății prin transfer bancar.</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="TransferCustomerEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="TransferCustomerEmail" name="CustomerEmail" placeholder="email@example.com" required>
+                                        <div class="form-text">Pentru a primi instrucțiunile de plată</div>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-university me-2"></i> Generează instrucțiuni de plată
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Sumar comandă</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Număr comandă:</strong> #@Model.OrderId</p>
+                    <p class="mb-2"><strong>Client:</strong> @Model.CustomerName</p>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total de plată:</span>
+                        <span class="fw-bold">@Model.Amount.ToString("N2") @Model.Currency</span>
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="@Url.Action("Details", "Order", new { id = Model.OrderId })" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i> Înapoi la detalii comandă
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Card number formatting
+            const cardNumberInput = document.getElementById('CardNumber');
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function(e) {
+                    // Remove all non-digits
+                    let value = e.target.value.replace(/\D/g, '');
+
+                    // Limit to 16 digits
+                    if (value.length > 16) {
+                        value = value.substring(0, 16);
+                    }
+
+                    // Format with spaces every 4 digits
+                    let formattedValue = '';
+                    for (let i = 0; i < value.length; i++) {
+                        if (i > 0 && i % 4 === 0) {
+                            formattedValue += ' ';
+                        }
+                        formattedValue += value[i];
+                    }
+
+                    e.target.value = formattedValue;
+                });
+            }
+
+            // CVV formatting - numbers only
+            const cvvInput = document.getElementById('Cvv');
+            if (cvvInput) {
+                cvvInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.replace(/\D/g, '');
+                });
+            }
+
+            // Form validation
+            const cardForm = document.getElementById('card-payment-form');
+            if (cardForm) {
+                cardForm.addEventListener('submit', function(e) {
+                    const cardNumber = document.getElementById('CardNumber');
+                    if (!cardNumber) return true;
+
+                    const cardNumberValue = cardNumber.value.replace(/\s/g, '');
+                    if (cardNumberValue.length < 13 || cardNumberValue.length > 16) {
+                        alert('Numărul cardului trebuie să conțină între 13 și 16 cifre.');
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    const cvv = document.getElementById('Cvv');
+                    if (!cvv) return true;
+
+                    const cvvValue = cvv.value;
+                    if (cvvValue.length < 3) {
+                        alert('Codul CVV trebuie să conțină cel puțin 3 cifre.');
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+
+            // Set active tab based on payment method
+            const paymentMethod = '@(Model.PaymentMethod ?? "card")';
+            if (paymentMethod === 'transfer') {
+                const transferTab = document.getElementById('transfer-tab');
+                if (transferTab) {
+                    transferTab.click();
+                }
+            }
+        });
+    </script>
+} 

@@ -54,6 +54,8 @@
     <Compile Include="Entities\Order\Order.cs" />
     <Compile Include="Entities\Order\OrderDTO.cs" />
     <Compile Include="Entities\Order\OrderItem.cs" />
+    <Compile Include="Entities\Payment\Payment.cs" />
+    <Compile Include="Entities\Payment\PaymentDTO.cs" />
     <Compile Include="Entities\Product\Product.cs" />
     <Compile Include="Entities\User\UDBTable.cs" />
     <Compile Include="Entities\User\ULoginData.cs" />

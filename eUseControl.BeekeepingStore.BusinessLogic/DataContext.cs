@@ -6,6 +6,8 @@ using System.Runtime.Remoting.Contexts;
 using eUseControl.BeekeepingStore.Domain.Entities.User;
 using eUseControl.BeekeepingStore.Domain.Entities.Product;
 using eUseControl.BeekeepingStore.Domain.Entities.Order;
+using eUseControl.BeekeepingStore.Domain.Entities.Payment;
+using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 
 internal class DataContext : DbContext
 {
@@ -17,6 +19,7 @@ internal class DataContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<Payment> Payments { get; set; }
 
     public DataContext() : base("eUseControl.BeekeepingStore")
     {
@@ -159,5 +162,35 @@ internal class DataContext : DbContext
             .WithRequired(oi => oi.Order)
             .HasForeignKey(oi => oi.OrderId)
             .WillCascadeOnDelete(true);
+
+        // Configurare pentru Payment
+        modelBuilder.Entity<Payment>()
+            .HasKey(p => p.PaymentId);
+
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.PaymentMethod)
+        .IsRequired()
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.Status)
+        .IsRequired()
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.Amount)
+            .IsRequired();
+
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.Currency)
+            .IsRequired()
+            .HasMaxLength(3);
+
+        // Relația Order - Payment
+        modelBuilder.Entity<Payment>()
+            .HasRequired(p => p.Order)
+            .WithMany()
+            .HasForeignKey(p => p.OrderId)
+            .WillCascadeOnDelete(false);
     }
 }
