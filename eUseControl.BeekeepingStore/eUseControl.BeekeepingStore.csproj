@@ -148,6 +148,7 @@
     <Content Include="Scripts\app.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\counter.init.js" />
+    <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\site.js" />
     <Content Include="Scripts\jquery.easing.min.js" />
     <Content Include="Scripts\jquery.min.js" />
@@ -164,6 +165,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
+    <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Filters\AdminModAttribute.cs" />
     <Compile Include="Filters\UserModAttribute.cs" />
@@ -220,6 +222,8 @@
     <Content Include="Views\AdminOrder\UpdateStatus.cshtml" />
     <Content Include="Views\AdminOrder\AddShipping.cshtml" />
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Views\Payment\Process.cshtml" />
+    <Content Include="Views\Payment\TransferInstructions.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

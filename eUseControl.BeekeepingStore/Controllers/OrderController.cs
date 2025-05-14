@@ -124,6 +124,12 @@ namespace eUseControl.BeekeepingStore.Controllers
                 {
                     orderId = _orderBL.CreateOrder(orderRequest);
                     Debug.WriteLine($"PlaceOrder: Comandă creată cu ID={orderId}");
+
+                    // If payment method is cash on delivery, we're done
+                    if (paymentMethod.ToLower() == "cash")
+                    {
+                        Debug.WriteLine("PlaceOrder: Metoda de plată este plata la livrare, nu este necesară procesarea plății");
+                    }
                 }
                 catch (ArgumentException ex)
                 {

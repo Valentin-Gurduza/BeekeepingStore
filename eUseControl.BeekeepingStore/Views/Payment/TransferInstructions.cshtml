@@ -1,0 +1,121 @@
+﻿@model eUseControl.BeekeepingStore.Controllers.TransferInstructionsViewModel
+
+@{
+    ViewBag.Title = "Instrucțiuni de plată";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Instrucțiuni de plată prin transfer bancar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success mb-4">
+                        <p class="mb-0"><i class="fas fa-check-circle me-2"></i> Comanda dumneavoastră a fost înregistrată cu succes. Pentru a finaliza procesul, vă rugăm să efectuați plata prin transfer bancar folosind detaliile de mai jos.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Detalii comandă</h5>
+                        <p class="mb-1"><strong>Număr comandă:</strong> #@Model.OrderId</p>
+                        <p class="mb-1"><strong>Suma de plată:</strong> @Model.Amount.ToString("N2") MDL</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Detalii bancare</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Banca</th>
+                                        <td>@Model.BankName</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Beneficiar</th>
+                                        <td>@Model.AccountName</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Cont IBAN</th>
+                                        <td><strong>@Model.AccountNumber</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Suma</th>
+                                        <td><strong>@Model.Amount.ToString("N2") MDL</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Referință</th>
+                                        <td><strong>@Model.Reference</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i> Instrucțiuni importante:</h6>
+                        <ol class="mb-0">
+                            <li>Efectuați plata în termen de 3 zile lucrătoare.</li>
+                            <li>Asigurați-vă că includeți referința exactă în detaliile plății pentru a putea identifica comanda dumneavoastră.</li>
+                            <li>După ce ați efectuat plata, poate dura 1-2 zile lucrătoare până când aceasta va fi confirmată în sistemul nostru.</li>
+                            <li>Puteți verifica statusul plății în orice moment în pagina de detalii a comenzii.</li>
+                        </ol>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("Details", "Order", new { id = Model.OrderId })" class="btn btn-primary">
+                            <i class="fas fa-file-invoice me-2"></i> Vezi detalii comandă
+                        </a>
+                        <button type="button" class="btn btn-outline-primary" id="check-payment-status">
+                            <i class="fas fa-sync-alt me-2"></i> Verifică status plată
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkStatusBtn = document.getElementById('check-payment-status');
+            if (checkStatusBtn) {
+                checkStatusBtn.addEventListener('click', function() {
+                    // Show loading state
+                    const originalText = checkStatusBtn.innerHTML;
+                    checkStatusBtn.disabled = true;
+                    checkStatusBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Se verifică...';
+
+                    // Call API to check payment status
+                    fetch('@Url.Action("VerifyStatus", "Payment", new { paymentId = Model.PaymentId })')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (data.status === 'completed') {
+                                    // Payment completed
+                                    alert('Plata a fost confirmată! Comanda dumneavoastră va fi procesată în curând.');
+                                    window.location.href = '@Url.Action("Details", "Order", new { id = Model.OrderId })';
+                                } else {
+                                    // Payment still pending
+                                    alert('Plata este încă în așteptare. Vă rugăm să reveniți mai târziu pentru a verifica din nou statusul.');
+                                }
+                            } else {
+                                alert('Eroare la verificarea statusului plății: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('A apărut o eroare la verificarea statusului plății. Vă rugăm să încercați din nou mai târziu.');
+                        })
+                        .finally(() => {
+                            // Reset button state
+                            checkStatusBtn.disabled = false;
+                            checkStatusBtn.innerHTML = originalText;
+                        });
+                });
+            }
+        });
+    </script>
+} 
