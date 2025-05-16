@@ -20,6 +20,7 @@ internal class DataContext : DbContext
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<Wishlist> Wishlists { get; set; }
 
     public DataContext() : base("eUseControl.BeekeepingStore")
     {
@@ -191,6 +192,24 @@ internal class DataContext : DbContext
             .HasRequired(p => p.Order)
             .WithMany()
             .HasForeignKey(p => p.OrderId)
+            .WillCascadeOnDelete(false);
+
+        // Configurare pentru Wishlist
+        modelBuilder.Entity<Wishlist>()
+            .HasKey(w => w.WishlistId);
+
+        // Relația User - Wishlist
+        modelBuilder.Entity<Wishlist>()
+            .HasRequired(w => w.User)
+            .WithMany()
+            .HasForeignKey(w => w.UserId)
+            .WillCascadeOnDelete(false);
+
+        // Relația Product - Wishlist
+        modelBuilder.Entity<Wishlist>()
+            .HasRequired(w => w.Product)
+            .WithMany()
+            .HasForeignKey(w => w.ProductId)
             .WillCascadeOnDelete(false);
     }
 }
