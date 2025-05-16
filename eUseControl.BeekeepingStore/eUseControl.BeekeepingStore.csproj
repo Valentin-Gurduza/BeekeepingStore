@@ -167,6 +167,7 @@
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
+    <Compile Include="Controllers\WishlistController.cs" />
     <Compile Include="Filters\AdminModAttribute.cs" />
     <Compile Include="Filters\UserModAttribute.cs" />
     <Compile Include="Filters\VisitorModAttribute.cs" />
@@ -224,6 +225,7 @@
     <Content Include="Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Views\Payment\Process.cshtml" />
     <Content Include="Views\Payment\TransferInstructions.cshtml" />
+    <Content Include="Views\Wishlist\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -62,6 +62,7 @@
     <Compile Include="Entities\User\UProfileData.cs" />
     <Compile Include="Entities\User\UserLogin.cs" />
     <Compile Include="Entities\User\UUserData.cs" />
+    <Compile Include="Entities\User\Wishlist.cs" />
     <Compile Include="Enums\OrderStatus.cs" />
     <Compile Include="Enums\URole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

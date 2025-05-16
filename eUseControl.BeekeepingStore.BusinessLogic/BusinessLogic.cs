@@ -15,6 +15,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         private readonly OrderBL _orderBL;
         private readonly ProductBL _productBL;
         private readonly PaymentBL _paymentBL;
+        private readonly WishlistBL _wishlistBL;
 
         public BusinessLogic()
         {
@@ -22,11 +23,13 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             _orderBL = new OrderBL();
             _productBL = new ProductBL();
             _paymentBL = new PaymentBL();
+            _wishlistBL = new WishlistBL();
         }
 
         public ISession GetSessionBL => _sessionBL;
         public IOrder GetOrderBL => _orderBL;
         public IProduct GetProductBL => _productBL;
         public IPayment GetPaymentBL => _paymentBL;
+        public IWishlist GetWishlistBL => _wishlistBL;
     }
 }
