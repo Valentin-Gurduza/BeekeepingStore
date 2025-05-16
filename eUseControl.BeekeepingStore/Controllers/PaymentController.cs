@@ -41,7 +41,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 // Check if order is already paid
                 if (order.PaymentStatus == Domain.Enums.PaymentStatus.Completed)
                 {
-                    TempData["SuccessMessage"] = "Această comandă a fost deja plătită.";
+                    TempData["SuccessMessage"] = "This order has already been paid.";
                     return RedirectToAction("Details", "Order", new { id = id });
                 }
 
@@ -60,7 +60,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in Process: {ex}");
-                TempData["ErrorMessage"] = "A apărut o eroare la încărcarea paginii de plată: " + ex.Message;
+                TempData["ErrorMessage"] = "An error occurred while loading the payment page: " + ex.Message;
                 return RedirectToAction("Details", "Order", new { id = id });
             }
         }
@@ -110,7 +110,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                     Cvv = model.Cvv,
                     CustomerEmail = model.CustomerEmail,
                     CustomerName = model.CustomerName,
-                    Description = $"Plată comandă #{model.OrderId}"
+                    Description = $"Payment for order #{model.OrderId}"
                 };
 
                 // Process payment
@@ -118,7 +118,7 @@ namespace eUseControl.BeekeepingStore.Controllers
 
                 if (response.Success)
                 {
-                    TempData["SuccessMessage"] = "Plata a fost procesată cu succes!";
+                    TempData["SuccessMessage"] = "Payment processed successfully!";
                     return RedirectToAction("Confirmation", "Order", new { id = model.OrderId });
                 }
                 else
@@ -138,7 +138,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in ProcessCard: {ex}");
-                ModelState.AddModelError("", "A apărut o eroare la procesarea plății: " + ex.Message);
+                ModelState.AddModelError("", "An error occurred while processing the payment: " + ex.Message);
                 var viewModel = new ProcessPaymentViewModel
                 {
                     OrderId = model.OrderId,
@@ -191,7 +191,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                     PaymentMethod = "transfer",
                     CustomerEmail = model.CustomerEmail,
                     CustomerName = model.CustomerName,
-                    Description = $"Plată comandă #{model.OrderId}"
+                    Description = $"Payment for order #{model.OrderId}"
                 };
 
                 // Process payment
@@ -199,7 +199,7 @@ namespace eUseControl.BeekeepingStore.Controllers
 
                 if (response.Success)
                 {
-                    TempData["SuccessMessage"] = "Instrucțiunile de plată prin transfer bancar au fost generate. Vă rugăm să efectuați transferul în cel mai scurt timp.";
+                    TempData["SuccessMessage"] = "Bank transfer payment instructions have been generated. Please complete the transfer as soon as possible.";
                     return RedirectToAction("TransferInstructions", new { id = model.OrderId, paymentId = response.PaymentId });
                 }
                 else
@@ -219,7 +219,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in ProcessTransfer: {ex}");
-                ModelState.AddModelError("", "A apărut o eroare la procesarea plății: " + ex.Message);
+                ModelState.AddModelError("", "An error occurred while processing the payment: " + ex.Message);
                 var viewModel = new ProcessPaymentViewModel
                 {
                     OrderId = model.OrderId,
@@ -254,7 +254,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 BankName = "Banca Comercială Română",
                 AccountName = "BeekeepingStore SRL",
                 AccountNumber = "RO49RNCB0082044172720001",
-                Reference = $"Comandă #{id}"
+                Reference = $"Order #{id}"
             };
 
             return View(model);
@@ -272,7 +272,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error in VerifyStatus: {ex}");
-                return Json(new { success = false, message = "A apărut o eroare la verificarea statusului plății: " + ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { success = false, message = "An error occurred while verifying the payment status: " + ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
     }
@@ -295,23 +295,23 @@ namespace eUseControl.BeekeepingStore.Controllers
         public decimal Amount { get; set; }
         public string Currency { get; set; }
 
-        [Required(ErrorMessage = "Numărul cardului este obligatoriu")]
-        [Display(Name = "Număr card")]
+        [Required(ErrorMessage = "Card number is required")]
+        [Display(Name = "Card Number")]
         public string CardNumber { get; set; }
 
-        [Required(ErrorMessage = "Numele titularului este obligatoriu")]
-        [Display(Name = "Titular card")]
+        [Required(ErrorMessage = "Cardholder name is required")]
+        [Display(Name = "Cardholder Name")]
         public string CardHolderName { get; set; }
 
-        [Required(ErrorMessage = "Luna expirării este obligatorie")]
-        [Display(Name = "Luna expirare")]
+        [Required(ErrorMessage = "Expiry month is required")]
+        [Display(Name = "Expiry Month")]
         public string ExpiryMonth { get; set; }
 
-        [Required(ErrorMessage = "Anul expirării este obligatoriu")]
-        [Display(Name = "An expirare")]
+        [Required(ErrorMessage = "Expiry year is required")]
+        [Display(Name = "Expiry Year")]
         public string ExpiryYear { get; set; }
 
-        [Required(ErrorMessage = "Codul CVV este obligatoriu")]
+        [Required(ErrorMessage = "CVV is required")]
         [Display(Name = "CVV")]
         public string Cvv { get; set; }
 
@@ -326,8 +326,8 @@ namespace eUseControl.BeekeepingStore.Controllers
         public string Currency { get; set; }
         public string CustomerName { get; set; }
 
-        [Required(ErrorMessage = "Adresa de email este obligatorie")]
-        [EmailAddress(ErrorMessage = "Adresa de email nu este validă")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         [Display(Name = "Email")]
         public string CustomerEmail { get; set; }
     }

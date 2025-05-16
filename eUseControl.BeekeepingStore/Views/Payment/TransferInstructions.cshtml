@@ -1,7 +1,7 @@
 ﻿@model eUseControl.BeekeepingStore.Controllers.TransferInstructionsViewModel
 
 @{
-    ViewBag.Title = "Instrucțiuni de plată";
+    ViewBag.Title = "Payment Instructions";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -10,42 +10,42 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Instrucțiuni de plată prin transfer bancar</h5>
+                    <h5 class="mb-0">Bank Transfer Payment Instructions</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-success mb-4">
-                        <p class="mb-0"><i class="fas fa-check-circle me-2"></i> Comanda dumneavoastră a fost înregistrată cu succes. Pentru a finaliza procesul, vă rugăm să efectuați plata prin transfer bancar folosind detaliile de mai jos.</p>
+                        <p class="mb-0"><i class="fas fa-check-circle me-2"></i> Your order has been successfully registered. To complete the process, please make the payment by bank transfer using the details below.</p>
                     </div>
 
                     <div class="mb-4">
-                        <h5>Detalii comandă</h5>
-                        <p class="mb-1"><strong>Număr comandă:</strong> #@Model.OrderId</p>
-                        <p class="mb-1"><strong>Suma de plată:</strong> @Model.Amount.ToString("N2") MDL</p>
+                        <h5>Order Details</h5>
+                        <p class="mb-1"><strong>Order Number:</strong> #@Model.OrderId</p>
+                        <p class="mb-1"><strong>Amount to Pay:</strong> @Model.Amount.ToString("N2") MDL</p>
                     </div>
 
                     <div class="mb-4">
-                        <h5>Detalii bancare</h5>
+                        <h5>Banking Details</h5>
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <tbody>
                                     <tr>
-                                        <th scope="row">Banca</th>
+                                        <th scope="row">Bank</th>
                                         <td>@Model.BankName</td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Beneficiar</th>
+                                        <th scope="row">Beneficiary</th>
                                         <td>@Model.AccountName</td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Cont IBAN</th>
+                                        <th scope="row">IBAN Account</th>
                                         <td><strong>@Model.AccountNumber</strong></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Suma</th>
+                                        <th scope="row">Amount</th>
                                         <td><strong>@Model.Amount.ToString("N2") MDL</strong></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Referință</th>
+                                        <th scope="row">Reference</th>
                                         <td><strong>@Model.Reference</strong></td>
                                     </tr>
                                 </tbody>
@@ -54,21 +54,21 @@
                     </div>
 
                     <div class="alert alert-info mb-4">
-                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i> Instrucțiuni importante:</h6>
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i> Important Instructions:</h6>
                         <ol class="mb-0">
-                            <li>Efectuați plata în termen de 3 zile lucrătoare.</li>
-                            <li>Asigurați-vă că includeți referința exactă în detaliile plății pentru a putea identifica comanda dumneavoastră.</li>
-                            <li>După ce ați efectuat plata, poate dura 1-2 zile lucrătoare până când aceasta va fi confirmată în sistemul nostru.</li>
-                            <li>Puteți verifica statusul plății în orice moment în pagina de detalii a comenzii.</li>
+                            <li>Make the payment within 3 business days.</li>
+                            <li>Be sure to include the exact reference in the payment details so we can identify your order.</li>
+                            <li>After you make the payment, it may take 1-2 business days until it is confirmed in our system.</li>
+                            <li>You can check the payment status at any time on the order details page.</li>
                         </ol>
                     </div>
 
                     <div class="d-grid gap-2">
                         <a href="@Url.Action("Details", "Order", new { id = Model.OrderId })" class="btn btn-primary">
-                            <i class="fas fa-file-invoice me-2"></i> Vezi detalii comandă
+                            <i class="fas fa-file-invoice me-2"></i> View Order Details
                         </a>
                         <button type="button" class="btn btn-outline-primary" id="check-payment-status">
-                            <i class="fas fa-sync-alt me-2"></i> Verifică status plată
+                            <i class="fas fa-sync-alt me-2"></i> Check Payment Status
                         </button>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                     // Show loading state
                     const originalText = checkStatusBtn.innerHTML;
                     checkStatusBtn.disabled = true;
-                    checkStatusBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Se verifică...';
+                    checkStatusBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
 
                     // Call API to check payment status
                     fetch('@Url.Action("VerifyStatus", "Payment", new { paymentId = Model.PaymentId })')
@@ -95,19 +95,19 @@
                             if (data.success) {
                                 if (data.status === 'completed') {
                                     // Payment completed
-                                    alert('Plata a fost confirmată! Comanda dumneavoastră va fi procesată în curând.');
+                                    alert('Payment has been confirmed! Your order will be processed soon.');
                                     window.location.href = '@Url.Action("Details", "Order", new { id = Model.OrderId })';
                                 } else {
                                     // Payment still pending
-                                    alert('Plata este încă în așteptare. Vă rugăm să reveniți mai târziu pentru a verifica din nou statusul.');
+                                    alert('Payment is still pending. Please check back later to verify the status again.');
                                 }
                             } else {
-                                alert('Eroare la verificarea statusului plății: ' + data.message);
+                                alert('Error checking payment status: ' + data.message);
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('A apărut o eroare la verificarea statusului plății. Vă rugăm să încercați din nou mai târziu.');
+                            alert('An error occurred while checking the payment status. Please try again later.');
                         })
                         .finally(() => {
                             // Reset button state

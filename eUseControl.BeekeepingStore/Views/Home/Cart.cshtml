@@ -84,6 +84,76 @@
 @section scripts {
     <script>
         /**
+         * Cart cleanup function - runs on page load to prevent duplicate items
+         */
+        (function () {
+            console.log("Cart cleanup: Initializing duplicate prevention");
+
+            function cleanupCart() {
+                try {
+                    // Get the cart from localStorage
+                    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                    if (!Array.isArray(cart) || cart.length === 0) return;
+
+                    console.log("Cart cleanup: Original cart items:", cart.length);
+
+                    // Use a map to track unique items by ID
+                    const uniqueItems = new Map();
+                    let duplicateFound = false;
+
+                    // Process each item in the cart
+                    cart.forEach(item => {
+                        const itemId = String(item.id || '');
+                        if (!itemId) return;
+
+                        // If this ID already exists in our map, it's a duplicate
+                        if (uniqueItems.has(itemId)) {
+                            duplicateFound = true;
+                            console.log(`Cart cleanup: Found duplicate item ${item.name} (ID: ${itemId})`);
+
+                            // Keep the item with the highest quantity if both exist
+                            const existingItem = uniqueItems.get(itemId);
+                            if (item.quantity > existingItem.quantity) {
+                                console.log(`Cart cleanup: Keeping newer item with quantity ${item.quantity}`);
+                                uniqueItems.set(itemId, item);
+                            }
+                        } else {
+                            // First time seeing this ID, add it to our map
+                            uniqueItems.set(itemId, item);
+                        }
+                    });
+
+                    // If we found duplicates, update the cart
+                    if (duplicateFound) {
+                        const cleanCart = Array.from(uniqueItems.values());
+                        console.log(`Cart cleanup: Updated cart from ${cart.length} to ${cleanCart.length} items`);
+                        localStorage.setItem('cart', JSON.stringify(cleanCart));
+
+                        // Force page reload if we're on the cart page
+                        if (window.location.href.includes('/Cart')) {
+                            console.log("Cart cleanup: Reloading page to update UI");
+                            setTimeout(() => window.location.reload(), 100);
+                        }
+                    } else {
+                        console.log("Cart cleanup: No duplicates found");
+                    }
+                } catch (e) {
+                    console.error("Cart cleanup error:", e);
+                }
+            }
+
+            // Run on initialization
+            cleanupCart();
+
+            // Add event listeners to ensure it runs properly
+            window.addEventListener('load', cleanupCart);
+            document.addEventListener('DOMContentLoaded', cleanupCart);
+        })();
+
+        // The previous duplicate handling code has been consolidated into a single cleanupCart function above
+        // No additional cleanup functions are needed
+
+        /**
          * Format currency based on locale
          */
         function cartFormatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
@@ -111,12 +181,12 @@
                     formatted = formatted + ' MDL';
                 }
 
-                console.log(`[CART FIX] Formatted price: ${price} -> ${formatted}`);
+                console.log(`Formatted price: ${price} -> ${formatted}`);
                 return formatted;
 
             } catch (error) {
                 // Fallback formatting
-                console.error('[CART FIX] Currency formatting error:', error);
+                console.error('Currency formatting error:', error);
                 return price.toFixed(2) + ' MDL';
             }
         }
@@ -138,8 +208,8 @@
             console.log("[CART FIX] Found", plusButtons.length, "plus buttons");
 
             if (plusButtons.length === 0) {
-                console.log("[CART FIX] Problema detectată: Nu s-au găsit butoane plus. Așteptăm...");
-                // Reîncercăm mai târziu
+                console.log("[CART FIX] Problem detected: No plus buttons found. Waiting...");
+                // Try again later
                 setTimeout(fixCartQuantityButtons, 500);
                 return;
             }
@@ -329,6 +399,80 @@
         }
 
         /**
+         * Add event handlers to delete buttons
+         */
+        function addDeleteButtonHandlers() {
+            const deleteButtons = document.querySelectorAll('.delete-item');
+            console.log("Adding handlers to", deleteButtons.length, "delete buttons");
+
+            deleteButtons.forEach(button => {
+                // Verificăm dacă butonul are deja un handler atașat
+                if (button.hasAttribute('data-has-delete-handler')) {
+                    return; // Sărim peste acest buton, are deja un handler
+                }
+
+                // Marcăm butonul ca având un handler atașat
+                button.setAttribute('data-has-delete-handler', 'true');
+
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Find parent cart item to get the product ID
+                    const cartItem = this.closest('.cart-item');
+                    if (!cartItem) return;
+
+                    const productId = cartItem.getAttribute('data-product-id');
+                    if (!productId) {
+                        console.error("Product ID not found for delete operation");
+                        return;
+                    }
+
+                    // Get product name for notification
+                    const productName = cartItem.querySelector('h5')?.textContent || 'Product';
+
+                    // Confirm deletion
+                    if (confirm(`Remove ${productName} from your cart?`)) {
+                        console.log("Removing product:", productId);
+
+                        // Get the cart
+                        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+                        // Filter out the product
+                        cart = cart.filter(item => String(item.id) !== String(productId));
+
+                        // Save the updated cart
+                        localStorage.setItem('cart', JSON.stringify(cart));
+
+                        // Remove the item from UI with animation
+                        cartItem.style.transition = 'all 0.3s ease-out';
+                        cartItem.style.opacity = '0';
+                        cartItem.style.transform = 'translateX(30px)';
+
+                        setTimeout(() => {
+                            // Re-render the cart or remove the item
+                            renderCartItems();
+
+                            // Show notification
+                            showNotification(`${productName} has been removed from your cart.`, 'info');
+
+                            // Update cart badge
+                            const cartBadge = document.querySelector('.cart-badge');
+                            if (cartBadge) {
+                                const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+                                cartBadge.textContent = totalItems;
+
+                                if (totalItems === 0) {
+                                    cartBadge.classList.add('d-none');
+                                }
+                            }
+                        }, 300);
+                    }
+                });
+            });
+        }
+
+        /**
          * BRUTAL FIX: Completely replace the renderCartItems function
          */
         function hijackRenderCartItems() {
@@ -345,11 +489,13 @@
                     // Call original function to build the cart
                     window._originalRenderCartItems();
 
-                    // Apply our fixes
-                    setTimeout(fixCartQuantityButtons, 10);
-
-                    // Additional fix - make quantity inputs wider
+                    // Apply all fixes in a single setTimeout
+                    // to execute them in one operation
                     setTimeout(function () {
+                        addDeleteButtonHandlers();
+                        fixCartQuantityButtons();
+
+                        // Process quantity inputs as well
                         const quantityInputs = document.querySelectorAll('.quantity-input');
                         quantityInputs.forEach(input => {
                             // Make the input wider and more visible
@@ -415,15 +561,23 @@
             // Try to hijack the renderCartItems function
             hijackRenderCartItems();
 
-            // We need to wait a bit for the cart to be rendered
-            setTimeout(fixCartQuantityButtons, 300);
-            setTimeout(fixPriceDisplays, 500);
+            // Execute functions in a more efficient way and avoid overlaps
+            // Reduce the number of setTimeout calls
+            setTimeout(function () {
+                fixCartQuantityButtons();
+                addDeleteButtonHandlers();
+                fixPriceDisplays();
+            }, 300);
 
-            // Also register for events that might reload the cart
+            // Register event for cart rendering
             document.addEventListener('cartRendered', function () {
                 console.log("[CART FIX] Cart rendered event detected");
-                setTimeout(fixCartQuantityButtons, 10);
-                setTimeout(fixPriceDisplays, 100);
+                // Add a single timeout for all fix operations
+                setTimeout(function () {
+                    addDeleteButtonHandlers(); // This function will no longer add duplicate handlers
+                    fixCartQuantityButtons();
+                    fixPriceDisplays();
+                }, 50);
             });
 
             // Add reset storage button event
@@ -438,48 +592,155 @@
             }
         });
 
-        // Run fix on complete page load
+        // Run fix on complete page load - only once
         window.addEventListener('load', function () {
             console.log("[CART FIX] Window fully loaded, running final fix...");
-            setTimeout(fixCartQuantityButtons, 500);
-            setTimeout(fixPriceDisplays, 600);
+            setTimeout(function () {
+                addDeleteButtonHandlers();
+                fixCartQuantityButtons();
+                fixPriceDisplays();
+            }, 500);
         });
 
         // Re-run the fix whenever needed
         window.fixCartButtons = fixCartQuantityButtons;
         window.fixPrices = fixPriceDisplays;
+        window.fixDeleteButtons = addDeleteButtonHandlers;
 
         // Add custom styles for cart quantity inputs
         document.addEventListener('DOMContentLoaded', function () {
             // Add CSS rules for quantity inputs
             const style = document.createElement('style');
             style.textContent = `
-                    .quantity-input {
-                        min-width: 50px !important;
-                        width: 50px !important;
-                        text-align: center !important;
-                        font-weight: bold !important;
-                        font-size: 1.1rem !important;
-                        padding: 0.2rem !important;
-                        margin: 0 0.3rem !important;
-                        border-radius: 4px !important;
-                    }
-                    .quantity-control {
-                        display: flex !important;
-                        justify-content: center !important;
-                        align-items: center !important;
-                        padding: 0.5rem 0 !important;
-                    }
-                    .cart-plus-fixed, .cart-minus-fixed {
-                        min-width: 32px !important;
-                        height: 32px !important;
-                        font-weight: bold !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                    }
-                `;
+                            .quantity-input {
+                                min-width: 50px !important;
+                                width: 50px !important;
+                                text-align: center !important;
+                                font-weight: bold !important;
+                                font-size: 1.1rem !important;
+                                padding: 0.2rem !important;
+                                margin: 0 0.3rem !important;
+                                border-radius: 4px !important;
+                            }
+                            .quantity-control {
+                                display: flex !important;
+                                justify-content: center !important;
+                                align-items: center !important;
+                                padding: 0.5rem 0 !important;
+                            }
+                            .cart-plus-fixed, .cart-minus-fixed {
+                                min-width: 32px !important;
+                                height: 32px !important;
+                                font-weight: bold !important;
+                                display: flex !important;
+                                align-items: center !important;
+                                justify-content: center !important;
+                            }
+                        `;
             document.head.appendChild(style);
         });
+
+        /**
+         * Fallback implementation of renderCartItems to ensure delete functionality works
+         * This will only be used if the site.js version is not available
+         */
+        if (typeof window.renderCartItems !== 'function') {
+            console.log("No renderCartItems found, implementing fallback version");
+
+            window.renderCartItems = function () {
+                const cartItemsContainer = document.querySelector('.cart-items');
+                if (!cartItemsContainer) return;
+
+                // Get cart from localStorage
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                console.log("Fallback renderCartItems with", cart.length, "items");
+
+                if (cart.length === 0) {
+                    // Show empty cart message
+                    cartItemsContainer.innerHTML = `
+                                <div class="text-center py-5">
+                                    <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                                    <h3>Your cart is empty</h3>
+                                    <p class="mb-4">Looks like you haven't added any products to your cart yet.</p>
+                                    <a href="/Home/Products" class="btn btn-primary">Continue Shopping</a>
+                                </div>
+                            `;
+                    return;
+                }
+
+                // Render cart items
+                let cartItemsHTML = '';
+                cart.forEach(item => {
+                    const itemPrice = parseFloat(item.price) || 0;
+                    const itemQuantity = parseInt(item.quantity) || 1;
+                    const totalPrice = itemPrice * itemQuantity;
+
+                    // Ensure image path is valid
+                    let imagePath = item.image || '/Content/Images/products/beehive.jpg';
+                    if (!imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+                        imagePath = '/' + imagePath;
+                    }
+
+                    cartItemsHTML += `
+                                <div class="card mb-3 cart-item" data-product-id="${item.id}">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-2 col-md-3 col-sm-3">
+                                                <img src="${imagePath}"
+                                                     class="img-fluid rounded"
+                                                     alt="${item.name}"
+                                                     onerror="this.src='/Content/Images/products/beehive.jpg'"
+                                                     style="max-height: 100px; object-fit: cover;">
+                                            </div>
+                                            <div class="col-lg-4 col-md-3 col-sm-9">
+                                                <h5 class="mb-0">${item.name}</h5>
+                                            </div>
+                                            <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0">
+                                                <div class="quantity-control d-flex align-items-center">
+                                                    <button class="btn btn-sm btn-outline-secondary cart-minus-btn" type="button">-</button>
+                                                    <input type="text"
+                                                           class="form-control text-center quantity-input"
+                                                           value="${itemQuantity}"
+                                                           readonly
+                                                           style="background-color: #fff; pointer-events: none;">
+                                                    <button class="btn btn-sm btn-outline-secondary cart-plus-btn" type="button">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0">
+                                                <div class="fw-bold">${cartFormatCurrency(itemPrice)}</div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0 text-end">
+                                                <div class="fw-bold">${cartFormatCurrency(totalPrice)}</div>
+                                                <button class="btn btn-sm text-danger delete-item" type="button">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                });
+
+                cartItemsContainer.innerHTML = cartItemsHTML;
+
+                // Calculate and update totals
+                const subtotal = cart.reduce((total, item) => total + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+                const shipping = subtotal > 900 ? 0 : 150;
+                const total = subtotal + shipping;
+
+                // Update summary if it exists
+                const subtotalEl = document.querySelector('.cart-subtotal');
+                const shippingEl = document.querySelector('.cart-shipping');
+                const totalEl = document.querySelector('.cart-total');
+
+                if (subtotalEl) subtotalEl.textContent = cartFormatCurrency(subtotal);
+                if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : cartFormatCurrency(shipping);
+                if (totalEl) totalEl.textContent = cartFormatCurrency(total);
+
+                // Trigger event for other handlers
+                const event = new CustomEvent('cartRendered');
+                document.dispatchEvent(event);
+            };
+        }
     </script>
 }

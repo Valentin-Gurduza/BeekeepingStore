@@ -73,6 +73,13 @@
                         </div>
                     </form>
 
+                    @if (Session["UserIsAuthenticated"] != null && (bool)Session["UserIsAuthenticated"] == true)
+                    {
+                        <a class="nav-link position-relative me-3" href="@Url.Action("Index", "Wishlist")">
+                            <i class="fas fa-heart"></i> Wishlist
+                        </a>
+                    }
+
                     <a class="nav-link position-relative me-3" href="@Url.Action("Cart", "Home")">
                         <i class="fas fa-shopping-cart"></i> Cart
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
@@ -90,6 +97,7 @@
                                 <ul class="list-unstyled mb-0">
                                     <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")">My Profile</a></li>
                                     <li><a class="dropdown-item" href="@Url.Action("History", "Order")">My Orders</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", "Wishlist")">My Wishlist</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="@Url.Action("Logout", "Account")">Logout</a></li>
                                 </ul>
