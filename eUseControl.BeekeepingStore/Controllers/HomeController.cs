@@ -36,6 +36,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 Description = p.Description,
                 Price = p.Price,
                 Category = p.Category,
+                DateAdded = p.DateAdded,
                 Image = !string.IsNullOrEmpty(p.ImageUrl)
                         ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : Url.Content(p.ImageUrl))
                         : Url.Content("~/Content/Images/products/default-product.png")
