@@ -10,11 +10,11 @@ namespace eUseControl.BeekeepingStore.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            // Verifică dacă utilizatorul este autentificat folosind sesiunea
+           
             if (filterContext.HttpContext.Session["UserIsAuthenticated"] == null ||
                 !(bool)filterContext.HttpContext.Session["UserIsAuthenticated"])
             {
-                // Utilizatorul nu este autentificat, redirecționează către pagina de login
+                
                 filterContext.Result = new RedirectToRouteResult(
                     new RouteValueDictionary {
                         { "controller", "Account" },
@@ -25,12 +25,12 @@ namespace eUseControl.BeekeepingStore.Filters
                 return;
             }
 
-            // Verifică dacă utilizatorul are rolul de Admin sau Moderator folosind sesiunea
+            
             if (filterContext.HttpContext.Session["UserRole"] == null ||
                 (filterContext.HttpContext.Session["UserRole"].ToString() != "Admin" &&
                  filterContext.HttpContext.Session["UserRole"].ToString() != "Moderator"))
             {
-                // Utilizatorul nu are rolul necesar, redirecționează către o pagină de acces refuzat
+                
                 filterContext.Result = new ViewResult
                 {
                     ViewName = "AccessDenied"

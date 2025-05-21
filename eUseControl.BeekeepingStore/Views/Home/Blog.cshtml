@@ -1,9 +1,237 @@
-﻿@{
+﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>
+
+@{
     ViewBag.Title = "Blog";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    <h1>Blog</h1>
-    <p>Welcome to our blog! Stay tuned for updates and articles about beekeeping.</p>
+<div class="container py-5">
+    <div class="section-title text-center mb-5">
+        <h1>Our Beekeeping Blog</h1>
+        <p class="text-muted">Tips, advice, and insights about beekeeping, honey production, and sustainable practices</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Main content -->
+        <div class="col-lg-8">
+            @if (ViewBag.FilterType != null)
+            {
+                <div class="mb-4">
+                    <div class="alert alert-info">
+                        @if (ViewBag.FilterType == "category")
+                        {
+                            <h5>Category: @ViewBag.FilterValue</h5>
+                            <p>Showing all posts in this category.</p>
+                            <a href="@Url.Action("Index", "Blog")" class="alert-link">View all posts</a>
+                        }
+                        else if (ViewBag.FilterType == "tag")
+                        {
+                            <h5>Tag: @ViewBag.FilterValue</h5>
+                            <p>Showing all posts with this tag.</p>
+                            <a href="@Url.Action("Index", "Blog")" class="alert-link">View all posts</a>
+                        }
+                        else if (ViewBag.FilterType == "search")
+                        {
+                            <h5>Search Results: "@ViewBag.FilterValue"</h5>
+                            <p>Found @Model.Count posts matching your search.</p>
+                            <a href="@Url.Action("Index", "Blog")" class="alert-link">Clear search</a>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    <p>No blog posts found.</p>
+                </div>
+            }
+            else
+            {
+                foreach (var post in Model)
+                {
+                    <div class="card blog-card mb-4">
+                        @if (!string.IsNullOrEmpty(post.FeaturedImage))
+                        {
+                            <div class="blog-card-img">
+                                <img src="@Url.Content(post.FeaturedImage)"
+                                     alt="@post.Title"
+                                     class="card-img-top"
+                                     onerror="this.src='@Url.Content("~/Content/Images/blog/default-blog.jpg")'">
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h2 class="card-title">
+                                <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })" class="text-decoration-none text-dark">
+                                    @post.Title
+                                </a>
+                            </h2>
+                            <div class="mb-3 text-muted">
+                                <small>
+                                    <i class="fas fa-calendar-alt me-1"></i> @post.PublishDate.ToString("MMMM dd, yyyy")
+                                    @if (!string.IsNullOrEmpty(post.Category))
+                                    {
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-folder me-1"></i>
+                                        <a href="@Url.Action("Index", "Blog", new { category = post.Category })" class="text-decoration-none">
+                                            @post.Category
+                                        </a>
+                                    }
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-user me-1"></i> @(string.IsNullOrEmpty(post.Author) ? "Admin" : post.Author)
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-comment me-1"></i> @(post.Comments != null ? post.Comments.Count : 0) Comments
+                                    <span class="mx-2">|</span>
+                                    <i class="fas fa-eye me-1"></i> @post.ViewCount Views
+                                </small>
+                            </div>
+                            <p class="card-text">
+                                @(string.IsNullOrEmpty(post.Summary)
+                                    ? (post.Content.Length > 300 ? post.Content.Substring(0, 300) + "..." : post.Content)
+                                    : post.Summary)
+                            </p>
+                            <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })" class="btn btn-primary">
+                                Read More <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Search Widget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Search</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Index", "Blog", FormMethod.Get, new { @class = "d-flex" }))
+                    {
+                        <input type="text" name="search" class="form-control me-2" placeholder="Search..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Categories Widget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Categories</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var category in ViewBag.Categories)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("Index", "Blog", new { category = category.Key })" class="text-decoration-none">
+                                        @category.Key
+                                    </a>
+                                    <span class="badge bg-primary rounded-pill">@category.Value</span>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">No categories found</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recent Posts Widget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Recent Posts</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.RecentPosts != null)
+                        {
+                            foreach (var post in (List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.RecentPosts)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex">
+                                        @if (!string.IsNullOrEmpty(post.FeaturedImage))
+                                        {
+                                            <div class="flex-shrink-0" style="width: 50px; height: 50px; overflow: hidden;">
+                                                <img src="@Url.Content(post.FeaturedImage)"
+                                                     alt="@post.Title"
+                                                     class="img-fluid rounded"
+                                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                                     onerror="this.src='@Url.Content("~/Content/Images/blog/default-blog.jpg")'">
+                                            </div>
+                                        }
+                                        <div class="ms-3">
+                                            <h6 class="mb-0">
+                                                <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })" class="text-decoration-none">
+                                                    @post.Title
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">@post.PublishDate.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">No recent posts</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section styles {
+    <style>
+        .blog-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+            .blog-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .blog-card-img {
+            height: 250px;
+            overflow: hidden;
+        }
+
+            .blog-card-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+
+        .blog-card:hover .blog-card-img img {
+            transform: scale(1.05);
+        }
+    </style>
+}

@@ -8,6 +8,7 @@ using eUseControl.BeekeepingStore.Domain.Entities.Product;
 using eUseControl.BeekeepingStore.Domain.Entities.Order;
 using eUseControl.BeekeepingStore.Domain.Entities.Payment;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
+using eUseControl.BeekeepingStore.Domain.Entities.Blog;
 
 internal class DataContext : DbContext
 {
@@ -21,13 +22,16 @@ internal class DataContext : DbContext
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<Wishlist> Wishlists { get; set; }
+    public DbSet<BlogPost> BlogPosts { get; set; }
+    public DbSet<BlogComment> BlogComments { get; set; }
+
 
     public DataContext() : base("eUseControl.BeekeepingStore")
     {
         Debug.WriteLine("DataContext constructor called with connection string name: eUseControl.BeekeepingStore");
         try
         {
-            // Afișează stringul de conexiune complet pentru debugging
+            
             Debug.WriteLine("Connection string: " + this.Database.Connection.ConnectionString);
         }
         catch (Exception ex)
@@ -35,14 +39,14 @@ internal class DataContext : DbContext
             Debug.WriteLine("Error accessing connection string: " + ex.Message);
         }
 
-        // Activez log-ul pentru a vedea query-urile SQL
+        
         this.Database.Log = s => Debug.WriteLine(s);
 
-        // Dezactivează lazy loading și change tracking pentru performanță
+        
         this.Configuration.LazyLoadingEnabled = false;
 
-        // Setarea timeout-ului mai mare pentru operațiuni
-        this.Database.CommandTimeout = 180; // 3 minute
+        
+        this.Database.CommandTimeout = 180; 
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -50,7 +54,7 @@ internal class DataContext : DbContext
         Debug.WriteLine("DataContext.OnModelCreating called");
         base.OnModelCreating(modelBuilder);
 
-        // Configurare explicită pentru UDBTable
+        
         modelBuilder.Entity<UDBTable>()
             .ToTable("UDBTables")
             .HasKey(e => e.Id);
