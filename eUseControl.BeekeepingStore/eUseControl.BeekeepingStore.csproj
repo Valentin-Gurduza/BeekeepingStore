@@ -259,6 +259,7 @@
     <Content Include="Views\AdminDashboard\PaymentDetails.cshtml" />
     <Content Include="Views\AdminDashboard\Settings.cshtml" />
     <Content Include="Views\AdminDashboard\AdminProfile.cshtml" />
+    <Content Include="Views\Admin\MakeAdmin.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
