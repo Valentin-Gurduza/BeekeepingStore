@@ -57,20 +57,25 @@ namespace eUseControl.BeekeepingStore.Controllers
 
         public ActionResult Blog()
         {
-            return View();
+            // Redirect to the Blog controller's Index action
+            return RedirectToAction("Index", "Blog");
         }
+
         public ActionResult Login()
         {
             return View();
         }
+
         public ActionResult Register()
         {
             return View();
         }
+
         public ActionResult Cart()
         {
             return View();
         }
+
         public ActionResult Checkout()
         {
             return View();

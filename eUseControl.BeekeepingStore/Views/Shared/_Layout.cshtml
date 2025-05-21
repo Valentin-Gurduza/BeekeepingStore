@@ -19,6 +19,8 @@
     @Styles.Render("~/Content/css")
     <link href="~/Content/modern-site.css" rel="stylesheet" />
 
+    @RenderSection("styles", required: false)
+
     <!-- Modernizr -->
     <script src="~/Scripts/modernizr-2.8.3.js"></script>
 </head>

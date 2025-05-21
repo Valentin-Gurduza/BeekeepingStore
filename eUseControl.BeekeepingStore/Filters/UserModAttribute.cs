@@ -10,14 +10,14 @@ namespace eUseControl.BeekeepingStore.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            // Verifică dacă utilizatorul este autentificat folosind variabilele de sesiune
+            
             var httpContext = filterContext.HttpContext;
             var isAuthenticated = httpContext.Session["UserIsAuthenticated"] != null &&
                                   (bool)httpContext.Session["UserIsAuthenticated"] == true;
 
             if (!isAuthenticated)
             {
-                // Utilizatorul nu este autentificat, redirecționează către pagina de login
+                
                 filterContext.Result = new RedirectToRouteResult(
                     new RouteValueDictionary {
                         { "controller", "Account" },
@@ -28,7 +28,7 @@ namespace eUseControl.BeekeepingStore.Filters
                 return;
             }
 
-            // Verifică dacă utilizatorul are cel puțin rolul de User folosind variabilele de sesiune
+            
             var userRole = httpContext.Session["UserRole"] as string;
             bool hasRequiredRole = userRole != null &&
                                   (userRole == "User" || userRole == "Admin" ||

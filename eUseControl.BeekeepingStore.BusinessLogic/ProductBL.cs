@@ -27,7 +27,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             }
             catch (Exception ex)
             {
-                // Log-ăm eroarea
+               
                 LogError(ex);
                 throw;
             }

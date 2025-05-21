@@ -1,0 +1,331 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost
+
+@{
+    ViewBag.Title = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Main content -->
+        <div class="col-lg-8">
+            <article class="blog-post">
+                <!-- Featured Image -->
+                @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                {
+                    <div class="blog-post-img mb-4">
+                        <img src="@Url.Content(Model.FeaturedImage)"
+                             alt="@Model.Title"
+                             class="img-fluid rounded"
+                             onerror="this.src='@Url.Content("~/Content/Images/blog/default-blog.jpg")'">
+                    </div>
+                }
+
+                <!-- Post Header -->
+                <header class="blog-post-header mb-4">
+                    <h1 class="blog-post-title mb-3">@Model.Title</h1>
+                    <div class="blog-post-meta text-muted">
+                        <span><i class="fas fa-calendar-alt me-1"></i> @Model.PublishDate.ToString("MMMM dd, yyyy")</span>
+                        @if (!string.IsNullOrEmpty(Model.Category))
+                        {
+                            <span class="mx-2">|</span>
+                            <span>
+                                <i class="fas fa-folder me-1"></i>
+                                <a href="@Url.Action("Index", "Blog", new { category = Model.Category })" class="text-decoration-none">
+                                    @Model.Category
+                                </a>
+                            </span>
+                        }
+                        <span class="mx-2">|</span>
+                        <span><i class="fas fa-user me-1"></i> @(string.IsNullOrEmpty(Model.Author) ? "Admin" : Model.Author)</span>
+                        <span class="mx-2">|</span>
+                        <span><i class="fas fa-eye me-1"></i> @Model.ViewCount Views</span>
+                    </div>
+                </header>
+
+                <!-- Post Content -->
+                <div class="blog-post-content mb-5">
+                    @Html.Raw(Model.Content)
+                </div>
+
+                <!-- Tags -->
+                @if (!string.IsNullOrEmpty(Model.Tags))
+                {
+                    <div class="blog-post-tags mb-5">
+                        <h5>Tags:</h5>
+                        <div>
+                            @foreach (var tag in Model.Tags.Split(','))
+                            {
+                                <a href="@Url.Action("Index", "Blog", new { tag = tag.Trim() })" class="badge bg-secondary text-decoration-none me-2">
+                                    @tag.Trim()
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Share Buttons -->
+                <div class="blog-post-share mb-5">
+                    <h5>Share This Post:</h5>
+                    <div class="d-flex gap-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=@Request.Url.AbsoluteUri" target="_blank" class="btn btn-outline-primary">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url=@Request.Url.AbsoluteUri&text=@Model.Title" target="_blank" class="btn btn-outline-info">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=@Request.Url.AbsoluteUri&title=@Model.Title" target="_blank" class="btn btn-outline-secondary">
+                            <i class="fab fa-linkedin-in"></i> LinkedIn
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="blog-post-comments">
+                    <h3 class="comments-title mb-4">
+                        @(Model.Comments != null ? Model.Comments.Count : 0) Comments
+                    </h3>
+
+                    @if (Model.Comments != null && Model.Comments.Any())
+                    {
+                        <div class="comments-list mb-5">
+                            @foreach (var comment in Model.Comments.OrderBy(c => c.CommentDate))
+                            {
+                                <div class="comment card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex mb-3">
+                                            <div class="comment-avatar">
+                                                <div class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    @comment.Name.Substring(0, 1).ToUpper()
+                                                </div>
+                                            </div>
+                                            <div class="ms-3">
+                                                <h5 class="comment-author mb-0">@comment.Name</h5>
+                                                <small class="text-muted">@comment.CommentDate.ToString("MMMM dd, yyyy, h:mm tt")</small>
+                                            </div>
+                                        </div>
+                                        <div class="comment-content">
+                                            <p>@comment.Content</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-5">
+                            <p class="mb-0">Be the first to comment on this post!</p>
+                        </div>
+                    }
+
+                    <!-- Comment Form -->
+                    <div class="comment-form mb-5">
+                        <h3 class="mb-4">Leave a Comment</h3>
+                        @using (Html.BeginForm("AddComment", "Blog", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("BlogPostId", Model.BlogPostId)
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="Name" name="Name" placeholder="Your Name" required>
+                                        <label for="Name">Your Name</label>
+                                        <div class="invalid-feedback">
+                                            Please provide your name.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="email" class="form-control" id="Email" name="Email" placeholder="Your Email" required>
+                                        <label for="Email">Your Email</label>
+                                        <div class="invalid-feedback">
+                                            Please provide a valid email.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="Content" name="Content" style="height: 150px" placeholder="Your Comment" required></textarea>
+                                    <label for="Content">Your Comment</label>
+                                    <div class="invalid-feedback">
+                                        Please enter your comment.
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Comment</button>
+                        }
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Search Widget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Search</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Index", "Blog", FormMethod.Get, new { @class = "d-flex" }))
+                    {
+                        <input type="text" name="search" class="form-control me-2" placeholder="Search..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Categories Widget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Categories</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var category in ViewBag.Categories)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("Index", "Blog", new { category = category.Key })" class="text-decoration-none">
+                                        @category.Key
+                                    </a>
+                                    <span class="badge bg-primary rounded-pill">@category.Value</span>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">No categories found</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recent Posts Widget -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="m-0">Recent Posts</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @if (ViewBag.RecentPosts != null)
+                        {
+                            foreach (var post in (List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.RecentPosts)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex">
+                                        @if (!string.IsNullOrEmpty(post.FeaturedImage))
+                                        {
+                                            <div class="flex-shrink-0" style="width: 50px; height: 50px; overflow: hidden;">
+                                                <img src="@Url.Content(post.FeaturedImage)"
+                                                     alt="@post.Title"
+                                                     class="img-fluid rounded"
+                                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                                     onerror="this.src='@Url.Content("~/Content/Images/blog/default-blog.jpg")'">
+                                            </div>
+                                        }
+                                        <div class="ms-3">
+                                            <h6 class="mb-0">
+                                                <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })" class="text-decoration-none">
+                                                    @post.Title
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">@post.PublishDate.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item">No recent posts</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // JavaScript to enable Bootstrap's form validation
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation');
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+        })();
+    </script>
+}
+
+@section styles {
+    <style>
+        .blog-post-img {
+            max-height: 500px;
+            overflow: hidden;
+            border-radius: 0.25rem;
+        }
+
+            .blog-post-img img {
+                width: 100%;
+                height: auto;
+                object-fit: cover;
+            }
+
+        .blog-post-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+            .blog-post-content img {
+                max-width: 100%;
+                height: auto;
+                margin: 1.5rem 0;
+                border-radius: 0.25rem;
+            }
+
+            .blog-post-content blockquote {
+                border-left: 4px solid #0d6efd;
+                padding-left: 1rem;
+                font-style: italic;
+                margin: 1.5rem 0;
+            }
+    </style>
+} 
