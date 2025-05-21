@@ -241,8 +241,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                     if (user != null)
                     {
-                        // Set level to 1 if active, 0 if inactive
-                        user.Level = isActive ? 1 : 0;
+                        // Set level to 100 if active, 0 if inactive
+                        user.Level = isActive ? 100 : 0;
                         context.SaveChanges();
                         return true;
                     }
@@ -620,18 +620,24 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
             try
             {
+                System.Diagnostics.Debug.WriteLine($"UpdateUserProfile called for user {data.UserName}, ID={data.Id}, setting Level={data.Level}");
+
                 using (var context = new DataContext())
                 {
                     // First try to update in UDBTables
                     var udbUser = context.UDBTables.FirstOrDefault(u => u.Id == data.Id || u.Id == data.UserId);
                     if (udbUser != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Found user in UDBTables. Current Level={udbUser.Level}, setting to {data.Level}");
                         udbUser.Email = data.Email;
                         udbUser.UserName = data.FullName;
                         udbUser.PhoneNumber = data.Phone ?? data.PhoneNumber;
                         udbUser.Address = data.Address;
                         udbUser.ProfilePicture = data.ProfileImage ?? data.ProfilePicture;
+                        udbUser.Level = data.Level;
+
                         context.SaveChanges();
+                        System.Diagnostics.Debug.WriteLine($"User updated successfully in UDBTables. New Level={udbUser.Level}");
                         return true;
                     }
 
@@ -639,21 +645,27 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     var user = context.Users.FirstOrDefault(u => u.UserId == data.Id || u.UserId == data.UserId);
                     if (user != null)
                     {
+                        System.Diagnostics.Debug.WriteLine($"Found user in Users table. Setting Level in UDBTables not possible for legacy users.");
                         user.Email = data.Email;
                         user.FullName = data.FullName;
                         user.Username = data.UserName ?? data.FullName;
                         user.PhoneNumber = data.Phone ?? data.PhoneNumber;
                         user.Address = data.Address;
                         user.ProfilePicture = data.ProfileImage ?? data.ProfilePicture;
+                        // Note: Legacy Users table doesn't have a Level property
+
                         context.SaveChanges();
+                        System.Diagnostics.Debug.WriteLine("User updated successfully in Users table.");
                         return true;
                     }
 
+                    System.Diagnostics.Debug.WriteLine($"User not found in either UDBTables or Users tables.");
                     return false;
                 }
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR in UpdateUserProfile: {ex.Message}");
                 LogError(ex);
                 return false;
             }
