@@ -1,15 +1,15 @@
 ﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse>
 
 @{
-    ViewBag.Title = "Administrare comenzi";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Order Management";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
 }
 
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12 mb-4">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">Administrare comenzi</h1>
+                <h1 class="mb-0">Order Management</h1>
             </div>
         </div>
     </div>
@@ -18,35 +18,35 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Filtrare comenzi</h5>
+                    <h5 class="mb-0">Filter Orders</h5>
                 </div>
                 <div class="card-body">
                     <form method="get" action="@Url.Action("Index", "AdminOrder")" class="row g-3">
                         <div class="col-md-3">
-                            <label for="status" class="form-label">Status comandă</label>
-                            @Html.DropDownList("status", ViewBag.StatusList as SelectList, "Toate statusurile", new { @class = "form-select" })
+                            <label for="status" class="form-label">Order Status</label>
+                            @Html.DropDownList("status", ViewBag.StatusList as SelectList, "All statuses", new { @class = "form-select" })
                         </div>
                         <div class="col-md-3">
-                            <label for="userId" class="form-label">ID utilizator</label>
-                            <input type="number" class="form-control" id="userId" name="userId" value="@ViewBag.CurrentUserId" placeholder="Toate comenzile">
+                            <label for="userId" class="form-label">User ID</label>
+                            <input type="number" class="form-control" id="userId" name="userId" value="@ViewBag.CurrentUserId" placeholder="All orders">
                         </div>
                         <div class="col-md-3">
-                            <label for="sortBy" class="form-label">Sortare după</label>
+                            <label for="sortBy" class="form-label">Sort by</label>
                             <select class="form-select" id="sortBy" name="sortBy">
-                                <option value="date" @(ViewBag.CurrentSortBy == "date" ? "selected" : "")>Data</option>
+                                <option value="date" @(ViewBag.CurrentSortBy == "date" ? "selected" : "")>Date</option>
                                 <option value="status" @(ViewBag.CurrentSortBy == "status" ? "selected" : "")>Status</option>
                                 <option value="total" @(ViewBag.CurrentSortBy == "total" ? "selected" : "")>Total</option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label for="ascending" class="form-label">Direcție</label>
+                            <label for="ascending" class="form-label">Direction</label>
                             <select class="form-select" id="ascending" name="ascending">
-                                <option value="false" @(ViewBag.CurrentSortDirection == false ? "selected" : "")>Descrescător</option>
-                                <option value="true" @(ViewBag.CurrentSortDirection == true ? "selected" : "")>Crescător</option>
+                                <option value="false" @(ViewBag.CurrentSortDirection == false ? "selected" : "")>Descending</option>
+                                <option value="true" @(ViewBag.CurrentSortDirection == true ? "selected" : "")>Ascending</option>
                             </select>
                         </div>
                         <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Filtrare</button>
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
                         </div>
                     </form>
                 </div>
@@ -59,28 +59,28 @@
             @if (Model.Count == 0)
             {
                 <div class="alert alert-info">
-                    <h4 class="alert-heading">Nu există comenzi!</h4>
-                    <p class="mb-0">Nu există comenzi care să corespundă criteriilor de filtrare.</p>
+                    <h4 class="alert-heading">No orders found!</h4>
+                    <p class="mb-0">There are no orders matching your filter criteria.</p>
                 </div>
             }
             else
             {
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Comenzi (@Model.Count)</h5>
+                        <h5 class="mb-0">Orders (@Model.Count)</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Nr. comandă</th>
-                                        <th>Client</th>
-                                        <th>Data</th>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
                                         <th>Status</th>
                                         <th>Total</th>
-                                        <th>Plată</th>
-                                        <th class="text-center">Acțiuni</th>
+                                        <th>Payment</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -114,15 +114,15 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group" role="group">
-                                                    <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-primary" title="Vezi detalii">
+                                                    <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-primary" title="View details">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-warning" title="Actualizează status">
+                                                    <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-warning" title="Update status">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     @if (order.OrderStatus == "Processing")
                                                     {
-                                                        <a href="@Url.Action("AddShipping", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-info" title="Adaugă informații livrare">
+                                                        <a href="@Url.Action("AddShipping", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-info" title="Add shipping info">
                                                             <i class="fas fa-truck"></i>
                                                         </a>
                                                     }
@@ -132,7 +132,7 @@
                                                                 data-order-id="@order.OrderId"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#cancelOrderModal"
-                                                                title="Anulează comanda">
+                                                                title="Cancel order">
                                                             <i class="fas fa-times"></i>
                                                         </button>
                                                     }
@@ -155,18 +155,18 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cancelOrderModalLabel">Confirmare anulare comandă</h5>
+                <h5 class="modal-title" id="cancelOrderModalLabel">Confirm Order Cancellation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Sunteți sigur că doriți să anulați comanda <span id="orderIdToCancel"></span>?</p>
-                <p>Această acțiune nu poate fi anulată și va returna produsele în stoc.</p>
+                <p>Are you sure you want to cancel order <span id="orderIdToCancel"></span>?</p>
+                <p>This action cannot be undone and will return the products to stock.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="cancelOrderForm" action="" method="post">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">Anulează comanda</button>
+                    <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
                 </form>
             </div>
         </div>

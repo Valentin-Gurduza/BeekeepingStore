@@ -1,5 +1,5 @@
 ﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.4.1.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.4.1.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -114,6 +114,7 @@
     <Content Include="Content\images\products\beesmoker.jpg" />
     <Content Include="Content\images\products\extractorforhoney.jpg" />
     <Content Include="Content\images\products\protectivegear.png" />
+    <Content Include="Content\images\Profiles\9537cd96-cbcb-44b6-a82f-d78d0ec18f44.png" />
     <Content Include="Content\modern-site.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
@@ -149,6 +150,18 @@
     <Content Include="Scripts\app.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\counter.init.js" />
+    <None Include="Scripts\jquery-3.7.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.7.1.js" />
+    <Content Include="Scripts\jquery-3.7.1.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.7.1.min.map" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\site.js" />
     <Content Include="Scripts\jquery.easing.min.js" />
@@ -161,6 +174,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\AdminDashboardController.cs" />
     <Compile Include="Controllers\AdminOrderController.cs" />
     <Compile Include="Controllers\BlogController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
@@ -231,6 +245,20 @@
     <Content Include="Views\Wishlist\Index.cshtml" />
     <Content Include="Views\Blog\Post.cshtml" />
     <Content Include="Views\Blog\Index.cshtml" />
+    <Content Include="Views\Shared\_AdminDashboardLayout.cshtml" />
+    <Content Include="Views\AdminDashboard\Index.cshtml" />
+    <Content Include="Views\AdminDashboard\Analytics.cshtml" />
+    <Content Include="Views\AdminDashboard\Users.cshtml" />
+    <Content Include="Views\AdminDashboard\UserDetails.cshtml" />
+    <Content Include="Views\AdminDashboard\Payments.cshtml" />
+    <Content Include="Views\AdminDashboard\Products.cshtml" />
+    <Content Include="Views\AdminDashboard\ProductCreate.cshtml" />
+    <Content Include="Views\AdminDashboard\ProductEdit.cshtml" />
+    <Content Include="Views\AdminDashboard\ProductDelete.cshtml" />
+    <Content Include="Views\Shared\_AdminOrderLayout.cshtml" />
+    <Content Include="Views\AdminDashboard\PaymentDetails.cshtml" />
+    <Content Include="Views\AdminDashboard\Settings.cshtml" />
+    <Content Include="Views\AdminDashboard\AdminProfile.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -286,7 +314,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.targets'))" />
     <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.props'))" />
     <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.4.2.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.4.1.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.4.1.0\build\Microsoft.Net.Compilers.props'))" />
   </Target>
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.targets" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.1.0.0\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.BinFix.targets')" />
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />

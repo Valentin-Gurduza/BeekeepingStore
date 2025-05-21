@@ -608,5 +608,196 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                 return false;
             }
         }
+
+        // Add implementations for the dashboard methods
+        public List<Order> GetRecentOrders(int count)
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    return db.Orders
+                        .OrderByDescending(o => o.OrderDate)
+                        .Take(count)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetRecentOrders: {ex}");
+                LogError(ex);
+                return new List<Order>();
+            }
+        }
+
+        public decimal GetTotalRevenue()
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    return db.Orders
+                        .Where(o => o.OrderStatus != "Cancelled")
+                        .Sum(o => o.TotalAmount);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetTotalRevenue: {ex}");
+                LogError(ex);
+                return 0;
+            }
+        }
+
+        public List<SalesDataPoint> GetSalesDataByDateRange(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    return db.Orders
+                        .Where(o => o.OrderDate >= startDate && o.OrderDate <= endDate && o.OrderStatus != "Cancelled")
+                        .GroupBy(o => o.OrderDate.Date)
+                        .Select(g => new SalesDataPoint
+                        {
+                            Date = g.Key,
+                            TotalSales = g.Sum(o => o.TotalAmount)
+                        })
+                        .OrderBy(x => x.Date)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetSalesDataByDateRange: {ex}");
+                LogError(ex);
+                return new List<SalesDataPoint>();
+            }
+        }
+
+        public List<TopSellingProduct> GetTopSellingProducts(int count)
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    return db.OrderItems
+                        .GroupBy(item => item.ProductId)
+                        .Select(g => new TopSellingProduct
+                        {
+                            ProductId = g.Key,
+                            TotalSold = g.Sum(i => i.Quantity),
+                            ProductName = g.FirstOrDefault().ProductName
+                        })
+                        .OrderByDescending(x => x.TotalSold)
+                        .Take(count)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetTopSellingProducts: {ex}");
+                LogError(ex);
+                return new List<TopSellingProduct>();
+            }
+        }
+
+        public List<MonthlySalesData> GetMonthlySalesData(int year)
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    DateTime startOfYear = new DateTime(year, 1, 1);
+                    DateTime endOfYear = new DateTime(year, 12, 31);
+
+                    return db.Orders
+                        .Where(o => o.OrderDate >= startOfYear && o.OrderDate <= endOfYear && o.OrderStatus != "Cancelled")
+                        .GroupBy(o => new { Month = o.OrderDate.Month, Year = o.OrderDate.Year })
+                        .Select(g => new MonthlySalesData
+                        {
+                            Month = g.Key.Month,
+                            Year = g.Key.Year,
+                            TotalSales = g.Sum(o => o.TotalAmount),
+                            OrderCount = g.Count()
+                        })
+                        .OrderBy(x => x.Year)
+                        .ThenBy(x => x.Month)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetMonthlySalesData: {ex}");
+                LogError(ex);
+                return new List<MonthlySalesData>();
+            }
+        }
+
+        public List<CategorySalesData> GetCategorySalesData()
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    return db.OrderItems
+                        .Join(db.Products,
+                            oi => oi.ProductId,
+                            p => p.ProductId,
+                            (oi, p) => new { OrderItem = oi, Product = p })
+                        .GroupBy(x => x.Product.Category)
+                        .Select(g => new CategorySalesData
+                        {
+                            Category = g.Key,
+                            TotalSales = g.Sum(x => x.OrderItem.UnitPrice * x.OrderItem.Quantity)
+                        })
+                        .OrderByDescending(x => x.TotalSales)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetCategorySalesData: {ex}");
+                LogError(ex);
+                return new List<CategorySalesData>();
+            }
+        }
+
+        public double GetConversionRate()
+        {
+            try
+            {
+                using (var db = new DataContext())
+                {
+                    int totalVisitors = db.UserActivities.Select(a => a.UserId).Distinct().Count();
+                    int totalCustomers = db.Orders.Select(o => o.UserId).Distinct().Count();
+
+                    return totalVisitors > 0
+                        ? (double)totalCustomers / totalVisitors * 100
+                        : 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in GetConversionRate: {ex}");
+                LogError(ex);
+                return 0;
+            }
+        }
+
+        private void LogError(Exception ex)
+        {
+            using (var db = new DataContext())
+            {
+                db.ErrorLogs.Add(new ErrorLog
+                {
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace,
+                    ErrorSource = ex.Source,
+                    CreatedAt = DateTime.Now
+                });
+                db.SaveChanges();
+            }
+        }
     }
 }

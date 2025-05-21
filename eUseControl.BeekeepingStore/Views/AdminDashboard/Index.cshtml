@@ -1,0 +1,336 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="container-fluid px-0">
+    <!-- Main Statistics -->
+    <div class="row mt-2">
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Users</div>
+                        <div class="stat-value">@ViewBag.TotalUsers</div>
+                        <div class="small text-muted">Total registered</div>
+                    </div>
+                    <div class="stat-icon bg-primary-light">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Products</div>
+                        <div class="stat-value">@ViewBag.TotalProducts</div>
+                        <div class="small text-muted">In stock</div>
+                    </div>
+                    <div class="stat-icon bg-success-light">
+                        <i class="fas fa-box"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Orders</div>
+                        <div class="stat-value">@ViewBag.TotalOrders</div>
+                        <div class="small text-muted">Total processed</div>
+                    </div>
+                    <div class="stat-icon bg-info-light">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Revenue</div>
+                        <div class="stat-value">@string.Format("{0:C}", ViewBag.TotalRevenue)</div>
+                        <div class="small text-muted">Total earnings</div>
+                    </div>
+                    <div class="stat-icon bg-danger-light">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales chart + Popular Products -->
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Recent Sales</h5>
+                <div style="height: 300px;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="stat-card">
+                <h5 class="card-title mb-3">Popular Products</h5>
+                <ul class="list-group list-group-flush">
+                    @if (ViewBag.TopProducts != null)
+                    {
+                        foreach (var product in ViewBag.TopProducts)
+                        {
+                            <li class="list-group-item px-0 border-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">@product.ProductName</h6>
+                                    <small class="text-muted">@product.TotalSold units sold</small>
+                                </div>
+                                <span class="badge bg-success rounded-pill">@product.TotalSold</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item px-0 border-0">
+                            <div class="text-center text-muted">
+                                No data available
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Recent Orders</h5>
+                    <a href="@Url.Action("Index", "AdminOrder")" class="btn btn-sm btn-outline-primary">
+                        View all
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.RecentOrders != null && ViewBag.RecentOrders.Count > 0)
+                            {
+                                foreach (var order in ViewBag.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>#@order.OrderId</td>
+                                        <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
+                                        <td>ID: @order.UserId</td>
+                                        <td>@string.Format("{0:C}", order.TotalAmount)</td>
+                                        <td>
+                                            @{
+                                                string badgeClass = "bg-secondary";
+
+                                                switch (order.OrderStatus)
+                                                {
+                                                    case "Pending":
+                                                        badgeClass = "bg-warning text-dark";
+                                                        break;
+                                                    case "Processing":
+                                                        badgeClass = "bg-info text-dark";
+                                                        break;
+                                                    case "Shipped":
+                                                        badgeClass = "bg-primary";
+                                                        break;
+                                                    case "Delivered":
+                                                        badgeClass = "bg-success";
+                                                        break;
+                                                    case "Cancelled":
+                                                        badgeClass = "bg-danger";
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @badgeClass">@order.OrderStatus</span>
+                                        </td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center">No recent orders</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Low Stock Products</h5>
+                    <a href="@Url.Action("Index", "Product")" class="btn btn-sm btn-outline-primary">
+                        View all
+                    </a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (ViewBag.LowStockProducts != null && ViewBag.LowStockProducts.Count > 0)
+                    {
+                        foreach (var product in ViewBag.LowStockProducts)
+                        {
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">@product.Name</h6>
+                                    <small class="text-muted">@product.Category</small>
+                                </div>
+                                <span class="badge bg-danger rounded-pill">@product.StockQuantity</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item px-0 border-0">
+                            <div class="text-center text-muted">
+                                No low stock products
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- New Users -->
+            <div class="stat-card mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">New Users</h5>
+                    <a href="@Url.Action("Users", "AdminDashboard")" class="btn btn-sm btn-outline-primary">
+                        View all
+                    </a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (ViewBag.NewUsers != null && ViewBag.NewUsers.Count > 0)
+                    {
+                        foreach (var user in ViewBag.NewUsers)
+                        {
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">@user.UserName</h6>
+                                    <small class="text-muted">@user.Email</small>
+                                </div>
+                                <span class="text-muted small">@user.RegisterDate.ToString("dd MMM")</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item px-0 border-0">
+                            <div class="text-center text-muted">
+                                No new users
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize sales chart
+        var salesCtx = document.getElementById('salesChart').getContext('2d');
+
+        var salesData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SalesData));
+
+        var dates = [];
+        var sales = [];
+
+        if (salesData && salesData.length > 0) {
+            salesData.forEach(function(item) {
+                // Format date for display
+                var date = new Date(parseInt(item.Date.substr(6)));
+                var formattedDate = date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
+                dates.push(formattedDate);
+                sales.push(item.TotalSales);
+            });
+        } else {
+            // Demo data
+            dates = ['1 Apr', '2 Apr', '3 Apr', '4 Apr', '5 Apr', '6 Apr', '7 Apr'];
+            sales = [1200, 1900, 800, 1700, 1050, 1300, 2000];
+        }
+
+        var salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Daily Sales',
+                    data: sales,
+                    backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                    borderColor: '#FFC107',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#FFA000',
+                    pointBorderColor: '#FFF',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('ro-MD', {
+                                        style: 'currency',
+                                        currency: 'MDL'
+                                    }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' MDL';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+} 

@@ -82,6 +82,181 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             }
         }
 
+        public int GetUserCount()
+        {
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    return context.UDBTables.Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return 0;
+            }
+        }
+
+        public List<UProfileData> GetFilteredUsers(string searchTerm, int page, int pageSize, out int totalCount)
+        {
+            totalCount = 0;
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    var query = context.UDBTables.AsQueryable();
+
+                    // Apply search filter if provided
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        searchTerm = searchTerm.ToLower();
+                        query = query.Where(u =>
+                            u.Email.ToLower().Contains(searchTerm) ||
+                            u.UserName.ToLower().Contains(searchTerm));
+                    }
+
+                    // Get total count for pagination
+                    totalCount = query.Count();
+
+                    // Apply pagination
+                    var users = query
+                        .OrderByDescending(u => u.RegisterDate)
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+                    return users.Select(u => new UProfileData
+                    {
+                        Id = u.Id,
+                        UserId = u.Id,
+                        UserName = u.UserName,
+                        FullName = u.UserName,
+                        Email = u.Email,
+                        RegisterDate = u.RegisterDate,
+                        LastLogin = u.Last_Login,
+                        Last_Login = u.Last_Login,
+                        Phone = u.PhoneNumber,
+                        PhoneNumber = u.PhoneNumber,
+                        Address = u.Address,
+                        ProfileImage = u.ProfilePicture,
+                        ProfilePicture = u.ProfilePicture,
+                        Level = u.Level,
+                        UserIp = u.UserIp
+                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return new List<UProfileData>();
+            }
+        }
+
+        public UProfileData GetUserById(int id)
+        {
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    var user = context.UDBTables.FirstOrDefault(u => u.Id == id);
+
+                    if (user != null)
+                    {
+                        return new UProfileData
+                        {
+                            Id = user.Id,
+                            UserId = user.Id,
+                            UserName = user.UserName,
+                            FullName = user.UserName,
+                            Email = user.Email,
+                            RegisterDate = user.RegisterDate,
+                            LastLogin = user.Last_Login,
+                            Last_Login = user.Last_Login,
+                            Phone = user.PhoneNumber,
+                            PhoneNumber = user.PhoneNumber,
+                            Address = user.Address,
+                            ProfileImage = user.ProfilePicture,
+                            ProfilePicture = user.ProfilePicture,
+                            Level = user.Level,
+                            UserIp = user.UserIp
+                        };
+                    }
+
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return null;
+            }
+        }
+
+        public List<UProfileData> GetRecentUsers(int count)
+        {
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    var users = context.UDBTables
+                        .OrderByDescending(u => u.RegisterDate)
+                        .Take(count)
+                        .ToList();
+
+                    return users.Select(u => new UProfileData
+                    {
+                        Id = u.Id,
+                        UserId = u.Id,
+                        UserName = u.UserName,
+                        FullName = u.UserName,
+                        Email = u.Email,
+                        RegisterDate = u.RegisterDate,
+                        LastLogin = u.Last_Login,
+                        Last_Login = u.Last_Login,
+                        Phone = u.PhoneNumber,
+                        PhoneNumber = u.PhoneNumber,
+                        Address = u.Address,
+                        ProfileImage = u.ProfilePicture,
+                        ProfilePicture = u.ProfilePicture,
+                        Level = u.Level,
+                        UserIp = u.UserIp
+                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return new List<UProfileData>();
+            }
+        }
+
+        public bool UpdateUserStatus(int id, bool isActive)
+        {
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    var user = context.UDBTables.FirstOrDefault(u => u.Id == id);
+
+                    if (user != null)
+                    {
+                        // Set level to 1 if active, 0 if inactive
+                        user.Level = isActive ? 1 : 0;
+                        context.SaveChanges();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return false;
+            }
+        }
+
         public UserLoginResult UserLogin(ULoginData data)
         {
             try
@@ -432,7 +607,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             }
         }
 
-        public void UpdateUserProfile(UProfileData data)
+        public bool UpdateUserProfile(UProfileData data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data), "Profile data cannot be null");
@@ -443,36 +618,130 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             if (string.IsNullOrEmpty(data.FullName))
                 throw new ArgumentException("Full name cannot be empty", nameof(data.FullName));
 
-            using (var context = new DataContext())
+            try
             {
-                // First try to update in UDBTables
-                var udbUser = context.UDBTables.FirstOrDefault(u => u.Id == data.UserId);
-                if (udbUser != null)
+                using (var context = new DataContext())
                 {
-                    udbUser.Email = data.Email;
-                    udbUser.UserName = data.FullName;
-                    udbUser.PhoneNumber = data.PhoneNumber;
-                    udbUser.Address = data.Address;
-                    udbUser.ProfilePicture = data.ProfilePicture;
-                    context.SaveChanges();
-                    return;
-                }
+                    // First try to update in UDBTables
+                    var udbUser = context.UDBTables.FirstOrDefault(u => u.Id == data.Id || u.Id == data.UserId);
+                    if (udbUser != null)
+                    {
+                        udbUser.Email = data.Email;
+                        udbUser.UserName = data.FullName;
+                        udbUser.PhoneNumber = data.Phone ?? data.PhoneNumber;
+                        udbUser.Address = data.Address;
+                        udbUser.ProfilePicture = data.ProfileImage ?? data.ProfilePicture;
+                        context.SaveChanges();
+                        return true;
+                    }
 
-                // If not found in UDBTables, try Users table
-                var user = context.Users.FirstOrDefault(u => u.UserId == data.UserId);
-                if (user != null)
+                    // If not found in UDBTables, try Users table
+                    var user = context.Users.FirstOrDefault(u => u.UserId == data.Id || u.UserId == data.UserId);
+                    if (user != null)
+                    {
+                        user.Email = data.Email;
+                        user.FullName = data.FullName;
+                        user.Username = data.UserName ?? data.FullName;
+                        user.PhoneNumber = data.Phone ?? data.PhoneNumber;
+                        user.Address = data.Address;
+                        user.ProfilePicture = data.ProfileImage ?? data.ProfilePicture;
+                        context.SaveChanges();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return false;
+            }
+        }
+
+        public bool UpdateUserProfileImage(string userEmail, string imageUrl)
+        {
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException(nameof(userEmail), "User email cannot be null");
+
+            if (string.IsNullOrEmpty(imageUrl))
+                throw new ArgumentNullException(nameof(imageUrl), "Image URL cannot be null");
+
+            try
+            {
+                using (var context = new DataContext())
                 {
-                    user.Email = data.Email;
-                    user.FullName = data.FullName;
-                    user.Username = data.FullName;
-                    user.PhoneNumber = data.PhoneNumber;
-                    user.Address = data.Address;
-                    user.ProfilePicture = data.ProfilePicture;
-                    context.SaveChanges();
-                    return;
-                }
+                    // First try to update in UDBTables
+                    var udbUser = context.UDBTables.FirstOrDefault(u => u.Email == userEmail);
+                    if (udbUser != null)
+                    {
+                        udbUser.ProfilePicture = imageUrl;
+                        context.SaveChanges();
+                        return true;
+                    }
 
-                throw new InvalidOperationException("User not found");
+                    // If not found in UDBTables, try Users table
+                    var user = context.Users.FirstOrDefault(u => u.Email == userEmail);
+                    if (user != null)
+                    {
+                        user.ProfilePicture = imageUrl;
+                        context.SaveChanges();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return false;
+            }
+        }
+
+        public bool ChangeUserPassword(string userEmail, string currentPassword, string newPassword)
+        {
+            if (string.IsNullOrEmpty(userEmail))
+                throw new ArgumentNullException(nameof(userEmail), "User email cannot be null");
+
+            if (string.IsNullOrEmpty(currentPassword))
+                throw new ArgumentNullException(nameof(currentPassword), "Current password cannot be null");
+
+            if (string.IsNullOrEmpty(newPassword))
+                throw new ArgumentNullException(nameof(newPassword), "New password cannot be null");
+
+            try
+            {
+                string hashedCurrentPassword = HashPassword(currentPassword);
+                string hashedNewPassword = HashPassword(newPassword);
+
+                using (var context = new DataContext())
+                {
+                    // First try to update in UDBTables
+                    var udbUser = context.UDBTables.FirstOrDefault(u => u.Email == userEmail && u.Password == hashedCurrentPassword);
+                    if (udbUser != null)
+                    {
+                        udbUser.Password = hashedNewPassword;
+                        context.SaveChanges();
+                        return true;
+                    }
+
+                    // If not found in UDBTables, try Users table
+                    var user = context.Users.FirstOrDefault(u => u.Email == userEmail && u.Password == hashedCurrentPassword);
+                    if (user != null)
+                    {
+                        user.Password = hashedNewPassword;
+                        context.SaveChanges();
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return false;
             }
         }
 
@@ -489,14 +758,21 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     {
                         return new UProfileData
                         {
+                            Id = udbUser.Id,
                             UserId = udbUser.Id,
+                            UserName = udbUser.UserName,
                             FullName = udbUser.UserName,
                             Email = udbUser.Email,
                             RegisterDate = udbUser.RegisterDate,
                             LastLogin = udbUser.Last_Login,
+                            Last_Login = udbUser.Last_Login,
+                            Phone = udbUser.PhoneNumber,
                             PhoneNumber = udbUser.PhoneNumber,
                             Address = udbUser.Address,
-                            ProfilePicture = udbUser.ProfilePicture
+                            ProfileImage = udbUser.ProfilePicture,
+                            ProfilePicture = udbUser.ProfilePicture,
+                            Level = udbUser.Level,
+                            UserIp = udbUser.UserIp
                         };
                     }
 
@@ -507,14 +783,21 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     {
                         return new UProfileData
                         {
+                            Id = user.UserId,
                             UserId = user.UserId,
+                            UserName = user.Username,
                             FullName = user.FullName,
                             Email = user.Email,
                             RegisterDate = user.CreatedAt,
                             LastLogin = user.LastLogin,
+                            Last_Login = user.LastLogin,
+                            Phone = user.PhoneNumber,
                             PhoneNumber = user.PhoneNumber,
                             Address = user.Address,
-                            ProfilePicture = user.ProfilePicture
+                            ProfileImage = user.ProfilePicture,
+                            ProfilePicture = user.ProfilePicture,
+                            Level = 100, // Default level for users from the legacy table
+                            UserIp = user.UserIp
                         };
                     }
 

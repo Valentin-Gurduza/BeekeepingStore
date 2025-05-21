@@ -1,0 +1,185 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Payment.Payment
+@{
+    ViewBag.Title = "Payment Details #" + Model.PaymentId;
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+    var order = ViewBag.Order as eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse;
+}
+
+<div class="container-fluid px-0">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">Payment Details #@Model.PaymentId</h1>
+                <div>
+                    <a href="@Url.Action("Payments", "AdminDashboard")" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Payments
+                    </a>
+                    @if (order != null)
+                    {
+                        <a href="@Url.Action("Details", "AdminOrder", new { id = Model.OrderId })" class="btn btn-outline-info">
+                            <i class="fas fa-shopping-cart me-2"></i>View Order #@Model.OrderId
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Payment Information -->
+            <div class="stat-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Payment Information</h5>
+                    <span class="badge bg-@(Model.Status == "Completed" ? "success" :
+                                           Model.Status == "Failed" ? "danger" :
+                                           Model.Status == "Refunded" ? "secondary" : "warning")">
+                        @Model.Status
+                    </span>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 200px;">Payment ID:</th>
+                                <td>@Model.PaymentId</td>
+                            </tr>
+                            <tr>
+                                <th>Transaction ID:</th>
+                                <td>
+                                    <code>@(string.IsNullOrEmpty(Model.TransactionId) ? "N/A" : Model.TransactionId)</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Amount:</th>
+                                <td>@string.Format("{0:C}", Model.Amount) @Model.Currency</td>
+                            </tr>
+                            <tr>
+                                <th>Payment Method:</th>
+                                <td>
+                                    @{
+                                        string methodIcon = "fa-credit-card";
+
+                                        switch (Model.PaymentMethod.ToLower())
+                                        {
+                                            case "paypal":
+                                                methodIcon = "fa-paypal";
+                                                break;
+                                            case "card":
+                                            case "credit card":
+                                                methodIcon = "fa-credit-card";
+                                                break;
+                                            case "bank transfer":
+                                                methodIcon = "fa-university";
+                                                break;
+                                            case "cash":
+                                                methodIcon = "fa-money-bill";
+                                                break;
+                                        }
+                                    }
+                                    <i class="fab @methodIcon me-1"></i> @Model.PaymentMethod
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td>
+                                    <span class="badge bg-@(Model.Status == "Completed" ? "success" :
+                                                           Model.Status == "Failed" ? "danger" :
+                                                           Model.Status == "Refunded" ? "secondary" : "warning")">
+                                        @Model.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 200px;">Created Date:</th>
+                                <td>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm:ss")</td>
+                            </tr>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <tr>
+                                    <th>Last Updated:</th>
+                                    <td>@Model.UpdatedAt.Value.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.CardLast4))
+                            {
+                                <tr>
+                                    <th>Card Details:</th>
+                                    <td>
+                                        @Model.CardBrand •••• @Model.CardLast4
+                                    </td>
+                                </tr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                            {
+                                <tr>
+                                    <th>Error Message:</th>
+                                    <td class="text-danger">@Model.ErrorMessage</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.TransactionDetails))
+            {
+                <div class="stat-card mb-4">
+                    <h5 class="card-title">Transaction Details</h5>
+                    <pre class="bg-light p-3 mb-0 rounded"><code>@Model.TransactionDetails</code></pre>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            @if (order != null)
+            {
+                <!-- Order Summary -->
+                <div class="stat-card mb-4">
+                    <h5 class="card-title mb-3">Order Summary</h5>
+                    <p><strong>Order ID:</strong> <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })">#@order.OrderId</a></p>
+                    <p><strong>Customer:</strong> @order.CustomerName</p>
+                    <p><strong>Order Date:</strong> @order.OrderDate.ToString("dd MMM yyyy")</p>
+                    <p>
+                        <strong>Order Status:</strong>
+                        <span class="badge bg-@(order.OrderStatus == "Delivered" ? "success" :
+                                              order.OrderStatus == "Cancelled" ? "danger" :
+                                              order.OrderStatus == "Shipped" ? "info" : "warning")">
+                            @order.OrderStatus
+                        </span>
+                    </p>
+                    <p><strong>Total Amount:</strong> @string.Format("{0:C}", order.TotalAmount)</p>
+                </div>
+            }
+
+            <!-- Actions -->
+            <div class="stat-card mb-4">
+                <h5 class="card-title mb-3">Actions</h5>
+                <div class="d-grid gap-2">
+                    @if (Model.Status == "Pending")
+                    {
+                        <a href="#" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Mark as Completed
+                        </a>
+                        <a href="#" class="btn btn-danger">
+                            <i class="fas fa-times me-2"></i>Mark as Failed
+                        </a>
+                    }
+                    @if (Model.Status == "Completed")
+                    {
+                        <a href="#" class="btn btn-warning">
+                            <i class="fas fa-exchange-alt me-2"></i>Process Refund
+                        </a>
+                    }
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Payment Details
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

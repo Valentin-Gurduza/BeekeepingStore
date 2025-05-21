@@ -6,6 +6,7 @@ using eUseControl.BeekeepingStore.Domain.Entities.Order;
 using eUseControl.BeekeepingStore.Domain.Entities.Payment;
 using eUseControl.BeekeepingStore.Domain.Enums;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace eUseControl.BeekeepingStore.BusinessLogic
 {
@@ -513,5 +514,83 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         }
 
         #endregion
+
+        // Add the implementations for dashboard functionality at the end of the class
+
+        public List<Payment> GetFilteredPayments(string searchTerm, string status, int page, int pageSize, out int totalCount)
+        {
+            using (var context = new DataContext())
+            {
+                var query = context.Payments.AsQueryable();
+
+                // Căutare
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    query = query.Where(p =>
+                        p.TransactionId.Contains(searchTerm) ||
+                        p.PaymentMethod.Contains(searchTerm));
+                }
+
+                // Filtrare după status
+                if (!string.IsNullOrEmpty(status))
+                {
+                    query = query.Where(p => p.Status == status);
+                }
+
+                // Get total count
+                totalCount = query.Count();
+
+                // Apply paging
+                return query
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+            }
+        }
+
+        public Payment GetPaymentById(int paymentId)
+        {
+            using (var context = new DataContext())
+            {
+                return context.Payments.Find(paymentId);
+            }
+        }
+
+        public bool UpdatePaymentStatus(int paymentId, string status)
+        {
+            using (var context = new DataContext())
+            {
+                var payment = context.Payments.Find(paymentId);
+
+                if (payment == null)
+                {
+                    return false;
+                }
+
+                payment.Status = status;
+                payment.UpdatedAt = DateTime.Now;
+                context.SaveChanges();
+
+                return true;
+            }
+        }
+
+        public List<PaymentMethodStat> GetPaymentMethodStats()
+        {
+            using (var context = new DataContext())
+            {
+                return context.Payments
+                    .GroupBy(p => p.PaymentMethod)
+                    .Select(g => new PaymentMethodStat
+                    {
+                        Method = g.Key,
+                        Count = g.Count(),
+                        TotalAmount = g.Sum(p => p.Amount)
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .ToList();
+            }
+        }
     }
 }

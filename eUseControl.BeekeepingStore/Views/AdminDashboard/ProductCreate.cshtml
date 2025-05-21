@@ -1,0 +1,99 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Product.Product
+@{
+    ViewBag.Title = "Add New Product";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="container-fluid px-0">
+    <div class="row">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">Add New Product</h5>
+                    <a href="@Url.Action("Products")" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Products
+                    </a>
+                </div>
+
+                @using (Html.BeginForm("ProductCreate", "AdminDashboard", FormMethod.Post, new { @class = "row g-3", enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.Name, new { @class = "form-label" })
+                            @Html.TextBoxFor(model => model.Name, new { @class = "form-control", placeholder = "Product name" })
+                            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.Category, new { @class = "form-label" })
+                            @Html.TextBoxFor(model => model.Category, new { @class = "form-control", placeholder = "Category" })
+                            @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.Price, new { @class = "form-label" })
+                            <div class="input-group">
+                                <span class="input-group-text">MDL</span>
+                                @Html.TextBoxFor(model => model.Price, new { @class = "form-control", placeholder = "0.00" })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.StockQuantity, new { @class = "form-label" })
+                            @Html.TextBoxFor(model => model.StockQuantity, new { @class = "form-control", placeholder = "Available quantity", type = "number" })
+                            @Html.ValidationMessageFor(model => model.StockQuantity, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.ImageUrl, new { @class = "form-label" })
+                            @Html.TextBoxFor(model => model.ImageUrl, new { @class = "form-control", placeholder = "URL to product image" })
+                            @Html.ValidationMessageFor(model => model.ImageUrl, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Product Status</label>
+                            <div class="form-check form-switch">
+                                @Html.CheckBoxFor(model => model.IsActive, new { @class = "form-check-input", role = "switch" })
+                                <label class="form-check-label" for="IsActive">Active (available for purchase)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="mb-3">
+                            @Html.LabelFor(model => model.Description, new { @class = "form-label" })
+                            @Html.TextAreaFor(model => model.Description, new { @class = "form-control", placeholder = "Product description", rows = "5" })
+                            @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Save Product
+                        </button>
+                        <a href="@Url.Action("Products")" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+} 
