@@ -1,33 +1,33 @@
 ﻿@model eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse
 
 @{
-    ViewBag.Title = "Detalii comandă #" + Model.OrderId;
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Order Details #" + Model.OrderId;
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
 }
 
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12 mb-4">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">Comandă #@Model.OrderId</h1>
+                <h1 class="mb-0">Order #@Model.OrderId</h1>
                 <div>
                     <a href="@Url.Action("Index", "AdminOrder")" class="btn btn-outline-primary me-2">
-                        <i class="fas fa-arrow-left me-2"></i>Înapoi la comenzi
+                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
                     </a>
                     <div class="btn-group">
                         <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = Model.OrderId })" class="btn btn-outline-warning">
-                            <i class="fas fa-edit me-2"></i>Actualizează status
+                            <i class="fas fa-edit me-2"></i>Update Status
                         </a>
                         @if (Model.OrderStatus == "Processing")
                         {
                             <a href="@Url.Action("AddShipping", "AdminOrder", new { id = Model.OrderId })" class="btn btn-outline-info">
-                                <i class="fas fa-truck me-2"></i>Adaugă informații livrare
+                                <i class="fas fa-truck me-2"></i>Add Shipping Info
                             </a>
                         }
                         @if (Model.OrderStatus == "Pending" || Model.OrderStatus == "Processing")
                         {
                             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-                                <i class="fas fa-times me-2"></i>Anulează comanda
+                                <i class="fas fa-times me-2"></i>Cancel Order
                             </button>
                         }
                     </div>
@@ -64,26 +64,26 @@
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Detalii comandă</h5>
+                    <h5 class="mb-0">Order Details</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table">
                                 <tr>
-                                    <th style="width: 200px;">Număr comandă:</th>
+                                    <th style="width: 200px;">Order Number:</th>
                                     <td>#@Model.OrderId</td>
                                 </tr>
                                 <tr>
-                                    <th>Client:</th>
+                                    <th>Customer:</th>
                                     <td>@Model.CustomerName (ID: @Model.UserId)</td>
                                 </tr>
                                 <tr>
-                                    <th>Data:</th>
+                                    <th>Date:</th>
                                     <td>@Model.OrderDate.ToString("dd.MM.yyyy, HH:mm")</td>
                                 </tr>
                                 <tr>
-                                    <th>Status comandă:</th>
+                                    <th>Order Status:</th>
                                     <td>
                                         <span class="badge bg-@(Model.OrderStatus == "Delivered" ? "success" :
                                                                 Model.OrderStatus == "Cancelled" ? "danger" :
@@ -93,7 +93,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>Status plată:</th>
+                                    <th>Payment Status:</th>
                                     <td>
                                         <span class="badge bg-@(Model.PaymentStatus == "Completed" ? "success" :
                                                                 Model.PaymentStatus == "Failed" ? "danger" :
@@ -107,20 +107,20 @@
                         <div class="col-md-6">
                             <table class="table">
                                 <tr>
-                                    <th style="width: 200px;">Metodă de plată:</th>
+                                    <th style="width: 200px;">Payment Method:</th>
                                     <td>@Model.PaymentMethod</td>
                                 </tr>
                                 @if (Model.ShippedDate.HasValue)
                                 {
                                     <tr>
-                                        <th>Data expedierii:</th>
+                                        <th>Shipping Date:</th>
                                         <td>@Model.ShippedDate.Value.ToString("dd.MM.yyyy")</td>
                                     </tr>
                                 }
                                 @if (!string.IsNullOrEmpty(Model.TrackingNumber))
                                 {
                                     <tr>
-                                        <th>Număr de tracking:</th>
+                                        <th>Tracking Number:</th>
                                         <td>@Model.TrackingNumber</td>
                                     </tr>
                                 }
@@ -136,7 +136,7 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Produse comandate</h5>
+                    <h5 class="mb-0">Ordered Products</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -144,9 +144,9 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Produs</th>
-                                    <th class="text-center">Preț</th>
-                                    <th class="text-center">Cantitate</th>
+                                    <th>Product</th>
+                                    <th class="text-center">Price</th>
+                                    <th class="text-center">Quantity</th>
                                     <th class="text-end">Subtotal</th>
                                 </tr>
                             </thead>
@@ -172,12 +172,12 @@
                                     <td class="text-end">@string.Format("{0:C}", Model.Items.Sum(i => i.Subtotal))</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" class="text-end">Transport:</td>
+                                    <td colspan="4" class="text-end">Shipping:</td>
                                     @{
                                         decimal subtotal = Model.Items.Sum(i => i.Subtotal);
                                         decimal shipping = subtotal > 500 ? 0 : 50;
                                     }
-                                    <td class="text-end">@(shipping == 0 ? "GRATUIT" : string.Format("{0:C}", shipping))</td>
+                                    <td class="text-end">@(shipping == 0 ? "FREE" : string.Format("{0:C}", shipping))</td>
                                 </tr>
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Total:</strong></td>
@@ -193,18 +193,18 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Adrese</h5>
+                    <h5 class="mb-0">Addresses</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <h6 class="mb-2">Adresa de livrare</h6>
+                        <h6 class="mb-2">Shipping Address</h6>
                         <address class="mb-0">
                             @Html.Raw(Model.ShippingAddress.Replace(Environment.NewLine, "<br />"))
                         </address>
                     </div>
 
                     <div>
-                        <h6 class="mb-2">Adresa de facturare</h6>
+                        <h6 class="mb-2">Billing Address</h6>
                         <address class="mb-0">
                             @Html.Raw(Model.BillingAddress.Replace(Environment.NewLine, "<br />"))
                         </address>
@@ -216,7 +216,7 @@
             {
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Note comandă</h5>
+                        <h5 class="mb-0">Order Notes</h5>
                     </div>
                     <div class="card-body">
                         <p class="mb-0">@Html.Raw(Model.Notes.Replace(Environment.NewLine, "<br />"))</p>
@@ -226,12 +226,12 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Acțiuni rapide</h5>
+                    <h5 class="mb-0">Quick Actions</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="@Url.Action("UpdateStatus", "AdminOrder", new { id = Model.OrderId })" class="btn btn-warning">
-                            <i class="fas fa-edit me-2"></i>Actualizează status
+                            <i class="fas fa-edit me-2"></i>Update Status
                         </a>
 
                         @if (Model.OrderStatus == "Pending")
@@ -240,9 +240,9 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="OrderId" value="@Model.OrderId" />
                                 <input type="hidden" name="OrderStatus" value="Processing" />
-                                <input type="hidden" name="Notes" value="Comanda a fost procesată automat" />
+                                <input type="hidden" name="Notes" value="Order processed automatically" />
                                 <button type="submit" class="btn btn-success w-100">
-                                    <i class="fas fa-check me-2"></i>Marchează ca procesată
+                                    <i class="fas fa-check me-2"></i>Mark as Processed
                                 </button>
                             </form>
                         }
@@ -250,7 +250,7 @@
                         @if (Model.OrderStatus == "Processing")
                         {
                             <a href="@Url.Action("AddShipping", "AdminOrder", new { id = Model.OrderId })" class="btn btn-info">
-                                <i class="fas fa-truck me-2"></i>Adaugă informații livrare
+                                <i class="fas fa-truck me-2"></i>Add Shipping Info
                             </a>
                         }
 
@@ -260,9 +260,9 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="OrderId" value="@Model.OrderId" />
                                 <input type="hidden" name="OrderStatus" value="Delivered" />
-                                <input type="hidden" name="Notes" value="Comanda a fost marcată ca livrată" />
+                                <input type="hidden" name="Notes" value="Order marked as delivered" />
                                 <button type="submit" class="btn btn-success w-100">
-                                    <i class="fas fa-check-circle me-2"></i>Marchează ca livrată
+                                    <i class="fas fa-check-circle me-2"></i>Mark as Delivered
                                 </button>
                             </form>
                         }
@@ -270,7 +270,7 @@
                         @if (Model.OrderStatus == "Pending" || Model.OrderStatus == "Processing")
                         {
                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-                                <i class="fas fa-times me-2"></i>Anulează comanda
+                                <i class="fas fa-times me-2"></i>Cancel Order
                             </button>
                         }
                     </div>
@@ -287,18 +287,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cancelOrderModalLabel">Confirmare anulare comandă</h5>
+                    <h5 class="modal-title" id="cancelOrderModalLabel">Confirm Cancel Order</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Sunteți sigur că doriți să anulați comanda #@Model.OrderId?</p>
-                    <p>Această acțiune nu poate fi anulată și va returna produsele în stoc.</p>
+                    <p>Are you sure you want to cancel order #@Model.OrderId?</p>
+                    <p>This action cannot be undone and will return the products to stock.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <form action="@Url.Action("Cancel", "AdminOrder", new { id = Model.OrderId })" method="post">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger">Anulează comanda</button>
+                        <button type="submit" class="btn btn-danger">Cancel Order</button>
                     </form>
                 </div>
             </div>

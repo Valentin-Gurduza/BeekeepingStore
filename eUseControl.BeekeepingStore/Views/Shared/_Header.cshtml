@@ -52,15 +52,10 @@
                     @if (Session["UserIsAuthenticated"] != null && (bool)Session["UserIsAuthenticated"] == true &&
                         Session["UserRole"] != null && Session["UserRole"].ToString() == "Admin")
                     {
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Admin
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Index", "AdminDashboard")">
+                                <i class="fas fa-user-shield"></i> Admin
                             </a>
-                            <div class="dropdown-menu" aria-labelledby="adminDropdown">
-                                <a class="dropdown-item" href="@Url.Action("Index", "Product")">Manage Products</a>
-                                <a class="dropdown-item" href="@Url.Action("Index", "UserManagement")">Manage Users</a>
-                                <a class="dropdown-item" href="@Url.Action("Index", "AdminOrder")">Manage Orders</a>
-                            </div>
                         </li>
                     }
                 </ul>

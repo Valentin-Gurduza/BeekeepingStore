@@ -1,0 +1,233 @@
+﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.User.UProfileData>
+@{
+    ViewBag.Title = "User Management";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    string searchTerm = ViewBag.SearchTerm ?? "";
+}
+
+<div class="container-fluid px-0">
+    <!-- Filter and search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-8">
+                        <label for="searchTerm" class="form-label">Search users</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchTerm" name="searchTerm"
+                                   placeholder="Username or email" value="@searchTerm">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="@Url.Action("Users")" class="btn btn-outline-secondary @(string.IsNullOrEmpty(searchTerm) ? "d-none" : "")">
+                            <i class="fas fa-times me-1"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- User list -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">User List</h5>
+                    <span class="badge bg-info">Total: @Model.Count users</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Avatar</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Registration Date</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Last Login</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count > 0)
+                            {
+                                foreach (var user in Model)
+                                {
+                                    <tr>
+                                        <td>@user.Id</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(user.ProfileImage))
+                                            {
+                                                <img src="@user.ProfileImage" alt="@user.UserName" class="rounded-circle" width="40" height="40">
+                                            }
+                                            else
+                                            {
+                                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(user.UserName)&background=random"
+                                                     alt="@user.UserName" class="rounded-circle" width="40" height="40">
+                                            }
+                                        </td>
+                                        <td>@user.UserName</td>
+                                        <td>@user.Email</td>
+                                        <td>@(user.RegisterDate.HasValue ? user.RegisterDate.Value.ToString("dd MMM yyyy") : "N/A")</td>
+                                        <td>
+                                            @{
+                                                string badge = "bg-secondary";
+                                                string roleName = "Unknown";
+
+                                                switch (user.Level)
+                                                {
+                                                    case 0:
+                                                        badge = "bg-danger";
+                                                        roleName = "Inactive";
+                                                        break;
+                                                    case 1:
+                                                        badge = "bg-success";
+                                                        roleName = "User";
+                                                        break;
+                                                    case 2:
+                                                        badge = "bg-primary";
+                                                        roleName = "Admin";
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @badge">@roleName</span>
+                                        </td>
+                                        <td>@(user.Last_Login.HasValue ? user.Last_Login.Value.ToString("dd MMM yyyy HH:mm") : "Never")</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="@Url.Action("UserDetails", new { id = user.Id })" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" href="@Url.Action("UserDetails", new { id = user.Id })">
+                                                            <i class="fas fa-user me-2"></i> View profile
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <form action="@Url.Action("UpdateUserStatus", new { id = user.Id })" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="isActive" value="@(user.Level == 0 ? "true" : "false")" />
+                                                            <button type="submit" class="dropdown-item">
+                                                                @if (user.Level == 0)
+                                                                {
+                                                                    <i class="fas fa-user-check me-2 text-success"></i>
+                                                                    <span>Activate user</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="fas fa-user-times me-2 text-danger"></i>
+                                                                    <span>Deactivate user</span>
+                                                                }
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="@Url.Action("MakeAdmin", "Admin", new { username = user.UserName })">
+                                                            <i class="fas fa-user-shield me-2"></i> Grant admin rights
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                            <h5>No users found</h5>
+                                            @if (!string.IsNullOrEmpty(searchTerm))
+                                            {
+                                                <p class="text-muted">Try changing your search criteria</p>
+                                                <a href="@Url.Action("Users")" class="btn btn-outline-primary mt-2">
+                                                    <i class="fas fa-sync-alt me-1"></i> Reset search
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">There are no users registered in the system</p>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="User pagination">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Users", new { page = currentPage - 1, searchTerm })" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            @{
+                                int startPage = Math.Max(1, currentPage - 2);
+                                int endPage = Math.Min(totalPages, startPage + 4);
+
+                                if (startPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Users", new { page = 1, searchTerm })">1</a>
+                                    </li>
+                                    if (startPage > 2)
+                                    {
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    }
+                                }
+
+                                for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Users", new { page = i, searchTerm })">@i</a>
+                                    </li>
+                                }
+
+                                if (endPage < totalPages)
+                                {
+                                    if (endPage < totalPages - 1)
+                                    {
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    }
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Users", new { page = totalPages, searchTerm })">@totalPages</a>
+                                    </li>
+                                }
+                            }
+
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Users", new { page = currentPage + 1, searchTerm })" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    </div>
+</div> 

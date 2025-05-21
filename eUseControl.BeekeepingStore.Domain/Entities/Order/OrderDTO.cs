@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace eUseControl.BeekeepingStore.Domain.Entities.Order
 {
@@ -55,5 +56,19 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.Order
         public int OrderId { get; set; }
         public string OrderStatus { get; set; }
         public string Notes { get; set; }
+    }
+
+    // Used for adding shipping information
+    public class AddShippingModel
+    {
+        public int OrderId { get; set; }
+
+        [Required(ErrorMessage = "Tracking number is required")]
+        [StringLength(100, ErrorMessage = "Tracking number cannot exceed 100 characters")]
+        public string TrackingNumber { get; set; }
+
+        [Required(ErrorMessage = "Shipping date is required")]
+        [Display(Name = "Shipping Date")]
+        public DateTime ShippedDate { get; set; }
     }
 }

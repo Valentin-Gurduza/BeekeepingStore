@@ -27,7 +27,6 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             }
             catch (Exception ex)
             {
-               
                 LogError(ex);
                 throw;
             }
@@ -176,6 +175,26 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             {
                 LogError(ex);
                 throw;
+            }
+        }
+
+        public List<Product> GetLowStockProducts(int threshold, int limit)
+        {
+            try
+            {
+                using (var context = new DataContext())
+                {
+                    return context.Products
+                        .Where(p => p.StockQuantity < threshold && p.IsActive)
+                        .OrderBy(p => p.StockQuantity)
+                        .Take(limit)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex);
+                return new List<Product>();
             }
         }
 

@@ -1,0 +1,501 @@
+﻿@{
+    ViewBag.Title = "Analiză Detaliată";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="container-fluid px-0">
+    <!-- Filtre -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="dateRange" class="form-label">Perioadă</label>
+                        <select class="form-select" id="dateRange" name="dateRange">
+                            <option value="7" selected>Ultimele 7 zile</option>
+                            <option value="30">Ultimele 30 zile</option>
+                            <option value="90">Ultimele 3 luni</option>
+                            <option value="365">Ultimul an</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="category" class="form-label">Categorie</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="" selected>Toate categoriile</option>
+                            <option value="Miere">Miere</option>
+                            <option value="Echipamente">Echipamente</option>
+                            <option value="Accesorii">Accesorii</option>
+                            <option value="Stupi">Stupi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Aplică filtre</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vânzări lunare -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Vânzări lunare (@DateTime.Now.Year)</h5>
+                <div style="height: 300px;">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribuție pe categorii și Metode de plată -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Vânzări pe categorii</h5>
+                <div style="height: 300px;">
+                    <canvas id="categorySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Metode de plată</h5>
+                <div style="height: 300px;">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rata de conversie și Stagii de comandă -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h5 class="card-title mb-3">Rata de conversie</h5>
+                <div class="text-center mb-3">
+                    <div class="display-4 fw-bold">@string.Format("{0:F1}%", ViewBag.ConversionRate)</div>
+                    <div class="text-muted">Vizitatori unici / Clienți</div>
+                </div>
+                <div style="height: 200px;">
+                    <canvas id="conversionRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Distribuția comenzilor pe status</h5>
+                <div style="height: 250px;">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabele cu metrici cheie -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Metrici cheie</h5>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Metrică</th>
+                            <th>Valoare</th>
+                            <th>Schimbare (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Valoare medie a comenzii</td>
+                            <td>250 RON</td>
+                            <td class="text-success">+15.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Rata de abandon a coșului</td>
+                            <td>24.8%</td>
+                            <td class="text-danger">+3.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Vânzări repetate</td>
+                            <td>35.6%</td>
+                            <td class="text-success">+8.9%</td>
+                        </tr>
+                        <tr>
+                            <td>Produse per comandă</td>
+                            <td>3.2</td>
+                            <td class="text-success">+0.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Timp mediu până la livrare</td>
+                            <td>3.4 zile</td>
+                            <td class="text-success">-12.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h5 class="card-title mb-4">Top 5 locații clienți</h5>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Oraș</th>
+                            <th>Clienți</th>
+                            <th>Vânzări</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>București</td>
+                            <td>325</td>
+                            <td>76,500 RON</td>
+                        </tr>
+                        <tr>
+                            <td>Cluj-Napoca</td>
+                            <td>158</td>
+                            <td>42,300 RON</td>
+                        </tr>
+                        <tr>
+                            <td>Iași</td>
+                            <td>132</td>
+                            <td>36,750 RON</td>
+                        </tr>
+                        <tr>
+                            <td>Timișoara</td>
+                            <td>117</td>
+                            <td>29,800 RON</td>
+                        </tr>
+                        <tr>
+                            <td>Constanța</td>
+                            <td>89</td>
+                            <td>22,400 RON</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Culorile pentru grafice
+        var colors = [
+            '#FFC107', '#FF9800', '#FF5722', '#F44336', '#E91E63',
+            '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4',
+            '#00BCD4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39'
+        ];
+
+        // 1. Graficul vânzări lunare
+        var monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+        var monthlySalesData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MonthlySales ?? new string[] {}));
+
+        var monthLabels = [];
+        var salesValues = [];
+        var orderCounts = [];
+
+        // Generează date pentru toate lunile, chiar dacă nu avem date
+        var monthNames = ['Ian', 'Feb', 'Mar', 'Apr', 'Mai', 'Iun', 'Iul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        if (monthlySalesData && monthlySalesData.length > 0) {
+            for (var i = 0; i < 12; i++) {
+                monthLabels.push(monthNames[i]);
+
+                // Verifică dacă avem date pentru această lună
+                var monthData = monthlySalesData.find(function(item) {
+                    return item.Month === (i + 1) && item.Year === @DateTime.Now.Year;
+                });
+
+                salesValues.push(monthData ? monthData.TotalSales : 0);
+                orderCounts.push(monthData ? monthData.OrderCount : 0);
+            }
+        } else {
+            // Date demonstrative
+            monthLabels = monthNames;
+            salesValues = [15000, 18000, 14000, 22000, 25000, 19000, 21000, 27000, 23000, 24000, 26000, 30000];
+            orderCounts = [45, 52, 38, 65, 72, 58, 63, 80, 70, 71, 75, 85];
+        }
+
+        new Chart(monthlySalesCtx, {
+            type: 'bar',
+            data: {
+                labels: monthLabels,
+                datasets: [
+                    {
+                        label: 'Vânzări (RON)',
+                        data: salesValues,
+                        backgroundColor: 'rgba(255, 193, 7, 0.6)',
+                        borderColor: '#FFC107',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Număr comenzi',
+                        data: orderCounts,
+                        type: 'line',
+                        borderColor: '#4B3C28',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4B3C28',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.datasetIndex === 0) {
+                                    label += new Intl.NumberFormat('ro-RO', {
+                                        style: 'currency',
+                                        currency: 'RON'
+                                    }).format(context.parsed.y);
+                                } else {
+                                    label += context.parsed.y + ' comenzi';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Vânzări (RON)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' RON';
+                            }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Număr comenzi'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value;
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Graficul vânzări pe categorii
+        var categorySalesCtx = document.getElementById('categorySalesChart').getContext('2d');
+        var categorySalesData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.CategorySales ?? new string[] {}));
+
+        var categoryLabels = [];
+        var categorySalesValues = [];
+
+        if (categorySalesData && categorySalesData.length > 0) {
+            categorySalesData.forEach(function(item) {
+                categoryLabels.push(item.Category || 'Necategorizat');
+                categorySalesValues.push(item.TotalSales);
+            });
+        } else {
+            // Date demonstrative
+            categoryLabels = ['Miere', 'Echipamente', 'Stupi', 'Accesorii', 'Tratamente'];
+            categorySalesValues = [45000, 28000, 18000, 15000, 9000];
+        }
+
+        new Chart(categorySalesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categorySalesValues,
+                    backgroundColor: colors.slice(0, categoryLabels.length),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+
+                                var value = context.parsed;
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = ((value / total) * 100).toFixed(1);
+
+                                label += new Intl.NumberFormat('ro-RO', {
+                                    style: 'currency',
+                                    currency: 'RON'
+                                }).format(value) + ' (' + percentage + '%)';
+
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Graficul metode de plată
+        var paymentMethodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+        var paymentMethodsData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PaymentMethods ?? new string[] {}));
+
+        var methodLabels = [];
+        var methodCounts = [];
+        var methodAmounts = [];
+
+        if (paymentMethodsData && paymentMethodsData.length > 0) {
+            paymentMethodsData.forEach(function(item) {
+                methodLabels.push(item.Method);
+                methodCounts.push(item.Count);
+                methodAmounts.push(item.TotalAmount);
+            });
+        } else {
+            // Date demonstrative
+            methodLabels = ['Card', 'PayPal', 'Transfer bancar', 'Ramburs'];
+            methodCounts = [350, 120, 85, 245];
+            methodAmounts = [65000, 28000, 18000, 42000];
+        }
+
+        new Chart(paymentMethodsCtx, {
+            type: 'pie',
+            data: {
+                labels: methodLabels,
+                datasets: [{
+                    data: methodCounts,
+                    backgroundColor: ['#FFC107', '#2196F3', '#4CAF50', '#F44336'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+
+                                var count = context.parsed;
+                                var amount = methodAmounts[context.dataIndex];
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = ((count / total) * 100).toFixed(1);
+
+                                label += count + ' comenzi (' + percentage + '%)';
+                                label += ', ' + new Intl.NumberFormat('ro-RO', {
+                                    style: 'currency',
+                                    currency: 'RON'
+                                }).format(amount);
+
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 4. Graficul rată de conversie
+        var conversionRateCtx = document.getElementById('conversionRateChart').getContext('2d');
+        var conversionRate = @(ViewBag.ConversionRate ?? 20);
+
+        new Chart(conversionRateCtx, {
+            type: 'gauge',
+            data: {
+                datasets: [{
+                    value: conversionRate,
+                    minValue: 0,
+                    maxValue: 100,
+                    backgroundColor: ['#F44336', '#FF9800', '#FFC107', '#4CAF50'],
+                    data: [25, 50, 75, 100]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                needle: {
+                    radiusPercentage: 2,
+                    widthPercentage: 3.2,
+                    lengthPercentage: 80,
+                    color: 'rgba(0, 0, 0, 1)'
+                },
+                valueLabel: {
+                    display: true,
+                    formatter: function(value) {
+                        return value.toFixed(1) + '%';
+                    },
+                    color: 'rgba(0, 0, 0, 1)',
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    fontSize: 20,
+                    fontWeight: 'bold'
+                }
+            }
+        });
+
+        // 5. Graficul status comenzi
+        var orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+
+        new Chart(orderStatusCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+                datasets: [{
+                    label: 'Comenzi',
+                    data: [45, 28, 32, 120, 15],
+                    backgroundColor: ['#FFC107', '#2196F3', '#9C27B0', '#4CAF50', '#F44336'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+    </script>
+}

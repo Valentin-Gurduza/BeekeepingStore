@@ -103,10 +103,21 @@ namespace eUseControl.BeekeepingStore.Controllers
                             Session["UserName"] = result.FullName;
                             Session["UserId"] = result.UserId;
 
+                            // Get user profile to get the profile image
+                            var userProfile = session.GetUserProfile(email);
+                            if (userProfile != null && !string.IsNullOrEmpty(userProfile.ProfileImage))
+                            {
+                                Session["UserProfileImage"] = userProfile.ProfileImage;
+                            }
+
                             // Setăm rolul utilizatorului, folosind o valoare implicită "User" dacă UserLevel nu este definit
-                            if (result.UserLevel == 400)
+                            if (result.UserLevel >= 400)
                             {
                                 Session["UserRole"] = "Admin";
+                            }
+                            else if (result.UserLevel >= 200)
+                            {
+                                Session["UserRole"] = "Moderator";
                             }
                             else
                             {

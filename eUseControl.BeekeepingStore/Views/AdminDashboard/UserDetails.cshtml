@@ -1,0 +1,326 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.User.UProfileData
+@{
+    ViewBag.Title = "Detalii Utilizator";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+    var userOrders = ViewBag.UserOrders as List<eUseControl.BeekeepingStore.Domain.Entities.Order.Order>;
+    decimal totalSpent = ViewBag.TotalSpent ?? 0;
+}
+
+<div class="container-fluid px-0">
+    <!-- Acțiuni rapide și informații de bază -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            @if (!string.IsNullOrEmpty(Model.ProfileImage))
+                            {
+                                <img src="@Model.ProfileImage" alt="@Model.UserName" class="rounded-circle" width="80" height="80">
+                            }
+                            else
+                            {
+                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.UserName)&background=random&size=80"
+                                     alt="@Model.UserName" class="rounded-circle" width="80" height="80">
+                            }
+                        </div>
+                        <div>
+                            <h3 class="mb-1">@Model.UserName</h3>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-envelope me-1"></i> @Model.Email
+                            </p>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-phone me-1"></i> @(string.IsNullOrEmpty(Model.Phone) ? "Nedefinit" : Model.Phone)
+                            </p>
+                            <div class="mt-2">
+                                @{
+                                    string badge = "bg-secondary";
+                                    string roleName = "Necunoscut";
+
+                                    switch (Model.Level)
+                                    {
+                                        case 0:
+                                            badge = "bg-danger";
+                                            roleName = "Inactiv";
+                                            break;
+                                        case 1:
+                                            badge = "bg-success";
+                                            roleName = "Utilizator";
+                                            break;
+                                        case 2:
+                                            badge = "bg-primary";
+                                            roleName = "Admin";
+                                            break;
+                                    }
+                                }
+                                <span class="badge @badge">@roleName</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex mt-3 mt-md-0">
+                        <div class="btn-group">
+                            <form action="@Url.Action("UpdateUserStatus", new { id = Model.Id })" method="post" class="me-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="isActive" value="@(Model.Level == 0 ? "true" : "false")" />
+                                @if (Model.Level == 0)
+                                {
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-user-check me-1"></i> Activare cont
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-user-times me-1"></i> Dezactivare cont
+                                    </button>
+                                }
+                            </form>
+                            <a href="@Url.Action("MakeAdmin", "Admin", new { username = Model.UserName })" class="btn btn-primary">
+                                <i class="fas fa-user-shield me-1"></i> Acordă drepturi admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalii utilizator și statistici -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="stat-card">
+                <ul class="nav nav-tabs" id="userDetailsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
+                                type="button" role="tab" aria-controls="profile" aria-selected="true">
+                            <i class="fas fa-user me-2"></i>Profil
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders"
+                                type="button" role="tab" aria-controls="orders" aria-selected="false">
+                            <i class="fas fa-shopping-cart me-2"></i>Comenzi
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity"
+                                type="button" role="tab" aria-controls="activity" aria-selected="false">
+                            <i class="fas fa-chart-line me-2"></i>Activitate
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="userDetailsTabsContent">
+                    <!-- Tab Profil -->
+                    <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6>Informații cont</h6>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" width="40%">ID</th>
+                                            <td>@Model.Id</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Username</th>
+                                            <td>@Model.UserName</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Email</th>
+                                            <td>@Model.Email</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Nivel cont</th>
+                                            <td><span class="badge @badge">@roleName</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Data înregistrării</th>
+                                            <td>@(Model.RegisterDate.HasValue ? Model.RegisterDate.Value.ToString("dd MMM yyyy, HH:mm") : "Nedefinit")</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Ultima conectare</th>
+                                            <td>@(Model.Last_Login.HasValue ? Model.Last_Login.Value.ToString("dd MMM yyyy, HH:mm") : "Niciodată")</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">IP</th>
+                                            <td>@(Model.UserIp ?? "Indisponibil")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6>Informații personale</h6>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row" width="40%">Telefon</th>
+                                            <td>@(string.IsNullOrEmpty(Model.Phone) ? "Nedefinit" : Model.Phone)</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Adresă</th>
+                                            <td>@(string.IsNullOrEmpty(Model.Address) ? "Nedefinit" : Model.Address)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Comenzi -->
+                    <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Data</th>
+                                        <th scope="col">Total</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (userOrders != null && userOrders.Count > 0)
+                                    {
+                                        foreach (var order in userOrders)
+                                        {
+                                            <tr>
+                                                <td>#@order.OrderId</td>
+                                                <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
+                                                <td>@string.Format("{0:C}", order.TotalAmount)</td>
+                                                <td>
+                                                    @{
+                                                        string orderBadgeClass = "bg-secondary";
+
+                                                        switch (order.OrderStatus)
+                                                        {
+                                                            case "Pending":
+                                                                orderBadgeClass = "bg-warning text-dark";
+                                                                break;
+                                                            case "Processing":
+                                                                orderBadgeClass = "bg-info text-dark";
+                                                                break;
+                                                            case "Shipped":
+                                                                orderBadgeClass = "bg-primary";
+                                                                break;
+                                                            case "Delivered":
+                                                                orderBadgeClass = "bg-success";
+                                                                break;
+                                                            case "Cancelled":
+                                                                orderBadgeClass = "bg-danger";
+                                                                break;
+                                                        }
+                                                    }
+                                                    <span class="badge @orderBadgeClass">@order.OrderStatus</span>
+                                                </td>
+                                                <td>
+                                                    <a href="@Url.Action("Details", "AdminOrder", new { id = order.OrderId })" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">
+                                                <i class="fas fa-shopping-cart fa-2x text-muted mb-2"></i>
+                                                <p class="mb-0">Acest utilizator nu are comenzi.</p>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Activitate -->
+                    <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                            <h5>Analiza activității utilizatorilor va fi disponibilă în curând</h5>
+                            <p class="text-muted">Această funcționalitate este în curs de dezvoltare și va fi implementată în viitor.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Statistici client -->
+            <div class="stat-card mb-4">
+                <h6 class="card-title mb-3">Statistici client</h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-primary">
+                                @(userOrders?.Count ?? 0)
+                            </div>
+                            <div class="small text-muted">Total comenzi</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-success">
+                                @string.Format("{0:C0}", totalSpent)
+                            </div>
+                            <div class="small text-muted">Total cheltuieli</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-info">
+                                @{
+                                    var avgOrderValue = userOrders != null && userOrders.Count > 0
+                                        ? totalSpent / userOrders.Count
+                                        : 0;
+                                }
+                                @string.Format("{0:C0}", avgOrderValue)
+                            </div>
+                            <div class="small text-muted">Valoare medie comandă</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-warning">
+                                @{
+                                    // Calculate account age in days - handle nullable RegisterDate
+                                    int accountAge = 0;
+                                    if (Model.RegisterDate.HasValue)
+                                    {
+                                        accountAge = (DateTime.Now - Model.RegisterDate.Value).Days;
+                                    }
+                                }
+                                @accountAge
+                            </div>
+                            <div class="small text-muted">Zile de activitate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note și observații -->
+            <div class="stat-card">
+                <h6 class="card-title mb-3">Note și observații</h6>
+                <form action="#" method="post">
+                    <div class="mb-3">
+                        <textarea class="form-control" id="userNotes" rows="5" placeholder="Adaugă note despre acest utilizator..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvează notele</button>
+                </form>
+                <div class="alert alert-info mt-3 mb-0">
+                    <div class="d-flex">
+                        <div class="me-2">
+                            <i class="fas fa-info-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <strong>Funcționalitate demonstrativă</strong>
+                            <p class="mb-0">Această secțiune este în curs de dezvoltare și va fi disponibilă în versiunile viitoare.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

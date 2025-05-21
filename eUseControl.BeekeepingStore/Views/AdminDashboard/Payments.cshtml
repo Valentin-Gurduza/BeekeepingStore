@@ -1,0 +1,317 @@
+﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.Payment.Payment>
+@{
+    ViewBag.Title = "Payment Management";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    string searchTerm = ViewBag.SearchTerm ?? "";
+    string currentStatus = ViewBag.CurrentStatus ?? "";
+    var statusList = ViewBag.StatusList as List<string> ?? new List<string>();
+}
+
+<div class="container-fluid px-0">
+    <!-- Filter and search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <form method="get" class="row g-3">
+                    <div class="col-md-5">
+                        <label for="searchTerm" class="form-label">Search payment</label>
+                        <input type="text" class="form-control" id="searchTerm" name="searchTerm"
+                               placeholder="Transaction ID or payment method" value="@searchTerm">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">All statuses</option>
+                            @foreach (var status in statusList)
+                            {
+                                <option value="@status" @(status == currentStatus ? "selected" : "")>@status</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i> Filter
+                        </button>
+                        <a href="@Url.Action("Payments")" class="btn btn-outline-secondary @(string.IsNullOrEmpty(searchTerm) && string.IsNullOrEmpty(currentStatus) ? "d-none" : "")">
+                            <i class="fas fa-times me-1"></i> Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small">Total payments</div>
+                                    <div class="h4 mb-0">@Model.Count</div>
+                                </div>
+                                <div class="stat-icon bg-primary-light">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small">Completed payments</div>
+                                    <div class="h4 mb-0">@Model.Count(p => p.Status == "Completed")</div>
+                                </div>
+                                <div class="stat-icon bg-success-light">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small">Pending payments</div>
+                                    <div class="h4 mb-0">@Model.Count(p => p.Status == "Pending")</div>
+                                </div>
+                                <div class="stat-icon bg-warning-light">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small">Failed payments</div>
+                                    <div class="h4 mb-0">@Model.Count(p => p.Status == "Failed")</div>
+                                </div>
+                                <div class="stat-icon bg-danger-light">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment list -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Payment History</h5>
+                    <div>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fas fa-file-excel me-1"></i> Export Excel
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Payment ID</th>
+                                <th scope="col">Order ID</th>
+                                <th scope="col">Transaction ID</th>
+                                <th scope="col">Method</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Count > 0)
+                            {
+                                foreach (var payment in Model)
+                                {
+                                    <tr>
+                                        <td>@payment.PaymentId</td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "AdminOrder", new { id = payment.OrderId })">
+                                                #@payment.OrderId
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="text-monospace">@payment.TransactionId</span>
+                                        </td>
+                                        <td>
+                                            @{
+                                                string methodIcon = "fa-credit-card";
+
+                                                switch (payment.PaymentMethod.ToLower())
+                                                {
+                                                    case "paypal":
+                                                        methodIcon = "fa-paypal";
+                                                        break;
+                                                    case "card":
+                                                    case "credit card":
+                                                        methodIcon = "fa-credit-card";
+                                                        break;
+                                                    case "bank transfer":
+                                                        methodIcon = "fa-university";
+                                                        break;
+                                                    case "cash":
+                                                        methodIcon = "fa-money-bill";
+                                                        break;
+                                                }
+                                            }
+                                            <i class="fab @methodIcon me-1"></i> @payment.PaymentMethod
+                                        </td>
+                                        <td>@string.Format("{0:C}", payment.Amount)</td>
+                                        <td>@payment.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                        <td>
+                                            @{
+                                                string statusBadge = "bg-secondary";
+
+                                                switch (payment.Status)
+                                                {
+                                                    case "Completed":
+                                                        statusBadge = "bg-success";
+                                                        break;
+                                                    case "Pending":
+                                                        statusBadge = "bg-warning text-dark";
+                                                        break;
+                                                    case "Failed":
+                                                        statusBadge = "bg-danger";
+                                                        break;
+                                                    case "Refunded":
+                                                        statusBadge = "bg-info";
+                                                        break;
+                                                }
+                                            }
+                                            <span class="badge @statusBadge">@payment.Status</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="@Url.Action("PaymentDetails", new { id = payment.PaymentId })" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" href="@Url.Action("PaymentDetails", new { id = payment.PaymentId })">
+                                                            <i class="fas fa-eye me-2"></i> View details
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="@Url.Action("Details", "AdminOrder", new { id = payment.OrderId })">
+                                                            <i class="fas fa-shipping-fast me-2"></i> View order
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form action="@Url.Action("UpdatePaymentStatus", new { id = payment.PaymentId })" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="status" value="Completed" />
+                                                            <button type="submit" class="dropdown-item @(payment.Status == "Completed" ? "disabled" : "")">
+                                                                <i class="fas fa-check-circle me-2 text-success"></i> Mark as completed
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                                            <h5>No payments found</h5>
+                                            @if (!string.IsNullOrEmpty(searchTerm) || !string.IsNullOrEmpty(currentStatus))
+                                            {
+                                                <p class="text-muted">Try changing your filter criteria</p>
+                                                <a href="@Url.Action("Payments")" class="btn btn-outline-primary mt-2">
+                                                    <i class="fas fa-sync-alt me-1"></i> Reset filters
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">There are no payments registered in the system</p>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Payment pagination">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Payments", new { page = currentPage - 1, searchTerm, status = currentStatus })" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            @{
+                                int startPage = Math.Max(1, currentPage - 2);
+                                int endPage = Math.Min(totalPages, startPage + 4);
+
+                                if (startPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Payments", new { page = 1, searchTerm, status = currentStatus })">1</a>
+                                    </li>
+                                    if (startPage > 2)
+                                    {
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    }
+                                }
+
+                                for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Payments", new { page = i, searchTerm, status = currentStatus })">@i</a>
+                                    </li>
+                                }
+
+                                if (endPage < totalPages)
+                                {
+                                    if (endPage < totalPages - 1)
+                                    {
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    }
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Payments", new { page = totalPages, searchTerm, status = currentStatus })">@totalPages</a>
+                                    </li>
+                                }
+                            }
+
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("Payments", new { page = currentPage + 1, searchTerm, status = currentStatus })" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    </div>
+</div> 

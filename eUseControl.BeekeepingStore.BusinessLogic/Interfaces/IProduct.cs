@@ -27,5 +27,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic.Interfaces
         // Obține produse în promoție sau cu anumite filtre
         List<Product> GetFilteredProducts(decimal? minPrice = null, decimal? maxPrice = null,
                                           string searchTerm = null, bool activeOnly = true);
+
+        // Obține produse cu stoc redus
+        List<Product> GetLowStockProducts(int threshold, int limit);
     }
 }

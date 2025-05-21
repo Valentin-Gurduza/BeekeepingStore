@@ -99,17 +99,17 @@ namespace eUseControl.BeekeepingStore.Controllers
                     bool success = _orderBL.UpdateOrderStatus(model);
                     if (success)
                     {
-                        TempData["SuccessMessage"] = "Statusul comenzii a fost actualizat cu succes.";
+                        TempData["SuccessMessage"] = "Order status updated successfully.";
                         return RedirectToAction("Details", new { id = model.OrderId });
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Nu s-a putut actualiza statusul comenzii.");
+                        ModelState.AddModelError("", "The order status could not be updated.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "A apărut o eroare la actualizarea statusului: " + ex.Message);
+                    ModelState.AddModelError("", "An error occurred while updating the status: " + ex.Message);
                 }
             }
 
@@ -140,7 +140,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             }
 
             // Create view model
-            var model = new ShippingInfoViewModel
+            var model = new AddShippingModel
             {
                 OrderId = id,
                 TrackingNumber = order.TrackingNumber,
@@ -153,7 +153,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         // POST: AdminOrder/AddShipping
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AddShipping(ShippingInfoViewModel model)
+        public ActionResult AddShipping(AddShippingModel model)
         {
             if (ModelState.IsValid)
             {
@@ -163,17 +163,17 @@ namespace eUseControl.BeekeepingStore.Controllers
                     bool success = _orderBL.AddShippingInfo(model.OrderId, model.TrackingNumber, model.ShippedDate);
                     if (success)
                     {
-                        TempData["SuccessMessage"] = "Informațiile de livrare au fost adăugate cu succes.";
+                        TempData["SuccessMessage"] = "Shipping information added successfully.";
                         return RedirectToAction("Details", new { id = model.OrderId });
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Nu s-au putut adăuga informațiile de livrare.");
+                        ModelState.AddModelError("", "Could not add shipping information.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "A apărut o eroare la adăugarea informațiilor de livrare: " + ex.Message);
+                    ModelState.AddModelError("", "An error occurred while adding shipping information: " + ex.Message);
                 }
             }
 
@@ -192,34 +192,20 @@ namespace eUseControl.BeekeepingStore.Controllers
                 bool success = _orderBL.CancelOrder(id);
                 if (success)
                 {
-                    TempData["SuccessMessage"] = "Comanda a fost anulată cu succes.";
+                    TempData["SuccessMessage"] = "Order canceled successfully.";
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = "Nu s-a putut anula comanda. Verificați statusul comenzii.";
+                    TempData["ErrorMessage"] = "Could not cancel the order. Check the order status.";
                 }
 
                 return RedirectToAction("Details", new { id });
             }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "A apărut o eroare la anularea comenzii.";
+                TempData["ErrorMessage"] = "An error occurred while canceling the order.";
                 return RedirectToAction("Details", new { id });
             }
         }
-    }
-
-    // View model for shipping information
-    public class ShippingInfoViewModel
-    {
-        public int OrderId { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Numărul de tracking este obligatoriu")]
-        [System.ComponentModel.DataAnnotations.StringLength(100, ErrorMessage = "Numărul de tracking nu poate depăși 100 de caractere")]
-        public string TrackingNumber { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Data expedierii este obligatorie")]
-        [System.ComponentModel.DataAnnotations.Display(Name = "Data expedierii")]
-        public DateTime ShippedDate { get; set; }
     }
 }
