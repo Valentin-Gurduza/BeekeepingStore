@@ -87,11 +87,19 @@
                                                         badge = "bg-danger";
                                                         roleName = "Inactive";
                                                         break;
-                                                    case 1:
+                                                    case 50:
+                                                        badge = "bg-warning text-dark";
+                                                        roleName = "Visitor";
+                                                        break;
+                                                    case 100:
                                                         badge = "bg-success";
                                                         roleName = "User";
                                                         break;
-                                                    case 2:
+                                                    case 200:
+                                                        badge = "bg-info";
+                                                        roleName = "Moderator";
+                                                        break;
+                                                    case 400:
                                                         badge = "bg-primary";
                                                         roleName = "Admin";
                                                         break;
@@ -133,11 +141,22 @@
                                                         </form>
                                                     </li>
                                                     <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <a class="dropdown-item" href="@Url.Action("MakeAdmin", "Admin", new { username = user.UserName })">
-                                                            <i class="fas fa-user-shield me-2"></i> Grant admin rights
-                                                        </a>
-                                                    </li>
+                                                    @if (user.Level != 400)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" href="@Url.Action("MakeAdmin", "Admin", new { username = user.UserName })">
+                                                                <i class="fas fa-user-shield me-2"></i> Grant admin rights
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    @if (user.Level == 400)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" href="@Url.Action("MakeUser", "Admin", new { username = user.UserName })">
+                                                                <i class="fas fa-user-minus me-2"></i> Remove admin rights
+                                                            </a>
+                                                        </li>
+                                                    }
                                                 </ul>
                                             </div>
                                         </td>

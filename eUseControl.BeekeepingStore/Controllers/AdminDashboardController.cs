@@ -24,6 +24,7 @@ namespace eUseControl.BeekeepingStore.Controllers
         private readonly SessionBL _sessionBL;
         private readonly IPayment _paymentBL;
         private readonly IBlog _blogBL;
+        private readonly IPromotion _promotionBL;
 
         public AdminDashboardController()
         {
@@ -33,6 +34,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             _sessionBL = new SessionBL();
             _paymentBL = new PaymentBL();
             _blogBL = new BlogBL();
+            _promotionBL = bl.GetPromotionBL;
         }
 
         // GET: AdminDashboard - Pagina principală cu date statistice
@@ -434,6 +436,205 @@ namespace eUseControl.BeekeepingStore.Controllers
             {
                 return View();
             }
+        }
+
+        // GET: AdminDashboard/ProductDetails/5
+        public ActionResult ProductDetails(int id)
+        {
+            var product = _productBL.GetProductById(id);
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Get additional product data if needed
+            // For example, you might want to get orders related to this product
+
+            return View(product);
+        }
+
+        // GET: AdminDashboard/UpdateStock/5
+        public ActionResult UpdateStock(int id)
+        {
+            var product = _productBL.GetProductById(id);
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(product);
+        }
+
+        // POST: AdminDashboard/UpdateStock/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateStock(int id, int stockQuantity)
+        {
+            var product = _productBL.GetProductById(id);
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+
+            product.StockQuantity = stockQuantity;
+            product.LastUpdated = DateTime.Now;
+
+            bool result = _productBL.UpdateProduct(product);
+
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Stock updated successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to update stock.";
+            }
+
+            return RedirectToAction("ProductDetails", new { id = id });
+        }
+
+        // GET: AdminDashboard/ManagePromotions/5
+        public ActionResult ManagePromotions(int id)
+        {
+            var product = _productBL.GetProductById(id);
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Obținem toate promoțiile pentru acest produs
+            var promotions = _promotionBL.GetPromotionsForProduct(id);
+
+            ViewBag.Product = product;
+            ViewBag.PromotionTypes = new List<string> { "PercentOff", "FixedAmount", "BuyXGetY" };
+
+            return View(promotions);
+        }
+
+        // GET: AdminDashboard/CreatePromotion/5
+        public ActionResult CreatePromotion(int productId)
+        {
+            var product = _productBL.GetProductById(productId);
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.Product = product;
+            ViewBag.PromotionTypes = new List<string> { "PercentOff", "FixedAmount", "BuyXGetY" };
+
+            var promotion = new Promotion
+            {
+                ProductId = productId,
+                StartDate = DateTime.Now,
+                IsActive = true
+            };
+
+            return View(promotion);
+        }
+
+        // POST: AdminDashboard/CreatePromotion
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreatePromotion(Promotion promotion)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    int promotionId = _promotionBL.AddPromotion(promotion);
+                    TempData["SuccessMessage"] = "Promoție adăugată cu succes!";
+                    return RedirectToAction("ManagePromotions", new { id = promotion.ProductId });
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Eroare la salvare: " + ex.Message);
+                }
+            }
+
+            // Reîncarcă datele pentru view în caz de eroare
+            var product = _productBL.GetProductById(promotion.ProductId);
+            ViewBag.Product = product;
+            ViewBag.PromotionTypes = new List<string> { "PercentOff", "FixedAmount", "BuyXGetY" };
+
+            return View(promotion);
+        }
+
+        // GET: AdminDashboard/EditPromotion/5
+        public ActionResult EditPromotion(int id)
+        {
+            var promotion = _promotionBL.GetPromotionById(id);
+            if (promotion == null)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.Product = promotion.Product;
+            ViewBag.PromotionTypes = new List<string> { "PercentOff", "FixedAmount", "BuyXGetY" };
+
+            return View(promotion);
+        }
+
+        // POST: AdminDashboard/EditPromotion/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditPromotion(Promotion promotion)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    promotion.LastUpdated = DateTime.Now;
+                    bool result = _promotionBL.UpdatePromotion(promotion);
+
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = "Promoție actualizată cu succes!";
+                        return RedirectToAction("ManagePromotions", new { id = promotion.ProductId });
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Nu s-a putut actualiza promoția.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Eroare la actualizare: " + ex.Message);
+                }
+            }
+
+            // Reîncarcă datele pentru view în caz de eroare
+            var product = _productBL.GetProductById(promotion.ProductId);
+            ViewBag.Product = product;
+            ViewBag.PromotionTypes = new List<string> { "PercentOff", "FixedAmount", "BuyXGetY" };
+
+            return View(promotion);
+        }
+
+        // POST: AdminDashboard/DeletePromotion/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeletePromotion(int id, int productId)
+        {
+            try
+            {
+                bool result = _promotionBL.DeletePromotion(id);
+
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Promoție ștearsă cu succes!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Nu s-a putut șterge promoția.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Eroare la ștergere: " + ex.Message;
+            }
+
+            return RedirectToAction("ManagePromotions", new { id = productId });
         }
     }
 }

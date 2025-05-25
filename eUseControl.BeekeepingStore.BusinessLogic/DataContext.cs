@@ -7,8 +7,8 @@ using eUseControl.BeekeepingStore.Domain.Entities.User;
 using eUseControl.BeekeepingStore.Domain.Entities.Product;
 using eUseControl.BeekeepingStore.Domain.Entities.Order;
 using eUseControl.BeekeepingStore.Domain.Entities.Payment;
-using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 using eUseControl.BeekeepingStore.Domain.Entities.Blog;
+using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 
 internal class DataContext : DbContext
 {
@@ -24,14 +24,14 @@ internal class DataContext : DbContext
     public DbSet<Wishlist> Wishlists { get; set; }
     public DbSet<BlogPost> BlogPosts { get; set; }
     public DbSet<BlogComment> BlogComments { get; set; }
-
+    public DbSet<Promotion> Promotions { get; set; }
 
     public DataContext() : base("eUseControl.BeekeepingStore")
     {
         Debug.WriteLine("DataContext constructor called with connection string name: eUseControl.BeekeepingStore");
         try
         {
-            
+            // Afișează stringul de conexiune complet pentru debugging
             Debug.WriteLine("Connection string: " + this.Database.Connection.ConnectionString);
         }
         catch (Exception ex)
@@ -39,14 +39,14 @@ internal class DataContext : DbContext
             Debug.WriteLine("Error accessing connection string: " + ex.Message);
         }
 
-        
+        // Activez log-ul pentru a vedea query-urile SQL
         this.Database.Log = s => Debug.WriteLine(s);
 
-        
+        // Dezactivează lazy loading și change tracking pentru performanță
         this.Configuration.LazyLoadingEnabled = false;
 
-        
-        this.Database.CommandTimeout = 180; 
+        // Setarea timeout-ului mai mare pentru operațiuni
+        this.Database.CommandTimeout = 180; // 3 minute
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -54,7 +54,7 @@ internal class DataContext : DbContext
         Debug.WriteLine("DataContext.OnModelCreating called");
         base.OnModelCreating(modelBuilder);
 
-        
+        // Configurare explicită pentru UDBTable
         modelBuilder.Entity<UDBTable>()
             .ToTable("UDBTables")
             .HasKey(e => e.Id);
@@ -117,6 +117,28 @@ internal class DataContext : DbContext
         modelBuilder.Entity<User>()
             .Property(e => e.UserIp)
             .HasMaxLength(60);
+
+        // Configurare pentru BlogPost
+        modelBuilder.Entity<BlogPost>()
+            .HasKey(e => e.BlogPostId);
+
+        // Configurare pentru BlogComment
+        modelBuilder.Entity<BlogComment>()
+            .HasKey(e => e.CommentId);
+
+        // Configurare pentru relația dintre BlogPost și BlogComment
+        modelBuilder.Entity<BlogComment>()
+            .HasRequired(c => c.BlogPost)
+            .WithMany(p => p.Comments)
+            .HasForeignKey(c => c.BlogPostId)
+            .WillCascadeOnDelete(true);
+
+        // Configurare pentru relația self-referencing în BlogComment pentru replies
+        modelBuilder.Entity<BlogComment>()
+            .HasOptional(c => c.ParentComment)
+            .WithMany()
+            .HasForeignKey(c => c.ParentCommentId)
+            .WillCascadeOnDelete(false);
 
         // Configurare pentru Product
         modelBuilder.Entity<Product>()
@@ -214,6 +236,35 @@ internal class DataContext : DbContext
             .HasRequired(w => w.Product)
             .WithMany()
             .HasForeignKey(w => w.ProductId)
+            .WillCascadeOnDelete(false);
+
+        // Configurare pentru Promotion
+        modelBuilder.Entity<Promotion>()
+            .HasKey(p => p.PromotionId);
+
+        modelBuilder.Entity<Promotion>()
+            .Property(p => p.Name)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<Promotion>()
+            .Property(p => p.PromotionType)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<Promotion>()
+            .Property(p => p.CouponCode)
+            .HasMaxLength(50);
+
+        modelBuilder.Entity<Promotion>()
+            .Property(p => p.CustomerGroup)
+            .HasMaxLength(50);
+
+        // Relația Product - Promotion
+        modelBuilder.Entity<Promotion>()
+            .HasRequired(p => p.Product)
+            .WithMany()
+            .HasForeignKey(p => p.ProductId)
             .WillCascadeOnDelete(false);
     }
 }
