@@ -1,0 +1,92 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Product.Product
+@{
+    ViewBag.Title = "Update Stock";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="container-fluid px-0">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">Update Stock</h5>
+                        <p class="text-muted small mb-0">Product: @Model.Name</p>
+                    </div>
+                    <div>
+                        <a href="@Url.Action("ProductDetails", "AdminDashboard", new { id = Model.ProductId })" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="stat-card">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="image-container d-flex align-items-center justify-content-center mb-3 mb-md-0" style="height: 150px; overflow: hidden;">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 100%; height: 100%;">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h4 class="mb-3">@Model.Name</h4>
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-2">@Model.Category</span>
+                        </div>
+                        <p class="mb-1">
+                            <strong>Current Stock:</strong>
+                            @if (Model.StockQuantity > 10)
+                            {
+                                <span class="text-success">@Model.StockQuantity units</span>
+                            }
+                            else if (Model.StockQuantity > 0)
+                            {
+                                <span class="text-warning">@Model.StockQuantity units (Low stock)</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Out of stock</span>
+                            }
+                        </p>
+                        <p><strong>Last Updated:</strong> @(Model.LastUpdated.HasValue ? Model.LastUpdated.Value.ToString("dd MMM yyyy, HH:mm") : "Never updated")</p>
+                    </div>
+                </div>
+
+                <hr>
+
+                @using (Html.BeginForm("UpdateStock", "AdminDashboard", new { id = Model.ProductId }, FormMethod.Post, new { @class = "mt-4" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group mb-4">
+                        <label for="stockQuantity" class="form-label">New Stock Quantity</label>
+                        <input type="number" name="stockQuantity" id="stockQuantity" class="form-control" value="@Model.StockQuantity" min="0" required>
+                        <div class="form-text">Enter the new total stock quantity for this product.</div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Update Stock
+                        </button>
+                        <a href="@Url.Action("ProductDetails", "AdminDashboard", new { id = Model.ProductId })" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div> 

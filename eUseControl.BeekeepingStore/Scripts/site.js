@@ -57,18 +57,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 const productId = this.getAttribute('data-product-id');
                 const productName = this.getAttribute('data-product-name');
                 const productPrice = this.getAttribute('data-product-price') || '0';
+                const promotionalPrice = this.getAttribute('data-product-promotional-price');
+                const originalPrice = this.getAttribute('data-product-original-price') || productPrice;
                 const productImage = this.getAttribute('data-product-image') || '';
 
                 // Animation for the button
                 this.innerHTML = '<i class="fas fa-check"></i> Added';
                 this.classList.add('btn-success');
 
+                // Use promotional price if available
+                const finalPrice = promotionalPrice ? parseFloat(promotionalPrice) : parseFloat(productPrice);
+
+                console.log('Adding to cart with prices:', {
+                    finalPrice: finalPrice,
+                    originalPrice: parseFloat(originalPrice),
+                    promotionalPrice: promotionalPrice ? parseFloat(promotionalPrice) : null
+                });
+
                 // Add the product to cart - aici folosim incrementQuantity=true (implicit)
                 // pentru a permite creșterea cantității pentru produsele adăugate din alte pagini
                 addToCart({
                     id: productId || productName, // Fall back to name if ID not set
                     name: productName,
-                    price: parseFloat(productPrice),
+                    price: finalPrice,
+                    originalPrice: parseFloat(originalPrice), // Store original price for reference
                     image: productImage,
                     quantity: 1
                 });
@@ -249,17 +261,43 @@ function addToCart(product, incrementQuantity = true) {
     const newProduct = {
         id: productId,
         name: product.name,
-        price: parseFloat(product.price) || 0,
+        price: parseFloat(parseFloat(product.price).toFixed(2)) || 0,
+        originalPrice: parseFloat(parseFloat(product.originalPrice || product.price).toFixed(2)) || 0,
         image: product.image || '',
         quantity: parseInt(product.quantity) || 1
     };
+
+    // Verificăm dacă produsul are reducere și corectăm prețul dacă e necesar
+    if (newProduct.originalPrice > newProduct.price) {
+        // Calculăm reducerea actuală
+        const currentDiscount = 1 - (newProduct.price / newProduct.originalPrice);
+        console.log(`Produsul ${newProduct.name} are o reducere de ${(currentDiscount * 100).toFixed(2)}%`);
+
+        // Verificăm dacă e reducere de aproximativ 5%
+        if (Math.abs(currentDiscount - 0.05) < 0.01) {
+            // Asigurăm-ne că prețul are valoarea exactă cu reducere de 5%
+            const expectedPrice = parseFloat((newProduct.originalPrice * 0.95).toFixed(2));
+            if (Math.abs(expectedPrice - newProduct.price) > 0.01) {
+                console.log(`Corectăm prețul pentru ${newProduct.name} de la ${newProduct.price} la ${expectedPrice} (reducere exactă 5%)`);
+                newProduct.price = expectedPrice;
+            }
+        }
+    }
+
+    // Log exact values to ensure we're capturing decimal places
+    console.log('Product prices:', {
+        rawPrice: product.price,
+        formattedPrice: newProduct.price,
+        rawOriginalPrice: product.originalPrice || product.price,
+        formattedOriginalPrice: newProduct.originalPrice
+    });
 
     // Get cart from localStorage
     let cart;
     try {
         cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-        if (!Array.isArray(cart)) {
+        if (!Array.isArray(cart) || cart.length === 0) {
             console.error('Cart in localStorage is not a valid array!');
             cart = [];
         }
@@ -280,12 +318,19 @@ function addToCart(product, incrementQuantity = true) {
             // If incrementQuantity is true, add to existing quantity
             cart[existingIndex].quantity += newProduct.quantity;
             console.log('After incrementing, new quantity:', cart[existingIndex].quantity);
+
+            // Make sure we preserve/update the price data (important for promotions)
+            // Only update price if the new price is different and lower (promotional)
+            if (newProduct.price < cart[existingIndex].price) {
+                console.log('Updating price from', cart[existingIndex].price, 'to promotional price', newProduct.price);
+                cart[existingIndex].price = newProduct.price;
+                cart[existingIndex].originalPrice = newProduct.originalPrice;
+            }
         } else {
             // Otherwise, either replace product or set quantity to 1
             console.log('Setting quantity to 1 (incrementQuantity = false)');
 
-            // Replace all product properties, but keep the ID
-            // and set quantity to 1 exactly
+            // Replace all product properties, including the price and originalPrice
             cart[existingIndex] = {
                 ...newProduct,
                 quantity: 1
@@ -312,7 +357,7 @@ function addToCart(product, incrementQuantity = true) {
     // Save updated cart
     try {
         localStorage.setItem('cart', JSON.stringify(cart));
-        console.log('Cart saved successfully:', cart.map(x => ({ id: x.id, name: x.name, qty: x.quantity })));
+        console.log('Cart saved successfully:', cart.map(x => ({ id: x.id, name: x.name, qty: x.quantity, price: x.price, originalPrice: x.originalPrice })));
     } catch (e) {
         console.error('Error saving cart to localStorage:', e);
     }
@@ -377,70 +422,28 @@ function updateCartItemQuantity(productId, quantity) {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
     // Găsește produsul după ID
-    const existingProductIndex = cart.findIndex(item => item.id === productId);
+    const index = cart.findIndex(item => String(item.id) === String(productId));
 
-    console.log('Found product at index:', existingProductIndex);
-
-    if (existingProductIndex > -1) {
-        // Salvează cantitatea veche pentru comparație
-        const oldQuantity = cart[existingProductIndex].quantity;
-        console.log('Old quantity:', oldQuantity, 'New quantity:', quantity);
-
+    if (index > -1) {
         // Actualizează cantitatea
-        cart[existingProductIndex].quantity = quantity;
+        cart[index].quantity = quantity;
 
-        // Elimină produsul dacă cantitatea este 0
-        if (quantity <= 0) {
-            cart.splice(existingProductIndex, 1);
-
-            // Doar în acest caz este nevoie de un re-render complet
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartBadge();
-            renderCartItems();
-            return;
+        // Asigură-te că prețul are întotdeauna două zecimale
+        cart[index].price = parseFloat(parseFloat(cart[index].price).toFixed(2));
+        if (cart[index].originalPrice) {
+            cart[index].originalPrice = parseFloat(parseFloat(cart[index].originalPrice).toFixed(2));
         }
 
-        // Salvează coșul
+        // Salvează coșul actualizat
         localStorage.setItem('cart', JSON.stringify(cart));
 
         // Actualizează badge-ul coșului
         updateCartBadge();
 
-        // Actualizează prețul total pentru acest element fără a face un re-render complet
-        const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
-        if (cartItem) {
-            const pricePerItem = cart[existingProductIndex].price;
-            const totalPriceElement = cartItem.querySelector('.col-lg-2.col-md-2.col-sm-4.mt-3.mt-sm-0.text-end .fw-bold');
-            if (totalPriceElement) {
-                totalPriceElement.textContent = formatCurrency(pricePerItem * quantity);
-            }
+        // Actualizează sumarul din pagina coșului dacă există
+        if (document.querySelector('.cart-subtotal')) {
+            renderCartItems();
         }
-
-        // Actualizează totalurile coșului
-        const cartSummaryContainer = document.querySelector('.cart-summary');
-        if (cartSummaryContainer) {
-            // Calculează subtotalul
-            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-
-            // Calculează transportul (gratuit dacă subtotalul depășește 900 MDL)
-            const shipping = subtotal > 900 ? 0 : 150;
-
-            // Calculează totalul
-            const total = subtotal + shipping;
-
-            // Actualizează sumarul
-            const subtotalEl = cartSummaryContainer.querySelector('.cart-subtotal');
-            const shippingEl = cartSummaryContainer.querySelector('.cart-shipping');
-            const totalEl = cartSummaryContainer.querySelector('.cart-total');
-
-            if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
-            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : formatCurrency(shipping);
-            if (totalEl) totalEl.textContent = formatCurrency(total);
-        }
-
-        console.log('Cart updated successfully');
-    } else {
-        console.error('Product not found in cart! ID:', productId);
     }
 }
 
@@ -468,172 +471,285 @@ function updateCartBadge() {
 }
 
 /**
- * Render cart items on the cart page
+ * Render cart items in the cart page
  */
 function renderCartItems() {
     const cartItemsContainer = document.querySelector('.cart-items');
-    const cartSummaryContainer = document.querySelector('.cart-summary');
-
     if (!cartItemsContainer) return;
 
-    // Obține coșul actualizat
+    // Get cart from localStorage
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Abordare îmbunătățită: detectăm și corectăm doar duplicatele,
-    // dar nu forțăm toate cantitățile la 1
-    console.log('[RENDERFIX] Procesare coș pentru afișare, verificare duplicate');
-
-    // Standardizează toate ID-urile pentru a preveni duplicatele
-    const uniqueCart = [];
-    const processedIds = new Set();
-
-    // Consolidează produsele cu același ID, dar păstrează cantitățile setate de utilizator
-    cart.forEach(item => {
-        const itemId = String(item.id || '');
-
-        // Verifică dacă acest ID a fost deja procesat
-        if (itemId && processedIds.has(itemId)) {
-            // Găsește indexul în coșul unic
-            const existingIndex = uniqueCart.findIndex(x => String(x.id) === itemId);
-            if (existingIndex !== -1) {
-                // Păstrăm cantitatea mai mare dintre cele două
-                // Acest lucru permite utilizatorului să seteze cantități mai mari de 1
-                if (item.quantity > uniqueCart[existingIndex].quantity) {
-                    console.log(`[RENDERFIX] Actualizare cantitate pentru ${item.name} de la ${uniqueCart[existingIndex].quantity} la ${item.quantity}`);
-                    uniqueCart[existingIndex].quantity = item.quantity;
-                }
-            }
-        } else if (itemId) {
-            // Marchează ID-ul ca procesat
-            processedIds.add(itemId);
-            // Adaugă în coșul unic cu cantitatea originală
-            uniqueCart.push({ ...item, id: itemId });
-        } else {
-            // Generează un ID pentru produsele fără ID
-            const newId = 'product_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
-            uniqueCart.push({ ...item, id: newId });
-        }
-    });
-
-    // Salvează coșul consolidat înapoi în localStorage doar dacă e nevoie
-    if (uniqueCart.length !== cart.length) {
-        console.log('Coșul a fost consolidat: de la', cart.length, 'la', uniqueCart.length, 'produse');
-        localStorage.setItem('cart', JSON.stringify(uniqueCart));
-    }
-
-    console.log('Rendering cart items:', uniqueCart);
-
-    if (uniqueCart.length === 0) {
-        // Show empty cart message
+    // Check if cart is empty
+    if (cart.length === 0) {
         cartItemsContainer.innerHTML = `
-            <div class="text-center py-5">
-                <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
-                <h3>Your cart is empty</h3>
-                <p class="mb-4">Looks like you haven't added any products to your cart yet.</p>
-                <a href="/Home/Products" class="btn btn-primary">Continue Shopping</a>
+            <div class="alert alert-info text-center">
+                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                <h4>Your cart is empty</h4>
+                <p>Looks like you haven't added any products to your cart yet.</p>
+                <a href="/Home/Products" class="btn btn-primary mt-3">Continue Shopping</a>
             </div>
         `;
+        return;
+    }
 
-        // Hide summary
-        if (cartSummaryContainer) {
-            cartSummaryContainer.classList.add('d-none');
-        }
-    } else {
-        // Show cart items
-        let cartItemsHTML = '';
+    // Generate cart items HTML
+    let cartItemsHTML = '';
 
-        uniqueCart.forEach(item => {
-            // Verifică imaginea și folosește una implicită dacă e nevoie
-            if (!item.image || item.image === 'undefined' || item.image === '') {
-                item.image = '/Content/Images/products/beehive.jpg';
-            }
+    cart.forEach(item => {
+        // Ensure we have the correct price values with proper decimal places
+        const itemPrice = parseFloat(parseFloat(item.price).toFixed(2)) || 0;
+        const itemOriginalPrice = item.originalPrice ? parseFloat(parseFloat(item.originalPrice).toFixed(2)) : null;
+        const itemQuantity = parseInt(item.quantity) || 1;
+        const itemTotal = parseFloat((itemPrice * itemQuantity).toFixed(2));
+        const hasPromotionalPrice = itemOriginalPrice && itemOriginalPrice > itemPrice;
 
-            console.log('Rendering product:', item.name, 'with ID:', item.id, 'and quantity:', item.quantity);
+        console.log('Rendering cart item:', {
+            id: item.id,
+            name: item.name,
+            price: itemPrice,
+            originalPrice: itemOriginalPrice,
+            hasPromotion: hasPromotionalPrice,
+            total: itemTotal
+        });
 
-            // Ensure price is displayed with MDL currency
-            const formattedPrice = formatCurrency(item.price);
-            const formattedTotal = formatCurrency(item.price * item.quantity);
-
-            cartItemsHTML += `
-                <div class="card mb-3 cart-item" data-product-id="${item.id}">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-lg-2 col-md-3 col-sm-3">
-                                <img src="${item.image}" 
-                                     class="img-fluid rounded" 
-                                     alt="${item.name}"
-                                     onerror="this.src='/Content/Images/products/beehive.jpg'"
-                                     style="max-height: 100px; object-fit: cover;">
+        cartItemsHTML += `
+            <div class="card mb-3 cart-item" data-product-id="${item.id}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-2 col-md-2 col-sm-4 text-center">
+                            <img src="${item.image || '/Content/Images/products/beehive.jpg'}" 
+                                 alt="${item.name}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 80px; max-width: 80px;">
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-8">
+                            <h5 class="mb-1">${item.name}</h5>
+                            <p class="text-muted small mb-0">Product ID: ${item.id}</p>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0">
+                            <div class="quantity-control">
+                                <button class="btn btn-sm btn-outline-secondary decrease-btn">-</button>
+                                <input type="number" class="form-control mx-2 quantity-input" value="${itemQuantity}" min="1" max="99">
+                                <button class="btn btn-sm btn-outline-secondary increase-btn">+</button>
                             </div>
-                            <div class="col-lg-4 col-md-3 col-sm-9">
-                                <h5 class="mb-0">${item.name}</h5>
-                            </div>
-                            <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0">
-                                <div class="quantity-control d-flex align-items-center">
-                                    <button class="btn btn-sm btn-outline-secondary cart-minus-btn" type="button">-</button>
-                                    <input type="text" 
-                                           class="form-control text-center quantity-input" 
-                                           value="${item.quantity}" 
-                                           readonly 
-                                           style="background-color: #fff; pointer-events: none;">
-                                    <button class="btn btn-sm btn-outline-secondary cart-plus-btn" type="button">+</button>
-                                </div>
-                            </div>
-                            <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0">
-                                <div class="fw-bold">${formattedPrice}</div>
-                            </div>
-                            <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0 text-end">
-                                <div class="fw-bold">${formattedTotal}</div>
-                                <button class="btn btn-sm text-danger delete-item" type="button">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0 text-center">
+                            <p class="mb-0">Price</p>
+                            <p class="mb-0 fw-bold">${formatCurrency(itemPrice)}</p>
+                            ${hasPromotionalPrice ?
+                `<small class="text-muted text-decoration-line-through">${formatCurrency(itemOriginalPrice)}</small>` : ''}
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0 text-end">
+                            <p class="mb-0">Total</p>
+                            <p class="mb-0 fw-bold">${formatCurrency(itemTotal)}</p>
+                            ${hasPromotionalPrice ?
+                `<small class="text-muted text-decoration-line-through">${formatCurrency(itemOriginalPrice * itemQuantity)}</small>` : ''}
+                            <button class="btn btn-link text-danger p-0 mt-2 delete-item">
+                                <i class="fas fa-trash me-1"></i> Remove
+                            </button>
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
+    });
+
+    // Update cart items container
+    cartItemsContainer.innerHTML = cartItemsHTML;
+
+    // Update quantity input event listeners
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function () {
+            const cartItem = this.closest('.cart-item');
+            if (!cartItem) return;
+
+            const productId = cartItem.getAttribute('data-product-id');
+            const quantity = parseInt(this.value);
+
+            if (isNaN(quantity) || quantity < 1) {
+                this.value = 1;
+                updateCartItemQuantity(productId, 1);
+            } else {
+                updateCartItemQuantity(productId, quantity);
+            }
         });
+    });
 
-        cartItemsContainer.innerHTML = cartItemsHTML;
+    // Update increment buttons
+    const increaseButtons = document.querySelectorAll('.increase-btn');
+    increaseButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const cartItem = this.closest('.cart-item');
+            if (!cartItem) return;
 
-        // Show summary
-        if (cartSummaryContainer) {
-            cartSummaryContainer.classList.remove('d-none');
+            const productId = cartItem.getAttribute('data-product-id');
+            const quantityInput = cartItem.querySelector('.quantity-input');
+            const currentQuantity = parseInt(quantityInput.value);
+            const newQuantity = currentQuantity + 1;
 
-            // Calculate subtotal
-            const subtotal = uniqueCart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            quantityInput.value = newQuantity;
+            updateCartItemQuantity(productId, newQuantity);
+        });
+    });
 
-            // Calculate shipping (free if over 900 MDL)
-            const shipping = subtotal > 900 ? 0 : 150;
+    // Update decrement buttons
+    const decreaseButtons = document.querySelectorAll('.decrease-btn');
+    decreaseButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const cartItem = this.closest('.cart-item');
+            if (!cartItem) return;
 
-            // Calculate total
-            const total = subtotal + shipping;
+            const productId = cartItem.getAttribute('data-product-id');
+            const quantityInput = cartItem.querySelector('.quantity-input');
+            const currentQuantity = parseInt(quantityInput.value);
 
-            // Update summary
-            const subtotalEl = cartSummaryContainer.querySelector('.cart-subtotal');
-            const shippingEl = cartSummaryContainer.querySelector('.cart-shipping');
-            const totalEl = cartSummaryContainer.querySelector('.cart-total');
+            if (currentQuantity > 1) {
+                const newQuantity = currentQuantity - 1;
+                quantityInput.value = newQuantity;
+                updateCartItemQuantity(productId, newQuantity);
+            }
+        });
+    });
 
-            if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
-            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : formatCurrency(shipping);
-            if (totalEl) totalEl.textContent = formatCurrency(total);
-        }
-    }
+    // Update delete buttons
+    const deleteButtons = document.querySelectorAll('.delete-item');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const cartItem = this.closest('.cart-item');
+            if (!cartItem) return;
 
-    // If there's a custom updateCartTotals function on the page, call it
-    if (typeof window.updateCartTotals === 'function') {
-        setTimeout(window.updateCartTotals, 300);
-    }
+            const productId = cartItem.getAttribute('data-product-id');
+            const productName = cartItem.querySelector('h5').textContent;
 
-    // Emit an event that cart has been rendered
-    const cartRenderedEvent = new CustomEvent('cartRendered');
-    document.dispatchEvent(cartRenderedEvent);
+            if (confirm(`Remove ${productName} from your cart?`)) {
+                removeFromCart(productId);
+                renderCartItems();
+            }
+        });
+    });
 
-    // If there's a fix function, call it
-    if (typeof window.fixCartButtons === 'function') {
-        setTimeout(window.fixCartButtons, 100);
-    }
+    // Calculate totals
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const shipping = subtotal > 500 ? 0 : 50;
+    const total = subtotal + shipping;
+
+    // Update totals
+    const subtotalEl = document.querySelector('.cart-subtotal');
+    const shippingEl = document.querySelector('.cart-shipping');
+    const totalEl = document.querySelector('.cart-total');
+
+    if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
+    if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : formatCurrency(shipping);
+    if (totalEl) totalEl.textContent = formatCurrency(total);
+
+    // Dispatch an event indicating that the cart was rendered
+    // This is useful for other scripts that need to hook into cart rendering
+    const event = new CustomEvent('cartRendered');
+    document.dispatchEvent(event);
 }
+
+/**
+ * Synchronize cart items with current promotional prices from the server
+ * This ensures that if a promotional price changes on the server, the cart reflects it
+ */
+function syncCartPromotionalPrices() {
+    console.log('Synchronizing cart with current promotional prices...');
+
+    // Only run this on the cart page
+    if (!document.querySelector('.cart-items')) {
+        return;
+    }
+
+    // Make an AJAX call to get current promotional prices
+    fetch('/api/promotions/current', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch promotional prices');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received promotional data:', data);
+
+            // Get cart from localStorage
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let hasChanges = false;
+
+            // Update cart items with current promotional prices
+            cart.forEach(item => {
+                const productId = parseInt(item.id);
+                if (isNaN(productId)) return;
+
+                const promotionInfo = data.find(p => p.productId === productId);
+                if (promotionInfo) {
+                    // Debugging: Log exact values from API and localStorage
+                    console.log('DEBUGGING PROMOTIONAL PRICES:');
+                    console.log('Item in cart:', JSON.stringify(item));
+                    console.log('Promotion info from API:', JSON.stringify(promotionInfo));
+                    console.log('Actual values to compare:');
+                    console.log('Current price in cart (stored):', typeof item.price, item.price);
+                    console.log('Current price as parsed float:', typeof parseFloat(item.price), parseFloat(item.price));
+                    console.log('Current price with 2 decimals:', typeof parseFloat(parseFloat(item.price).toFixed(2)), parseFloat(parseFloat(item.price).toFixed(2)));
+                    console.log('New promotional price from API:', typeof promotionInfo.promotionalPrice, promotionInfo.promotionalPrice);
+                    console.log('New promotional price as parsed float:', typeof parseFloat(promotionInfo.promotionalPrice), parseFloat(promotionInfo.promotionalPrice));
+                    console.log('New promotional price with 2 decimals:', typeof parseFloat(parseFloat(promotionInfo.promotionalPrice).toFixed(2)), parseFloat(parseFloat(promotionInfo.promotionalPrice).toFixed(2)));
+
+                    // Asigură-te că prețul este format ca decimal corect (pentru comparații precise)
+                    const currentPrice = parseFloat(parseFloat(item.price).toFixed(2));
+                    const newPromotionalPrice = parseFloat(parseFloat(promotionInfo.promotionalPrice).toFixed(2));
+
+                    console.log('Comparison result:', newPromotionalPrice < currentPrice);
+                    console.log('Prices are different:', Math.abs(newPromotionalPrice - currentPrice) > 0.01);
+
+                    // Verifică dacă prețurile sunt diferite folosind o toleranță mică pentru comparații cu virgulă mobilă
+                    // Am eliminat verificarea specifică pentru "Miere"
+                    if (Math.abs(newPromotionalPrice - currentPrice) > 0.01) {
+                        console.log(`Updating price for ${item.name} from ${currentPrice} to ${newPromotionalPrice}`);
+
+                        // Update with promotional price
+                        item.originalPrice = parseFloat(promotionInfo.originalPrice);
+                        item.price = newPromotionalPrice;
+                        hasChanges = true;
+                    } else {
+                        console.log(`Prețurile pentru ${item.name} sunt aproximativ egale (diferență: ${Math.abs(newPromotionalPrice - currentPrice)}), nu actualizăm`);
+                    }
+                }
+            });
+
+            // If changes were made, save cart and re-render
+            if (hasChanges) {
+                // Salvăm modificările în localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+                console.log('[API SYNC] Prețurile au fost actualizate, renderizăm coșul');
+
+                // Reafișăm coșul fără a reîncărca pagina
+                renderCartItems();
+            } else {
+                console.log('[API SYNC] Nu au fost făcute modificări la prețuri');
+                // Chiar dacă nu au fost făcute modificări, renderizăm coșul pentru a fi siguri
+                renderCartItems();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching promotional prices:', error);
+        });
+}
+
+// Add event listener to synchronize cart on page load
+document.addEventListener('DOMContentLoaded', function () {
+    // Only try to sync if we're on the cart page
+    if (document.querySelector('.cart-items')) {
+        // Call syncCartPromotionalPrices after a short delay to ensure the page is loaded
+        setTimeout(syncCartPromotionalPrices, 500);
+    }
+});
 
 // Helper Functions
 
@@ -706,10 +822,15 @@ function isValidEmail(email) {
  * @returns {string} - Formatted price
  */
 function formatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
+    // Asigură-te că prețul are întotdeauna două zecimale
+    price = parseFloat(parseFloat(price).toFixed(2));
+
     // Format the price using Intl
     let formatted = new Intl.NumberFormat(locale, {
         style: 'currency',
-        currency: currency
+        currency: currency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
     }).format(price);
 
     // Ensure the currency is MDL, even if the browser changes it
@@ -721,3 +842,51 @@ function formatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
 
     return formatted;
 }
+
+/**
+ * Debug function to inspect the cart state
+ */
+function debugCartPrices() {
+    try {
+        console.group('CART PRICE DEBUG');
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cart.length === 0) {
+            console.log('Cart is empty');
+            console.groupEnd();
+            return;
+        }
+
+        console.log('Cart items found:', cart.length);
+
+        cart.forEach(item => {
+            console.group(`Item: ${item.name} (ID: ${item.id})`);
+
+            // Inspect price values
+            console.log('Raw price value:', item.price, typeof item.price);
+            console.log('Parsed price:', parseFloat(item.price), typeof parseFloat(item.price));
+            console.log('Formatted price (2 decimals):', parseFloat(parseFloat(item.price).toFixed(2)));
+
+            if (item.originalPrice) {
+                console.log('Raw original price:', item.originalPrice, typeof item.originalPrice);
+                console.log('Parsed original price:', parseFloat(item.originalPrice), typeof parseFloat(item.originalPrice));
+                console.log('Formatted original price (2 decimals):', parseFloat(parseFloat(item.originalPrice).toFixed(2)));
+
+                // Check discount calculation
+                const percentDiscount = (1 - (parseFloat(item.price) / parseFloat(item.originalPrice))) * 100;
+                console.log('Calculated discount:', percentDiscount.toFixed(2) + '%');
+            }
+
+            console.groupEnd();
+        });
+
+        console.groupEnd();
+    } catch (error) {
+        console.error('Error in debugCartPrices:', error);
+    }
+}
+
+// Run the debug function when the page loads
+document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(debugCartPrices, 1000);
+});

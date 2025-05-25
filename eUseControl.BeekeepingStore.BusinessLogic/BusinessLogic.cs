@@ -12,10 +12,12 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
     public class BusinessLogic
     {
         private readonly SessionBL _sessionBL;
-        private readonly OrderBL _orderBL;
-        private readonly ProductBL _productBL;
-        private readonly PaymentBL _paymentBL;
-        private readonly WishlistBL _wishlistBL;
+        private readonly IOrder _orderBL;
+        private readonly IProduct _productBL;
+        private readonly IPayment _paymentBL;
+        private readonly IWishlist _wishlistBL;
+        private readonly IBlog _blogBL;
+        private readonly IPromotion _promotionBL;
 
         public BusinessLogic()
         {
@@ -24,6 +26,8 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             _productBL = new ProductBL();
             _paymentBL = new PaymentBL();
             _wishlistBL = new WishlistBL();
+            _blogBL = new BlogBL();
+            _promotionBL = new PromotionBL();
         }
 
         public ISession GetSessionBL => _sessionBL;
@@ -31,5 +35,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
         public IProduct GetProductBL => _productBL;
         public IPayment GetPaymentBL => _paymentBL;
         public IWishlist GetWishlistBL => _wishlistBL;
+        public IBlog GetBlogBL => _blogBL;
+        public IPromotion GetPromotionBL => _promotionBL;
     }
 }

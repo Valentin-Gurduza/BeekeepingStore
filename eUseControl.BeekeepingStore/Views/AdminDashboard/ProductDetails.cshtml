@@ -1,0 +1,253 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Product.Product
+@{
+    ViewBag.Title = "Product Details";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="container-fluid px-0">
+    <!-- Header and action buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stat-card">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h5 class="card-title mb-0">Product Details</h5>
+                        <p class="text-muted small mb-0">ID: #@Model.ProductId</p>
+                    </div>
+                    <div class="d-flex gap-2 mt-2 mt-md-0">
+                        <a href="@Url.Action("ProductEdit", "AdminDashboard", new { id = Model.ProductId })" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i> Edit Product
+                        </a>
+                        <a href="@Url.Action("ProductDelete", "AdminDashboard", new { id = Model.ProductId })" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i> Delete
+                        </a>
+                        <a href="@Url.Action("Products", "AdminDashboard")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product details and stats -->
+    <div class="row">
+        <!-- Main product information -->
+        <div class="col-lg-8">
+            <div class="stat-card mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="image-container d-flex align-items-center justify-content-center mb-3 mb-md-0" style="height: 250px; overflow: hidden;">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 100%; height: 100%;">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h3 class="mb-3">@Model.Name</h3>
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-2">@Model.Category</span>
+                            <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 30%">Price</th>
+                                    <td><strong class="text-success">@Model.Price.ToString("C")</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Stock</th>
+                                    <td>
+                                        @if (Model.StockQuantity > 10)
+                                        {
+                                            <span class="text-success">@Model.StockQuantity units</span>
+                                        }
+                                        else if (Model.StockQuantity > 0)
+                                        {
+                                            <span class="text-warning">@Model.StockQuantity units (Low stock)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">Out of stock</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date Added</th>
+                                    <td>@Model.DateAdded.ToString("dd MMM yyyy, HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th>Last Updated</th>
+                                    <td>@(Model.LastUpdated.HasValue ? Model.LastUpdated.Value.ToString("dd MMM yyyy, HH:mm") : "Never updated")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Product description -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Product Description</h5>
+                        <hr>
+                        <div class="p-3 bg-light rounded">
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <p>@Model.Description</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted fst-italic">No description available for this product.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product analytics -->
+            <div class="stat-card">
+                <h5 class="card-title mb-3">Product Performance</h5>
+                <ul class="nav nav-tabs" id="productAnalyticsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders"
+                                type="button" role="tab" aria-controls="orders" aria-selected="true">
+                            <i class="fas fa-shopping-cart me-2"></i>Orders
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="revenue-tab" data-bs-toggle="tab" data-bs-target="#revenue"
+                                type="button" role="tab" aria-controls="revenue" aria-selected="false">
+                            <i class="fas fa-chart-line me-2"></i>Revenue
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="productAnalyticsTabsContent">
+                    <!-- Orders tab -->
+                    <div class="tab-pane fade show active" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                            <h5>Order analysis will be available soon</h5>
+                            <p class="text-muted">This functionality is under development and will be implemented in future updates.</p>
+                        </div>
+                    </div>
+
+                    <!-- Revenue tab -->
+                    <div class="tab-pane fade" id="revenue" role="tabpanel" aria-labelledby="revenue-tab">
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5>Revenue analysis will be available soon</h5>
+                            <p class="text-muted">This functionality is under development and will be implemented in future updates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick actions -->
+            <div class="stat-card mb-4">
+                <h5 class="card-title mb-3">Quick Actions</h5>
+                <div class="list-group">
+                    <a href="@Url.Action("ProductEdit", "AdminDashboard", new { id = Model.ProductId })" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-edit me-2 text-primary"></i> Edit Product
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("UpdateStock", "AdminDashboard", new { id = Model.ProductId })" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-sync-alt me-2 text-info"></i> Update Stock
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("ManagePromotions", "AdminDashboard", new { id = Model.ProductId })" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-tags me-2 text-success"></i> Manage Promotions
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-image me-2 text-warning"></i> Manage Images
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                    <a href="@Url.Action("ProductDelete", "AdminDashboard", new { id = Model.ProductId })" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-trash me-2 text-danger"></i> Delete Product
+                            </div>
+                            <i class="fas fa-chevron-right text-muted"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Product stats -->
+            <div class="stat-card mb-4">
+                <h5 class="card-title mb-3">Product Stats</h5>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-primary">0</div>
+                            <div class="small text-muted">Total Orders</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-success">$0</div>
+                            <div class="small text-muted">Revenue</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-info">0</div>
+                            <div class="small text-muted">Reviews</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <div class="display-6 fw-bold text-warning">0</div>
+                            <div class="small text-muted">Views</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related products placeholder -->
+            <div class="stat-card">
+                <h5 class="card-title mb-3">Related Products</h5>
+                <div class="alert alert-info">
+                    <div class="d-flex">
+                        <div class="me-2">
+                            <i class="fas fa-info-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <strong>Coming Soon</strong>
+                            <p class="mb-0">The related products feature will be available in a future update.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -31,6 +31,8 @@ namespace eUseControl.BeekeepingStore.Domain.Entities.Product
 
         public DateTime DateAdded { get; set; }
 
+        public DateTime? LastUpdated { get; set; }
+
         public bool IsActive { get; set; }
     }
 }

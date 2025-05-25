@@ -183,7 +183,11 @@
                                     <span class="fw-bold">${item.name}</span>
                                     <span class="text-muted"> x ${item.quantity}</span>
                                 </div>
-                                <span>${formatCurrency(item.price * item.quantity)}</span>
+                                <div class="text-end">
+                                    <span>${formatCurrency(item.price * item.quantity)}</span>
+                                    ${item.originalPrice && item.originalPrice > item.price ?
+                                      `<div class="small text-muted"><del>${formatCurrency(item.originalPrice * item.quantity)}</del></div>` : ''}
+                                </div>
                             </div>
                         `;
                     });
@@ -193,7 +197,11 @@
             }
 
             // Update totals
-            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const subtotal = cart.reduce((total, item) => {
+                const itemPrice = parseFloat(item.price) || 0;
+                const itemQuantity = parseInt(item.quantity) || 0;
+                return total + (itemPrice * itemQuantity);
+            }, 0);
             const shipping = subtotal > 500 ? 0 : 50;
             const total = subtotal + shipping;
 

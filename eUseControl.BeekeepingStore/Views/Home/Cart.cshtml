@@ -159,6 +159,9 @@
         function cartFormatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
             // Create a better currency formatter that ensures correct display
             try {
+                // Make sure price is a valid number and preserve decimal places
+                price = parseFloat(parseFloat(price).toFixed(2));
+
                 // Format using Intl API
                 const formatter = new Intl.NumberFormat(locale, {
                     style: 'currency',
@@ -382,7 +385,11 @@
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
             // Calculate values
-            const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const subtotal = cart.reduce((total, item) => {
+                const itemPrice = parseFloat(item.price) || 0;
+                const itemQuantity = parseInt(item.quantity) || 0;
+                return total + (itemPrice * itemQuantity);
+            }, 0);
             const shipping = subtotal > 900 ? 0 : 150;
             const total = subtotal + shipping;
 
@@ -538,10 +545,20 @@
 
                 // Check if it contains the problematic format
                 if (currentText.includes('L MDL')) {
-                    // Fix the format by removing the duplicate
-                    const fixedText = currentText.replace(' MDL', '');
-                    el.textContent = fixedText;
-                    console.log(`[CART FIX] Fixed price display: ${currentText} -> ${fixedText}`);
+                    // Extract the actual price value (preserve decimal places)
+                    const priceMatch = currentText.match(/(\d+[,.]\d+)/);
+                    if (priceMatch && priceMatch[1]) {
+                        // Create proper price format with correct decimals
+                        const priceValue = priceMatch[1].replace(',', '.');
+                        const fixedText = priceValue + ' L'; // Ensure we keep the correct formatting
+                        el.textContent = fixedText;
+                        console.log(`[CART FIX] Fixed price display: ${currentText} -> ${fixedText}`);
+                    } else {
+                        // Only remove duplicate MDL without affecting value
+                        const fixedText = currentText.replace(' MDL', '');
+                        el.textContent = fixedText;
+                        console.log(`[CART FIX] Fixed price display: ${currentText} -> ${fixedText}`);
+                    }
                 }
             });
 
@@ -549,14 +566,177 @@
             const summaryPrices = document.querySelectorAll('.cart-subtotal, .cart-shipping, .cart-total');
             summaryPrices.forEach(el => {
                 if (el.textContent.includes('L MDL')) {
-                    el.textContent = el.textContent.replace(' MDL', '');
+                    // Extract the actual price value (preserve decimal places)
+                    const priceMatch = el.textContent.match(/(\d+[,.]\d+)/);
+                    if (priceMatch && priceMatch[1]) {
+                        // Create proper price format with correct decimals
+                        const priceValue = priceMatch[1].replace(',', '.');
+                        el.textContent = priceValue + ' L';
+                    } else {
+                        // Default fallback
+                        el.textContent = el.textContent.replace(' MDL', '');
+                    }
                 }
             });
+        }
+
+        /**
+         * Function to ensure promotional prices are correctly displayed
+         */
+        function ensurePromotionalPrices() {
+            console.log("[CART FIX] Ensuring promotional prices are displayed correctly");
+
+            // Get the cart from localStorage
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+            // Find all cart items in the DOM
+            const cartItemElements = document.querySelectorAll('.cart-item');
+
+            cartItemElements.forEach(item => {
+                const productId = item.getAttribute('data-product-id');
+                if (!productId) return;
+
+                // Find the product in the cart
+                const cartProduct = cart.find(p => String(p.id) === String(productId));
+                if (!cartProduct) return;
+
+                // If this product has both original and current price (promotional)
+                if (cartProduct.originalPrice && cartProduct.originalPrice > cartProduct.price) {
+                    // Find the price element
+                    const priceElement = item.querySelector('.col-lg-2.col-md-2.col-sm-4.mt-3.mt-sm-0.text-end .fw-bold');
+                    if (!priceElement) return;
+
+                    // Find unit price element
+                    const unitPriceElement = item.querySelector('.col-lg-2.col-md-2.col-sm-4.mt-3.mt-sm-0 .fw-bold');
+                    if (unitPriceElement) {
+                        // Ensure correct decimal display for unit price
+                        const unitPrice = parseFloat(parseFloat(cartProduct.price).toFixed(2));
+                        unitPriceElement.textContent = cartFormatCurrency(unitPrice);
+                        console.log(`[CART FIX] Updated unit price display to: ${unitPriceElement.textContent} (${unitPrice})`);
+                    }
+
+                    // Check if we already have an original price element
+                    let originalPriceElement = item.querySelector('.original-price-display');
+
+                    if (!originalPriceElement) {
+                        // Create element for the original price
+                        originalPriceElement = document.createElement('div');
+                        originalPriceElement.className = 'text-muted text-decoration-line-through small original-price-display';
+
+                        // Add it after the current price
+                        priceElement.parentNode.appendChild(originalPriceElement);
+                    }
+
+                    // Update the original price display
+                    const totalOriginalPrice = parseFloat(cartProduct.originalPrice) * parseInt(cartProduct.quantity);
+                    originalPriceElement.textContent = cartFormatCurrency(totalOriginalPrice);
+
+                    // Also update the current price element to ensure proper decimal places
+                    const totalCurrentPrice = parseFloat(parseFloat(cartProduct.price).toFixed(2)) * parseInt(cartProduct.quantity);
+                    priceElement.textContent = cartFormatCurrency(totalCurrentPrice);
+
+                    console.log(`[CART FIX] Added promotional price display for ${cartProduct.name}: ${parseFloat(cartProduct.price).toFixed(2)} (original: ${cartProduct.originalPrice})`);
+                }
+            });
+        }
+
+        /**
+         * Verifică și corectează prețurile din localStorage pentru a asigura formatul corect cu două zecimale
+         */
+        function fixCartPriceDecimals() {
+            console.log('[CART FIX] Checking cart for price decimal formatting issues...');
+
+            try {
+                // Obține coșul din localStorage
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cart.length === 0) return;
+
+                let hasChanges = false;
+
+                // Reducerile standard de verificat
+                const standardDiscounts = [0.03, 0.05, 0.07, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50];
+
+                // Verifică fiecare produs din coș
+                cart.forEach(item => {
+                    // Verificăm dacă există promoție (preț original mai mare decât prețul actual)
+                    if (item.originalPrice && item.originalPrice > item.price) {
+                        // Calculăm reducerea actuală
+                        const currentDiscount = 1 - (item.price / item.originalPrice);
+                        console.log(`[CART FIX] Produsul ${item.name} are o reducere de ${(currentDiscount * 100).toFixed(2)}%`);
+
+                        // Verificăm dacă reducerea e aproape de una dintre reducerile standard
+                        let matchedDiscount = null;
+                        let minDifference = 0.01; // Toleranța pentru potrivirea reducerilor
+
+                        standardDiscounts.forEach(discount => {
+                            const difference = Math.abs(currentDiscount - discount);
+                            if (difference < minDifference) {
+                                minDifference = difference;
+                                matchedDiscount = discount;
+                            }
+                        });
+
+                        // Dacă am găsit o reducere standard potrivită, corectăm prețul
+                        if (matchedDiscount !== null) {
+                            const expectedPrice = parseFloat((item.originalPrice * (1 - matchedDiscount)).toFixed(2));
+                            if (Math.abs(expectedPrice - item.price) > 0.01) {
+                                console.log(`[CART FIX] Corectăm prețul pentru ${item.name} de la ${item.price} la ${expectedPrice} (reducere exactă ${(matchedDiscount * 100).toFixed(0)}%)`);
+                                item.price = expectedPrice;
+                                hasChanges = true;
+                            } else {
+                                console.log(`[CART FIX] Produsul ${item.name} are deja prețul corect pentru reducerea de ${(matchedDiscount * 100).toFixed(0)}%`);
+                            }
+                        } else {
+                            console.log(`[CART FIX] Produsul ${item.name} are o reducere nestandard (${(currentDiscount * 100).toFixed(2)}%), păstrăm prețul`);
+                        }
+                    }
+
+                    // Verificăm dacă prețul are formatul corect cu două zecimale
+                    const originalPrice = parseFloat(item.price);
+                    const fixedPrice = parseFloat(parseFloat(originalPrice).toFixed(2));
+
+                    if (originalPrice !== fixedPrice) {
+                        console.log(`[CART FIX] Price format issue detected for ${item.name}: ${originalPrice} -> ${fixedPrice}`);
+                        item.price = fixedPrice;
+                        hasChanges = true;
+                    }
+
+                    // Verifică originalPrice dacă există
+                    if (item.originalPrice) {
+                        const origOriginalPrice = parseFloat(item.originalPrice);
+                        const fixedOriginalPrice = parseFloat(parseFloat(origOriginalPrice).toFixed(2));
+
+                        if (origOriginalPrice !== fixedOriginalPrice) {
+                            console.log(`[CART FIX] Original price format issue detected for ${item.name}: ${origOriginalPrice} -> ${fixedOriginalPrice}`);
+                            item.originalPrice = fixedOriginalPrice;
+                            hasChanges = true;
+                        }
+                    }
+                });
+
+                // Dacă au fost făcute modificări, salvează coșul actualizat
+                if (hasChanges) {
+                    console.log('[CART FIX] Fixed price issues, saving updated cart');
+                    localStorage.setItem('cart', JSON.stringify(cart));
+
+                    // Reafișăm coșul fără a reîncărca pagina
+                    if (typeof renderCartItems === 'function') {
+                        setTimeout(renderCartItems, 100);
+                    }
+                } else {
+                    console.log('[CART FIX] No price issues found');
+                }
+            } catch (e) {
+                console.error('[CART FIX] Error fixing cart prices:', e);
+            }
         }
 
         // Run the fix once the cart is loaded
         document.addEventListener('DOMContentLoaded', function () {
             console.log("[CART FIX] DOM loaded, installing fixes...");
+
+            // Fix price decimals first
+            fixCartPriceDecimals();
 
             // Try to hijack the renderCartItems function
             hijackRenderCartItems();
@@ -567,6 +747,7 @@
                 fixCartQuantityButtons();
                 addDeleteButtonHandlers();
                 fixPriceDisplays();
+                ensurePromotionalPrices();
             }, 300);
 
             // Register event for cart rendering
@@ -577,6 +758,7 @@
                     addDeleteButtonHandlers(); // This function will no longer add duplicate handlers
                     fixCartQuantityButtons();
                     fixPriceDisplays();
+                    ensurePromotionalPrices();
                 }, 50);
             });
 
@@ -599,6 +781,7 @@
                 addDeleteButtonHandlers();
                 fixCartQuantityButtons();
                 fixPriceDisplays();
+                ensurePromotionalPrices();
             }, 500);
         });
 
@@ -606,6 +789,7 @@
         window.fixCartButtons = fixCartQuantityButtons;
         window.fixPrices = fixPriceDisplays;
         window.fixDeleteButtons = addDeleteButtonHandlers;
+        window.fixPromotionalPrices = ensurePromotionalPrices;
 
         // Add custom styles for cart quantity inputs
         document.addEventListener('DOMContentLoaded', function () {
@@ -674,6 +858,7 @@
                     const itemPrice = parseFloat(item.price) || 0;
                     const itemQuantity = parseInt(item.quantity) || 1;
                     const totalPrice = itemPrice * itemQuantity;
+                    const originalPrice = item.originalPrice ? parseFloat(item.originalPrice) : null;
 
                     // Ensure image path is valid
                     let imagePath = item.image || '/Content/Images/products/beehive.jpg';
@@ -708,6 +893,8 @@
                                             </div>
                                             <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0">
                                                 <div class="fw-bold">${cartFormatCurrency(itemPrice)}</div>
+                                                ${originalPrice && originalPrice > itemPrice ?
+                            `<div class="small text-muted"><del>${cartFormatCurrency(originalPrice)}</del></div>` : ''}
                                             </div>
                                             <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0 text-end">
                                                 <div class="fw-bold">${cartFormatCurrency(totalPrice)}</div>
@@ -742,5 +929,130 @@
                 document.dispatchEvent(event);
             };
         }
+
+        function syncCartPromotionalPrices() {
+            console.log('Synchronizing cart with current promotional prices...');
+
+            // Only run this on the cart page
+            if (!document.querySelector('.cart-items')) {
+                return;
+            }
+
+            // Make an AJAX call to get current promotional prices
+            fetch('/api/promotions/current', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch promotional prices');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received promotional data:', data);
+
+                    // Get cart from localStorage
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    let hasChanges = false;
+
+                    // Update cart items with current promotional prices
+                    cart.forEach(item => {
+                        const productId = parseInt(item.id);
+                        if (isNaN(productId)) return;
+
+                        const promotionInfo = data.find(p => p.productId === productId);
+                        if (promotionInfo) {
+                            // Debugging: Log exact values from API and localStorage
+                            console.log('DEBUGGING PROMOTIONAL PRICES:');
+                            console.log('Item in cart:', JSON.stringify(item));
+                            console.log('Promotion info from API:', JSON.stringify(promotionInfo));
+                            console.log('Actual values to compare:');
+                            console.log('Current price in cart (stored):', typeof item.price, item.price);
+                            console.log('Current price as parsed float:', typeof parseFloat(item.price), parseFloat(item.price));
+                            console.log('Current price with 2 decimals:', typeof parseFloat(parseFloat(item.price).toFixed(2)), parseFloat(parseFloat(item.price).toFixed(2)));
+                            console.log('New promotional price from API:', typeof promotionInfo.promotionalPrice, promotionInfo.promotionalPrice);
+                            console.log('New promotional price as parsed float:', typeof parseFloat(promotionInfo.promotionalPrice), parseFloat(promotionInfo.promotionalPrice));
+                            console.log('New promotional price with 2 decimals:', typeof parseFloat(parseFloat(promotionInfo.promotionalPrice).toFixed(2)), parseFloat(parseFloat(promotionInfo.promotionalPrice).toFixed(2)));
+
+                            // Asigură-te că prețul este format ca decimal corect (pentru comparații precise)
+                            const currentPrice = parseFloat(parseFloat(item.price).toFixed(2));
+                            const newPromotionalPrice = parseFloat(parseFloat(promotionInfo.promotionalPrice).toFixed(2));
+
+                            console.log('Comparison result:', newPromotionalPrice < currentPrice);
+
+                            // Verifică dacă prețurile sunt diferite folosind valoarea numerică exactă
+                            if (newPromotionalPrice < currentPrice) {
+                                console.log(`Updating price for ${item.name} from ${currentPrice} to ${newPromotionalPrice}`);
+
+                                // Update with promotional price
+                                item.originalPrice = parseFloat(promotionInfo.originalPrice);
+                                item.price = newPromotionalPrice;
+                                hasChanges = true;
+                            } else {
+                                // Asigură-te că prețul are întotdeauna formatul corect, chiar dacă nu s-a schimbat
+                                item.price = currentPrice;
+                            }
+                        }
+                    });
+
+                    // Always save cart and re-render to ensure correct price formatting
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    renderCartItems();
+                })
+                .catch(error => {
+                    console.error('Error fetching promotional prices:', error);
+                });
+        }
+
+        // Verificăm prețurile tuturor produselor la încărcarea paginii (fără refresh automat)
+        (function () {
+            try {
+                console.log('[PRICE FIX] Verificăm prețurile pentru toate produsele');
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                let updated = false;
+
+                cart.forEach(item => {
+                    // Verificăm dacă există promoție (preț original mai mare decât prețul actual)
+                    if (item.originalPrice && item.originalPrice > item.price) {
+                        // Calculăm reducerea actuală
+                        const currentDiscount = 1 - (item.price / item.originalPrice);
+                        console.log(`[PRICE FIX] Produsul ${item.name} are o reducere de ${(currentDiscount * 100).toFixed(2)}%`);
+
+                        // Verificăm dacă e reducere de 5%
+                        const expectedPrice5pct = parseFloat((item.originalPrice * 0.95).toFixed(2));
+                        if (Math.abs(currentDiscount - 0.05) < 0.01) {
+                            // Asigurăm-ne că prețul are valoarea exactă cu reducere de 5%
+                            if (Math.abs(expectedPrice5pct - item.price) > 0.01) {
+                                console.log(`[PRICE FIX] Corectăm prețul pentru ${item.name} de la ${item.price} la ${expectedPrice5pct} (reducere exactă 5%)`);
+                                item.price = expectedPrice5pct;
+                                updated = true;
+                            } else {
+                                console.log(`[PRICE FIX] Produsul ${item.name} are deja prețul corect pentru reducerea de 5%`);
+                            }
+                        } else {
+                            console.log(`[PRICE FIX] Produsul ${item.name} are o reducere nestandard (${(currentDiscount * 100).toFixed(2)}%), păstrăm prețul`);
+                        }
+                    }
+                });
+
+                if (updated) {
+                    console.log('[PRICE FIX] Am corectat prețurile, salvăm coșul');
+                    localStorage.setItem('cart', JSON.stringify(cart));
+
+                    // Reafișăm coșul fără a reîncărca pagina
+                    if (typeof renderCartItems === 'function') {
+                        setTimeout(renderCartItems, 100);
+                    }
+                } else {
+                    console.log('[PRICE FIX] Nu au fost necesare corecții de preț');
+                }
+            } catch (e) {
+                console.error('[PRICE FIX] Eroare:', e);
+            }
+        })();
     </script>
 }

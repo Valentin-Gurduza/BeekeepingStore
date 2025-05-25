@@ -1,13 +1,13 @@
 ﻿@model eUseControl.BeekeepingStore.Domain.Entities.User.UProfileData
 @{
-    ViewBag.Title = "Detalii Utilizator";
+    ViewBag.Title = "User Details";
     Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
     var userOrders = ViewBag.UserOrders as List<eUseControl.BeekeepingStore.Domain.Entities.Order.Order>;
     decimal totalSpent = ViewBag.TotalSpent ?? 0;
 }
 
 <div class="container-fluid px-0">
-    <!-- Acțiuni rapide și informații de bază -->
+    <!-- Quick actions and basic information -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="stat-card">
@@ -30,24 +30,32 @@
                                 <i class="fas fa-envelope me-1"></i> @Model.Email
                             </p>
                             <p class="text-muted mb-1">
-                                <i class="fas fa-phone me-1"></i> @(string.IsNullOrEmpty(Model.Phone) ? "Nedefinit" : Model.Phone)
+                                <i class="fas fa-phone me-1"></i> @(string.IsNullOrEmpty(Model.Phone) ? "Not defined" : Model.Phone)
                             </p>
                             <div class="mt-2">
                                 @{
                                     string badge = "bg-secondary";
-                                    string roleName = "Necunoscut";
+                                    string roleName = "Unknown";
 
                                     switch (Model.Level)
                                     {
                                         case 0:
                                             badge = "bg-danger";
-                                            roleName = "Inactiv";
+                                            roleName = "Inactive";
                                             break;
-                                        case 1:
+                                        case 50:
+                                            badge = "bg-warning text-dark";
+                                            roleName = "Visitor";
+                                            break;
+                                        case 100:
                                             badge = "bg-success";
-                                            roleName = "Utilizator";
+                                            roleName = "User";
                                             break;
-                                        case 2:
+                                        case 200:
+                                            badge = "bg-info";
+                                            roleName = "Moderator";
+                                            break;
+                                        case 400:
                                             badge = "bg-primary";
                                             roleName = "Admin";
                                             break;
@@ -65,19 +73,28 @@
                                 @if (Model.Level == 0)
                                 {
                                     <button type="submit" class="btn btn-success">
-                                        <i class="fas fa-user-check me-1"></i> Activare cont
+                                        <i class="fas fa-user-check me-1"></i> Activate account
                                     </button>
                                 }
                                 else
                                 {
                                     <button type="submit" class="btn btn-danger">
-                                        <i class="fas fa-user-times me-1"></i> Dezactivare cont
+                                        <i class="fas fa-user-times me-1"></i> Deactivate account
                                     </button>
                                 }
                             </form>
-                            <a href="@Url.Action("MakeAdmin", "Admin", new { username = Model.UserName })" class="btn btn-primary">
-                                <i class="fas fa-user-shield me-1"></i> Acordă drepturi admin
-                            </a>
+                            @if (Model.Level != 400)
+                            {
+                                <a href="@Url.Action("MakeAdmin", "Admin", new { username = Model.UserName })" class="btn btn-primary">
+                                    <i class="fas fa-user-shield me-1"></i> Grant admin rights
+                                </a>
+                            }
+                            @if (Model.Level == 400)
+                            {
+                                <a href="@Url.Action("MakeUser", "Admin", new { username = Model.UserName })" class="btn btn-warning ms-2">
+                                    <i class="fas fa-user-minus me-1"></i> Remove admin rights
+                                </a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -85,7 +102,7 @@
         </div>
     </div>
 
-    <!-- Detalii utilizator și statistici -->
+    <!-- User details and statistics -->
     <div class="row mb-4">
         <div class="col-lg-8">
             <div class="stat-card">
@@ -93,28 +110,28 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
                                 type="button" role="tab" aria-controls="profile" aria-selected="true">
-                            <i class="fas fa-user me-2"></i>Profil
+                            <i class="fas fa-user me-2"></i>Profile
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders"
                                 type="button" role="tab" aria-controls="orders" aria-selected="false">
-                            <i class="fas fa-shopping-cart me-2"></i>Comenzi
+                            <i class="fas fa-shopping-cart me-2"></i>Orders
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity"
                                 type="button" role="tab" aria-controls="activity" aria-selected="false">
-                            <i class="fas fa-chart-line me-2"></i>Activitate
+                            <i class="fas fa-chart-line me-2"></i>Activity
                         </button>
                     </li>
                 </ul>
                 <div class="tab-content p-3" id="userDetailsTabsContent">
-                    <!-- Tab Profil -->
+                    <!-- Profile Tab -->
                     <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <h6>Informații cont</h6>
+                                <h6>Account Information</h6>
                                 <table class="table">
                                     <tbody>
                                         <tr>
@@ -130,35 +147,35 @@
                                             <td>@Model.Email</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Nivel cont</th>
+                                            <th scope="row">Account Level</th>
                                             <td><span class="badge @badge">@roleName</span></td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Data înregistrării</th>
-                                            <td>@(Model.RegisterDate.HasValue ? Model.RegisterDate.Value.ToString("dd MMM yyyy, HH:mm") : "Nedefinit")</td>
+                                            <th scope="row">Registration Date</th>
+                                            <td>@(Model.RegisterDate.HasValue ? Model.RegisterDate.Value.ToString("dd MMM yyyy, HH:mm") : "Not defined")</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Ultima conectare</th>
-                                            <td>@(Model.Last_Login.HasValue ? Model.Last_Login.Value.ToString("dd MMM yyyy, HH:mm") : "Niciodată")</td>
+                                            <th scope="row">Last Login</th>
+                                            <td>@(Model.Last_Login.HasValue ? Model.Last_Login.Value.ToString("dd MMM yyyy, HH:mm") : "Never")</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">IP</th>
-                                            <td>@(Model.UserIp ?? "Indisponibil")</td>
+                                            <td>@(Model.UserIp ?? "Unavailable")</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <h6>Informații personale</h6>
+                                <h6>Personal Information</h6>
                                 <table class="table">
                                     <tbody>
                                         <tr>
-                                            <th scope="row" width="40%">Telefon</th>
-                                            <td>@(string.IsNullOrEmpty(Model.Phone) ? "Nedefinit" : Model.Phone)</td>
+                                            <th scope="row" width="40%">Phone</th>
+                                            <td>@(string.IsNullOrEmpty(Model.Phone) ? "Not defined" : Model.Phone)</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Adresă</th>
-                                            <td>@(string.IsNullOrEmpty(Model.Address) ? "Nedefinit" : Model.Address)</td>
+                                            <th scope="row">Address</th>
+                                            <td>@(string.IsNullOrEmpty(Model.Address) ? "Not defined" : Model.Address)</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -166,17 +183,17 @@
                         </div>
                     </div>
 
-                    <!-- Tab Comenzi -->
+                    <!-- Orders Tab -->
                     <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
                                 <thead>
                                     <tr>
                                         <th scope="col">ID</th>
-                                        <th scope="col">Data</th>
+                                        <th scope="col">Date</th>
                                         <th scope="col">Total</th>
                                         <th scope="col">Status</th>
-                                        <th scope="col">Acțiuni</th>
+                                        <th scope="col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -226,7 +243,7 @@
                                         <tr>
                                             <td colspan="5" class="text-center py-4">
                                                 <i class="fas fa-shopping-cart fa-2x text-muted mb-2"></i>
-                                                <p class="mb-0">Acest utilizator nu are comenzi.</p>
+                                                <p class="mb-0">This user has no orders.</p>
                                             </td>
                                         </tr>
                                     }
@@ -235,12 +252,12 @@
                         </div>
                     </div>
 
-                    <!-- Tab Activitate -->
+                    <!-- Activity Tab -->
                     <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
                         <div class="text-center py-4">
                             <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-                            <h5>Analiza activității utilizatorilor va fi disponibilă în curând</h5>
-                            <p class="text-muted">Această funcționalitate este în curs de dezvoltare și va fi implementată în viitor.</p>
+                            <h5>User activity analysis will be available soon</h5>
+                            <p class="text-muted">This functionality is under development and will be implemented in the future.</p>
                         </div>
                     </div>
                 </div>
@@ -248,16 +265,16 @@
         </div>
 
         <div class="col-lg-4">
-            <!-- Statistici client -->
+            <!-- Customer Statistics -->
             <div class="stat-card mb-4">
-                <h6 class="card-title mb-3">Statistici client</h6>
+                <h6 class="card-title mb-3">Customer Statistics</h6>
                 <div class="row g-2">
                     <div class="col-6">
                         <div class="border rounded p-3 text-center">
                             <div class="display-6 fw-bold text-primary">
                                 @(userOrders?.Count ?? 0)
                             </div>
-                            <div class="small text-muted">Total comenzi</div>
+                            <div class="small text-muted">Total orders</div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -265,7 +282,7 @@
                             <div class="display-6 fw-bold text-success">
                                 @string.Format("{0:C0}", totalSpent)
                             </div>
-                            <div class="small text-muted">Total cheltuieli</div>
+                            <div class="small text-muted">Total spent</div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -278,7 +295,7 @@
                                 }
                                 @string.Format("{0:C0}", avgOrderValue)
                             </div>
-                            <div class="small text-muted">Valoare medie comandă</div>
+                            <div class="small text-muted">Average order value</div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -294,20 +311,20 @@
                                 }
                                 @accountAge
                             </div>
-                            <div class="small text-muted">Zile de activitate</div>
+                            <div class="small text-muted">Days active</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Note și observații -->
+            <!-- Notes and Observations -->
             <div class="stat-card">
-                <h6 class="card-title mb-3">Note și observații</h6>
+                <h6 class="card-title mb-3">Notes and Observations</h6>
                 <form action="#" method="post">
                     <div class="mb-3">
-                        <textarea class="form-control" id="userNotes" rows="5" placeholder="Adaugă note despre acest utilizator..."></textarea>
+                        <textarea class="form-control" id="userNotes" rows="5" placeholder="Add notes about this user..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Salvează notele</button>
+                    <button type="submit" class="btn btn-primary">Save notes</button>
                 </form>
                 <div class="alert alert-info mt-3 mb-0">
                     <div class="d-flex">
@@ -315,8 +332,8 @@
                             <i class="fas fa-info-circle fa-2x"></i>
                         </div>
                         <div>
-                            <strong>Funcționalitate demonstrativă</strong>
-                            <p class="mb-0">Această secțiune este în curs de dezvoltare și va fi disponibilă în versiunile viitoare.</p>
+                            <strong>Demonstration feature</strong>
+                            <p class="mb-0">This section is under development and will be available in future versions.</p>
                         </div>
                     </div>
                 </div>

@@ -53,6 +53,9 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     existingProduct.ImageUrl = product.ImageUrl;
                     existingProduct.IsActive = product.IsActive;
 
+                    // Set the LastUpdated property to the current time
+                    existingProduct.LastUpdated = DateTime.Now;
+
                     // Salvăm modificările
                     context.SaveChanges();
 
