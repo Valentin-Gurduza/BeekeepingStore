@@ -15,7 +15,15 @@ namespace eUseControl.BeekeepingStore.Controllers
 
         public HomeController()
         {
-            _productBL = new ProductBL();
+            // Use the main BusinessLogic class to get properly configured instances
+            var businessLogic = new BusinessLogic.BusinessLogic();
+            _productBL = businessLogic.GetProductBL;
+        }
+
+        // Alternative constructor for dependency injection (if DI container is used)
+        public HomeController(IProduct productBL)
+        {
+            _productBL = productBL ?? throw new ArgumentNullException(nameof(productBL));
         }
 
         public ActionResult Index()
@@ -25,24 +33,33 @@ namespace eUseControl.BeekeepingStore.Controllers
 
         public ActionResult Products()
         {
-            // Obținem toate produsele din baza de date
-            var dbProducts = _productBL.GetAllProducts();
-
-            // Convertim entitățile din baza de date în modelul pentru view
-            var products = dbProducts.Select(p => new Product
+            try
             {
-                Id = p.ProductId.ToString(),
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                Category = p.Category,
-                DateAdded = p.DateAdded,
-                Image = !string.IsNullOrEmpty(p.ImageUrl)
-                        ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : Url.Content(p.ImageUrl))
-                        : Url.Content("~/Content/Images/products/default-product.png")
-            }).ToList();
+                // Obținem toate produsele din baza de date folosind interfața
+                var dbProducts = _productBL.GetAllProducts();
 
-            return View(products);
+                // Convertim entitățile din baza de date în modelul pentru view
+                var products = dbProducts.Select(p => new Product
+                {
+                    Id = p.ProductId.ToString(),
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    Category = p.Category,
+                    DateAdded = p.DateAdded,
+                    Image = !string.IsNullOrEmpty(p.ImageUrl)
+                            ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : Url.Content(p.ImageUrl))
+                            : Url.Content("~/Content/Images/products/default-product.png")
+                }).ToList();
+
+                return View(products);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Products: " + ex.ToString());
+                // Return empty list on error to prevent application crash
+                return View(new List<Product>());
+            }
         }
 
         public ActionResult About()

@@ -15,11 +15,19 @@ namespace eUseControl.BeekeepingStore.Controllers
     [AdminMod]
     public class AdminController : Controller
     {
-        private readonly SessionBL _sessionBL;
+        private readonly ISession _sessionBL;
 
         public AdminController()
         {
-            _sessionBL = new SessionBL();
+            // Use the main BusinessLogic class to get properly configured instances
+            var businessLogic = new BusinessLogic.BusinessLogic();
+            _sessionBL = businessLogic.GetSessionBL;
+        }
+
+        // Alternative constructor for dependency injection (if DI container is used)
+        public AdminController(ISession sessionBL)
+        {
+            _sessionBL = sessionBL ?? throw new ArgumentNullException(nameof(sessionBL));
         }
 
         // GET: /Admin/Index
@@ -88,14 +96,14 @@ namespace eUseControl.BeekeepingStore.Controllers
 
             try
             {
-                // Find the user by username or email
+                // Find the user by username or email using the interface
                 System.Diagnostics.Debug.WriteLine($"Finding user with username='{username}'");
                 var user = _sessionBL.GetUserProfile(username);
                 System.Diagnostics.Debug.WriteLine($"GetUserProfile result: {(user != null ? $"Found user {user.UserName}, ID={user.Id}, Level={user.Level}" : "Not Found")}");
 
                 if (user != null)
                 {
-                    // Update the user profile with admin rights
+                    // Update the user profile with admin rights using the interface
                     System.Diagnostics.Debug.WriteLine($"Setting Level=400 for user '{username}'");
                     user.Level = 400; // Admin level (400)
                     bool result = _sessionBL.UpdateUserProfile(user);
@@ -162,12 +170,12 @@ namespace eUseControl.BeekeepingStore.Controllers
 
             try
             {
-                // Find the user by username or email
+                // Find the user by username or email using the interface
                 var user = _sessionBL.GetUserProfile(username);
 
                 if (user != null)
                 {
-                    // Update the user profile with regular user rights
+                    // Update the user profile with regular user rights using the interface
                     user.Level = 100; // Regular user level (100)
                     bool result = _sessionBL.UpdateUserProfile(user);
 
@@ -203,6 +211,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR in MakeUser: {ex.Message}\n{ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Error: {ex.Message}";
             }
 
@@ -219,13 +228,13 @@ namespace eUseControl.BeekeepingStore.Controllers
 
             try
             {
-                // Find the user by username or email
+                // Find the user by username or email using the interface
                 var user = _sessionBL.GetUserProfile(username);
 
                 if (user != null)
                 {
-                    // Update the user profile with visitor rights
-                    user.Level = 50; // Visitor level
+                    // Update the user profile with visitor rights using the interface
+                    user.Level = 50; // Visitor level (50)
                     bool result = _sessionBL.UpdateUserProfile(user);
 
                     if (result)
@@ -260,6 +269,7 @@ namespace eUseControl.BeekeepingStore.Controllers
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR in MakeVisitor: {ex.Message}\n{ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Error: {ex.Message}";
             }
 
@@ -271,87 +281,98 @@ namespace eUseControl.BeekeepingStore.Controllers
         {
             try
             {
-                // Create all roles if they don't exist
-                if (!Roles.RoleExists("Admin"))
-                    Roles.CreateRole("Admin");
+                if (Roles.Enabled)
+                {
+                    // Create standard roles if they don't exist
+                    string[] rolesToCreate = { "Admin", "Moderator", "User", "Visitor" };
 
-                if (!Roles.RoleExists("User"))
-                    Roles.CreateRole("User");
+                    foreach (string role in rolesToCreate)
+                    {
+                        if (!Roles.RoleExists(role))
+                        {
+                            Roles.CreateRole(role);
+                            System.Diagnostics.Debug.WriteLine($"Created role: {role}");
+                        }
+                    }
 
-                if (!Roles.RoleExists("Visitor"))
-                    Roles.CreateRole("Visitor");
-
-                TempData["SuccessMessage"] = "All roles were created successfully!";
+                    TempData["SuccessMessage"] = "All standard roles have been created successfully!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Role management is not enabled in this application.";
+                }
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR in CreateRoles: {ex.Message}\n{ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Error creating roles: {ex.Message}";
             }
 
-            return RedirectToAction("Users", "AdminDashboard");
+            return RedirectToAction("Index");
         }
 
         // GET: /Admin/SetAdminCookie
         public ActionResult SetAdminCookie()
         {
-            // Simple alternative for testing - set a cookie that indicates the Admin role
-            FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(
-                1,                              // version of the cookie
-                "AdminUser",                    // username
-                DateTime.Now,                   // start date
-                DateTime.Now.AddHours(1),       // expiration date
-                false,                          // persistent (saved)
-                "Admin",                        // user data (role)
-                FormsAuthentication.FormsCookiePath // cookie path
-            );
+            try
+            {
+                // Set an admin cookie for testing purposes
+                HttpCookie adminCookie = new HttpCookie("AdminAccess", "true");
+                adminCookie.Expires = DateTime.Now.AddHours(24); // Valid for 24 hours
+                Response.Cookies.Add(adminCookie);
 
-            // Encrypt the cookie for security
-            string encTicket = FormsAuthentication.Encrypt(ticket);
+                TempData["SuccessMessage"] = "Admin cookie has been set successfully!";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR in SetAdminCookie: {ex.Message}\n{ex.StackTrace}");
+                TempData["ErrorMessage"] = $"Error setting admin cookie: {ex.Message}";
+            }
 
-            // Add the cookie to the response
-            Response.Cookies.Add(new HttpCookie(FormsAuthentication.FormsCookieName, encTicket));
-
-            return Content("Admin cookie set. You should now have access to administration pages.");
+            return RedirectToAction("Index");
         }
 
         // GET: /Admin/SearchUser
         [HttpGet]
         public ActionResult SearchUser(string username, string actionName)
         {
-            System.Diagnostics.Debug.WriteLine($"==== SearchUser called with username='{username}', actionName='{actionName}' ====");
-
             if (string.IsNullOrEmpty(username))
             {
-                TempData["ErrorMessage"] = "Username cannot be empty.";
-                return RedirectToAction(actionName ?? "MakeAdmin");
+                TempData["ErrorMessage"] = "Please provide a username to search.";
+                return RedirectToAction("Index");
             }
 
             try
             {
-                // Find the user by username
-                System.Diagnostics.Debug.WriteLine($"Calling GetUserProfile with username: '{username}'");
+                // Search for user using the interface
                 var user = _sessionBL.GetUserProfile(username);
-                System.Diagnostics.Debug.WriteLine($"GetUserProfile result: {(user != null ? $"Found user {user.UserName}, ID={user.Id}, Level={user.Level}" : "Not Found")}");
 
-                if (user == null)
+                if (user != null)
                 {
-                    TempData["ErrorMessage"] = $"User '{username}' was not found in the database.";
-                    return RedirectToAction(actionName ?? "MakeAdmin");
+                    // Store username in TempData for the target action
+                    TempData["Username"] = username;
+
+                    // Redirect to the specified action
+                    if (!string.IsNullOrEmpty(actionName))
+                    {
+                        return RedirectToAction(actionName);
+                    }
+                    else
+                    {
+                        return RedirectToAction("MakeAdmin");
+                    }
                 }
-
-                // Display success message
-                TempData["SuccessMessage"] = $"User '{username}' found. You can now proceed.";
-
-                // Redirect to the specified action with the username in ViewBag
-                System.Diagnostics.Debug.WriteLine($"Redirecting to {actionName ?? "MakeAdmin"} with username={username}");
-                TempData["Username"] = username; // Use TempData to persist across redirects
-                return RedirectToAction(actionName ?? "MakeAdmin");
+                else
+                {
+                    TempData["ErrorMessage"] = $"User '{username}' was not found.";
+                    return RedirectToAction("Index");
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"ERROR in SearchUser: {ex.Message}\n{ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Error searching for user: {ex.Message}";
-                return RedirectToAction(actionName ?? "MakeAdmin");
+                return RedirectToAction("Index");
             }
         }
 
@@ -359,35 +380,43 @@ namespace eUseControl.BeekeepingStore.Controllers
         [HttpGet]
         public ActionResult SearchUserById(int id, string actionName)
         {
-            System.Diagnostics.Debug.WriteLine($"==== SearchUserById called with id={id}, actionName='{actionName}' ====");
+            if (id <= 0)
+            {
+                TempData["ErrorMessage"] = "Please provide a valid user ID to search.";
+                return RedirectToAction("Index");
+            }
 
             try
             {
-                // Find the user by ID
-                System.Diagnostics.Debug.WriteLine($"Calling GetUserById with id: {id}");
+                // Search for user by ID using the interface
                 var user = _sessionBL.GetUserById(id);
-                System.Diagnostics.Debug.WriteLine($"GetUserById result: {(user != null ? $"Found user {user.UserName}, ID={user.Id}, Level={user.Level}" : "Not Found")}");
 
-                if (user == null)
+                if (user != null)
                 {
-                    TempData["ErrorMessage"] = $"User with ID {id} was not found in the database.";
-                    return RedirectToAction(actionName ?? "MakeAdmin");
+                    // Store username in TempData for the target action
+                    TempData["Username"] = user.UserName;
+
+                    // Redirect to the specified action
+                    if (!string.IsNullOrEmpty(actionName))
+                    {
+                        return RedirectToAction(actionName);
+                    }
+                    else
+                    {
+                        return RedirectToAction("MakeAdmin");
+                    }
                 }
-
-                // Display success message
-                TempData["SuccessMessage"] = $"User '{user.UserName}' found. You can now proceed.";
-
-                // Redirect to the specified action with the username in TempData
-                string username = user.UserName;
-                System.Diagnostics.Debug.WriteLine($"Redirecting to {actionName ?? "MakeAdmin"} with username={username}");
-                TempData["Username"] = username; // Use TempData to persist across redirects
-                return RedirectToAction(actionName ?? "MakeAdmin");
+                else
+                {
+                    TempData["ErrorMessage"] = $"User with ID '{id}' was not found.";
+                    return RedirectToAction("Index");
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"ERROR in SearchUserById: {ex.Message}\n{ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Error searching for user: {ex.Message}";
-                return RedirectToAction(actionName ?? "MakeAdmin");
+                return RedirectToAction("Index");
             }
         }
     }

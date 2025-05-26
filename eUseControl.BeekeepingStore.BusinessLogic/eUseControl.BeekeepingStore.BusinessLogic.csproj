@@ -89,9 +89,9 @@
     <Compile Include="BlogBL.cs" />
     <Compile Include="BusinessLogic.cs" />
     <Compile Include="Core\AdminApi.cs" />
+    <Compile Include="Core\OrderApi.cs" />
     <Compile Include="Core\UserApi.cs" />
     <Compile Include="DataContext.cs" />
-    <Compile Include="DBModel\DbContext.cs" />
     <Compile Include="DBModel\UserContext.cs" />
     <Compile Include="ErrorLog.cs" />
     <Compile Include="Interfaces\IBlog.cs" />
