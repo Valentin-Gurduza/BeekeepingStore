@@ -16,48 +16,65 @@ namespace eUseControl.BeekeepingStore.Controllers
 
         public BlogController()
         {
-            _blogBL = new BlogBL();
+            // Use the main BusinessLogic class to get properly configured instances
+            var businessLogic = new BusinessLogic.BusinessLogic();
+            _blogBL = businessLogic.GetBlogBL;
+        }
+
+        // Alternative constructor for dependency injection (if DI container is used)
+        public BlogController(IBlog blogBL)
+        {
+            _blogBL = blogBL ?? throw new ArgumentNullException(nameof(blogBL));
         }
 
         // GET: Blog
         public ActionResult Index(string category = null, string tag = null, string search = null)
         {
-            List<BlogPost> blogPosts;
-
-            if (!string.IsNullOrEmpty(category))
+            try
             {
-                blogPosts = _blogBL.GetBlogPostsByCategory(category);
-                ViewBag.Title = $"Blog - {category}";
-                ViewBag.FilterType = "category";
-                ViewBag.FilterValue = category;
-            }
-            else if (!string.IsNullOrEmpty(tag))
-            {
-                blogPosts = _blogBL.GetBlogPostsByTag(tag);
-                ViewBag.Title = $"Blog - Posts tagged with '{tag}'";
-                ViewBag.FilterType = "tag";
-                ViewBag.FilterValue = tag;
-            }
-            else if (!string.IsNullOrEmpty(search))
-            {
-                blogPosts = _blogBL.SearchBlogPosts(search);
-                ViewBag.Title = $"Blog - Search results for '{search}'";
-                ViewBag.FilterType = "search";
-                ViewBag.FilterValue = search;
-            }
-            else
-            {
-                blogPosts = _blogBL.GetAllBlogPosts();
-                ViewBag.Title = "Blog";
-            }
+                List<BlogPost> blogPosts;
 
-            // Get categories for sidebar
-            ViewBag.Categories = _blogBL.GetCategoryCounts();
+                if (!string.IsNullOrEmpty(category))
+                {
+                    blogPosts = _blogBL.GetBlogPostsByCategory(category);
+                    ViewBag.Title = $"Blog - {category}";
+                    ViewBag.FilterType = "category";
+                    ViewBag.FilterValue = category;
+                }
+                else if (!string.IsNullOrEmpty(tag))
+                {
+                    blogPosts = _blogBL.GetBlogPostsByTag(tag);
+                    ViewBag.Title = $"Blog - Posts tagged with '{tag}'";
+                    ViewBag.FilterType = "tag";
+                    ViewBag.FilterValue = tag;
+                }
+                else if (!string.IsNullOrEmpty(search))
+                {
+                    blogPosts = _blogBL.SearchBlogPosts(search);
+                    ViewBag.Title = $"Blog - Search results for '{search}'";
+                    ViewBag.FilterType = "search";
+                    ViewBag.FilterValue = search;
+                }
+                else
+                {
+                    blogPosts = _blogBL.GetAllBlogPosts();
+                    ViewBag.Title = "Blog";
+                }
 
-            // Get recent posts for sidebar
-            ViewBag.RecentPosts = _blogBL.GetRecentBlogPosts(5);
+                // Get categories for sidebar
+                ViewBag.Categories = _blogBL.GetCategoryCounts();
 
-            return View(blogPosts);
+                // Get recent posts for sidebar
+                ViewBag.RecentPosts = _blogBL.GetRecentBlogPosts(5);
+
+                return View(blogPosts);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error in Blog Index: " + ex.ToString());
+                TempData["ErrorMessage"] = "Error loading blog posts: " + ex.Message;
+                return View(new List<BlogPost>());
+            }
         }
 
         // GET: Blog/Post/my-blog-post-slug
@@ -68,29 +85,38 @@ namespace eUseControl.BeekeepingStore.Controllers
                 return RedirectToAction("Index");
             }
 
-            var blogPost = _blogBL.GetBlogPostBySlug(slug);
-
-            if (blogPost == null)
+            try
             {
-                return HttpNotFound();
+                var blogPost = _blogBL.GetBlogPostBySlug(slug);
+
+                if (blogPost == null)
+                {
+                    return HttpNotFound();
+                }
+
+                // Increment view count
+                _blogBL.IncrementViewCount(blogPost.BlogPostId);
+
+                // Get categories for sidebar
+                ViewBag.Categories = _blogBL.GetCategoryCounts();
+
+                // Get recent posts for sidebar
+                ViewBag.RecentPosts = _blogBL.GetRecentBlogPosts(5);
+
+                // Create a view model for the comment form
+                ViewBag.CommentForm = new BlogCommentModel
+                {
+                    BlogPostId = blogPost.BlogPostId
+                };
+
+                return View(blogPost);
             }
-
-            // Increment view count
-            _blogBL.IncrementViewCount(blogPost.BlogPostId);
-
-            // Get categories for sidebar
-            ViewBag.Categories = _blogBL.GetCategoryCounts();
-
-            // Get recent posts for sidebar
-            ViewBag.RecentPosts = _blogBL.GetRecentBlogPosts(5);
-
-            // Create a view model for the comment form
-            ViewBag.CommentForm = new BlogCommentModel
+            catch (Exception ex)
             {
-                BlogPostId = blogPost.BlogPostId
-            };
-
-            return View(blogPost);
+                System.Diagnostics.Debug.WriteLine("Error in Blog Post: " + ex.ToString());
+                TempData["ErrorMessage"] = "Error loading blog post: " + ex.Message;
+                return RedirectToAction("Index");
+            }
         }
 
         // POST: Blog/AddComment
@@ -124,6 +150,7 @@ namespace eUseControl.BeekeepingStore.Controllers
                 }
                 catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine("Error in AddComment: " + ex.ToString());
                     ModelState.AddModelError("", "Error submitting comment: " + ex.Message);
                 }
             }
