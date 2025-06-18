@@ -636,5 +636,425 @@ namespace eUseControl.BeekeepingStore.Controllers
 
             return RedirectToAction("ManagePromotions", new { id = productId });
         }
+
+        #region Blog Management
+
+        // GET: AdminDashboard/BlogPosts
+        public ActionResult BlogPosts()
+        {
+            try
+            {
+                var blogPosts = _blogBL.GetAllBlogPosts(includeUnpublished: true);
+
+                // Separate posts by status for better organization
+                ViewBag.PublishedPosts = blogPosts.Where(p => p.IsPublished).ToList();
+                ViewBag.PendingPosts = blogPosts.Where(p => !p.IsPublished).ToList();
+
+                return View(blogPosts);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading blog posts: " + ex.Message;
+                return View(new List<BlogPost>());
+            }
+        }
+
+        // GET: AdminDashboard/BlogCreate
+        public ActionResult BlogCreate()
+        {
+            var model = new BlogPost
+            {
+                PublishDate = DateTime.Now,
+                IsPublished = true
+            };
+            return View(model);
+        }
+
+        // POST: AdminDashboard/BlogCreate
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        public ActionResult BlogCreate(BlogPost blogPost, HttpPostedFileBase featuredImage)
+        {
+            // Allow HTML content only for Content field from trusted admin users
+            ModelState.Remove("Content");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Handle featured image upload
+                    if (featuredImage != null && featuredImage.ContentLength > 0)
+                    {
+                        var fileName = Path.GetFileName(featuredImage.FileName);
+                        var fileExtension = Path.GetExtension(fileName).ToLower();
+
+                        // Validate file type
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                        if (allowedExtensions.Contains(fileExtension))
+                        {
+                            var uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
+                            var uploadPath = Path.Combine(Server.MapPath("~/Content/Images/blog/"), uniqueFileName);
+
+                            // Create directory if it doesn't exist
+                            Directory.CreateDirectory(Path.GetDirectoryName(uploadPath));
+
+                            featuredImage.SaveAs(uploadPath);
+                            blogPost.FeaturedImage = "~/Content/Images/blog/" + uniqueFileName;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Please upload a valid image file (jpg, jpeg, png, gif).");
+                            return View(blogPost);
+                        }
+                    }
+
+                    // Set author from session
+                    string userEmail = Session["UserEmail"] as string;
+                    if (!string.IsNullOrEmpty(userEmail))
+                    {
+                        var userProfile = _sessionBL.GetUserProfile(userEmail);
+                        blogPost.Author = userProfile?.FullName ?? "Admin";
+                    }
+                    else
+                    {
+                        blogPost.Author = "Admin";
+                    }
+
+                    int blogPostId = _blogBL.AddBlogPost(blogPost);
+                    TempData["SuccessMessage"] = "Blog post created successfully!";
+                    return RedirectToAction("BlogPosts");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error creating blog post: " + ex.Message);
+                }
+            }
+            return View(blogPost);
+        }
+
+        // GET: AdminDashboard/BlogEdit/5
+        public ActionResult BlogEdit(int id)
+        {
+            try
+            {
+                var blogPost = _blogBL.GetBlogPostById(id);
+                if (blogPost == null)
+                {
+                    return HttpNotFound();
+                }
+                return View(blogPost);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading blog post: " + ex.Message;
+                return RedirectToAction("BlogPosts");
+            }
+        }
+
+        // POST: AdminDashboard/BlogEdit/5
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        public ActionResult BlogEdit(BlogPost blogPost, HttpPostedFileBase featuredImage)
+        {
+            // Allow HTML content only for Content field from trusted admin users
+            ModelState.Remove("Content");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Handle featured image upload
+                    if (featuredImage != null && featuredImage.ContentLength > 0)
+                    {
+                        var fileName = Path.GetFileName(featuredImage.FileName);
+                        var fileExtension = Path.GetExtension(fileName).ToLower();
+
+                        // Validate file type
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                        if (allowedExtensions.Contains(fileExtension))
+                        {
+                            var uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
+                            var uploadPath = Path.Combine(Server.MapPath("~/Content/Images/blog/"), uniqueFileName);
+
+                            // Create directory if it doesn't exist
+                            Directory.CreateDirectory(Path.GetDirectoryName(uploadPath));
+
+                            featuredImage.SaveAs(uploadPath);
+
+                            // Delete old image if exists
+                            if (!string.IsNullOrEmpty(blogPost.FeaturedImage))
+                            {
+                                var oldImagePath = Server.MapPath(blogPost.FeaturedImage);
+                                if (System.IO.File.Exists(oldImagePath))
+                                {
+                                    System.IO.File.Delete(oldImagePath);
+                                }
+                            }
+
+                            blogPost.FeaturedImage = "~/Content/Images/blog/" + uniqueFileName;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Please upload a valid image file (jpg, jpeg, png, gif).");
+                            return View(blogPost);
+                        }
+                    }
+
+                    bool result = _blogBL.UpdateBlogPost(blogPost);
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = "Blog post updated successfully!";
+                        return RedirectToAction("BlogPosts");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Failed to update blog post.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error updating blog post: " + ex.Message);
+                }
+            }
+            return View(blogPost);
+        }
+
+        // GET: AdminDashboard/BlogDelete/5
+        public ActionResult BlogDelete(int id)
+        {
+            try
+            {
+                var blogPost = _blogBL.GetBlogPostById(id);
+                if (blogPost == null)
+                {
+                    return HttpNotFound();
+                }
+                return View(blogPost);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading blog post: " + ex.Message;
+                return RedirectToAction("BlogPosts");
+            }
+        }
+
+        // POST: AdminDashboard/BlogDelete/5
+        [HttpPost, ActionName("BlogDelete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult BlogDeleteConfirmed(int id)
+        {
+            try
+            {
+                var blogPost = _blogBL.GetBlogPostById(id);
+                if (blogPost != null)
+                {
+                    // Delete featured image if exists
+                    if (!string.IsNullOrEmpty(blogPost.FeaturedImage))
+                    {
+                        var imagePath = Server.MapPath(blogPost.FeaturedImage);
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
+                    }
+                }
+
+                bool result = _blogBL.DeleteBlogPost(id);
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Blog post deleted successfully!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to delete blog post.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting blog post: " + ex.Message;
+            }
+            return RedirectToAction("BlogPosts");
+        }
+
+        // GET: AdminDashboard/BlogComments
+        public ActionResult BlogComments()
+        {
+            try
+            {
+                var comments = _blogBL.GetRecentComments(50); // Get last 50 comments
+                return View(comments);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading comments: " + ex.Message;
+                return View(new List<BlogComment>());
+            }
+        }
+
+        // POST: AdminDashboard/ApproveComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ApproveComment(int commentId)
+        {
+            try
+            {
+                bool result = _blogBL.ApproveComment(commentId);
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Comment approved successfully!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to approve comment.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error approving comment: " + ex.Message;
+            }
+            return RedirectToAction("BlogComments");
+        }
+
+        // POST: AdminDashboard/DeleteComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteComment(int commentId)
+        {
+            try
+            {
+                bool result = _blogBL.DeleteComment(commentId);
+                if (result)
+                {
+                    TempData["SuccessMessage"] = "Comment deleted successfully!";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Failed to delete comment.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting comment: " + ex.Message;
+            }
+            return RedirectToAction("BlogComments");
+        }
+
+        // POST: AdminDashboard/ApprovePost
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ApprovePost(int id)
+        {
+            try
+            {
+                var blogPost = _blogBL.GetBlogPostById(id);
+                if (blogPost != null)
+                {
+                    blogPost.IsPublished = true;
+                    bool result = _blogBL.UpdateBlogPost(blogPost);
+
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = $"Blog post '{blogPost.Title}' has been approved and published!";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Failed to approve blog post.";
+                    }
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Blog post not found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error approving blog post: " + ex.Message;
+            }
+            return RedirectToAction("BlogPosts");
+        }
+
+        // POST: AdminDashboard/RejectPost
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RejectPost(int id)
+        {
+            try
+            {
+                var blogPost = _blogBL.GetBlogPostById(id);
+                if (blogPost != null)
+                {
+                    // Delete featured image if exists
+                    if (!string.IsNullOrEmpty(blogPost.FeaturedImage))
+                    {
+                        var imagePath = Server.MapPath(blogPost.FeaturedImage);
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
+                    }
+
+                    bool result = _blogBL.DeleteBlogPost(id);
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = $"Blog post '{blogPost.Title}' has been rejected and deleted.";
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Failed to reject blog post.";
+                    }
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Blog post not found.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error rejecting blog post: " + ex.Message;
+            }
+            return RedirectToAction("BlogPosts");
+        }
+
+        // POST: AdminDashboard/ClearSampleBlogs
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ClearSampleBlogs()
+        {
+            try
+            {
+                var allPosts = _blogBL.GetAllBlogPosts(includeUnpublished: true);
+                int deletedCount = 0;
+
+                foreach (var post in allPosts)
+                {
+                    // Delete featured image if exists
+                    if (!string.IsNullOrEmpty(post.FeaturedImage))
+                    {
+                        var imagePath = Server.MapPath(post.FeaturedImage);
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            System.IO.File.Delete(imagePath);
+                        }
+                    }
+
+                    bool result = _blogBL.DeleteBlogPost(post.BlogPostId);
+                    if (result)
+                    {
+                        deletedCount++;
+                    }
+                }
+
+                TempData["SuccessMessage"] = $"Successfully deleted {deletedCount} sample blog posts!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error clearing sample blogs: " + ex.Message;
+            }
+            return RedirectToAction("BlogPosts");
+        }
+
+        #endregion
     }
 }

@@ -43,17 +43,40 @@ namespace eUseControl.BeekeepingStore.Controllers.Api
                         // Asigurăm-ne că prețul promotional este rotunjit corect la 2 zecimale
                         decimal roundedPrice = Math.Round(promotionalPrice.Value, 2, MidpointRounding.AwayFromZero);
 
+                        // Calculate the actual discount percentage for logging
+                        decimal discountPercentage = (1 - (roundedPrice / domainProduct.Price)) * 100;
+
+                        // Add detailed debugging information
+                        var debugInfo = new
+                        {
+                            originalPriceType = domainProduct.Price.GetType().Name,
+                            promotionalPriceType = promotionalPrice.Value.GetType().Name,
+                            originalPriceValue = domainProduct.Price.ToString("F10"),
+                            promotionalPriceValue = promotionalPrice.Value.ToString("F10"),
+                            discountPercent = discountPercentage,
+                            discountPercentType = discountPercentage.GetType().Name,
+                            calculatedDiscount = Math.Round(discountPercentage, 4)
+                        };
+
                         // Adaugă product cu promotional price la rezultat
                         var resultItem = new
                         {
                             productId = productId,
                             name = domainProduct.Name,
                             originalPrice = domainProduct.Price,
-                            promotionalPrice = roundedPrice
+                            promotionalPrice = roundedPrice,
+                            debugInfo = debugInfo
                         };
 
-                        // Log pentru a verifica ce valori sunt trimise
-                        System.Diagnostics.Debug.WriteLine($"API: Product {productId} ({domainProduct.Name}): Original={domainProduct.Price}, Promotional={roundedPrice}");
+                        // Enhanced logging pentru a verifica ce valori sunt trimise
+                        System.Diagnostics.Debug.WriteLine($"API: Product {productId} ({domainProduct.Name}):");
+                        System.Diagnostics.Debug.WriteLine($"  Original Price: {domainProduct.Price} ({debugInfo.originalPriceType})");
+                        System.Diagnostics.Debug.WriteLine($"  Promotional Price (raw): {promotionalPrice.Value}");
+                        System.Diagnostics.Debug.WriteLine($"  Promotional Price (rounded): {roundedPrice}");
+                        System.Diagnostics.Debug.WriteLine($"  Original Price (F10): {debugInfo.originalPriceValue}");
+                        System.Diagnostics.Debug.WriteLine($"  Promotional Price (F10): {debugInfo.promotionalPriceValue}");
+                        System.Diagnostics.Debug.WriteLine($"  Discount Percent: {debugInfo.discountPercent}% ({debugInfo.discountPercentType})");
+                        System.Diagnostics.Debug.WriteLine($"  Calculated Discount: {debugInfo.calculatedDiscount}%");
 
                         result.Add(resultItem);
                     }

@@ -1,0 +1,118 @@
+﻿@model eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost
+
+@{
+    ViewBag.Title = "Delete Blog Post";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3><i class="fas fa-trash"></i> Delete Blog Post</h3>
+                    <p class="mb-0">Are you sure you want to delete this blog post?</p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Warning:</strong> This action cannot be undone. The blog post and all its comments will be permanently deleted.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+                            {
+                                <img src="@Url.Content(Model.FeaturedImage)" alt="@Model.Title" class="img-fluid rounded">
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <span class="text-muted">No image</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-8">
+                            <h4>@Model.Title</h4>
+
+                            <div class="mb-3">
+                                @if (Model.IsPublished)
+                                {
+                                    <span class="badge bg-success">Published</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Awaiting Approval</span>
+                                }
+
+                                @if (!string.IsNullOrEmpty(Model.Category))
+                                {
+                                    <span class="badge bg-secondary">@Model.Category</span>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Summary))
+                            {
+                                <p class="text-muted">@Model.Summary</p>
+                            }
+
+                            <div class="text-muted small">
+                                <div><i class="fas fa-user"></i> Author: @Model.Author</div>
+                                <div><i class="fas fa-calendar"></i> Published: @Model.PublishDate.ToString("MMMM dd, yyyy")</div>
+                                <div><i class="fas fa-eye"></i> Views: @Model.ViewCount</div>
+                                @if (!string.IsNullOrEmpty(Model.Tags))
+                                {
+                                    <div><i class="fas fa-tags"></i> Tags: @Model.Tags</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Content))
+                    {
+                        <div class="mt-4">
+                            <h6>Content Preview:</h6>
+                            <div class="border rounded p-3 bg-light">
+                                @Html.Raw(Model.Content.Length > 300 ? Model.Content.Substring(0, 300) + "..." : Model.Content)
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="@Url.Action("MyPosts", "Blog")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+
+                        @using (Html.BeginForm("Delete", "Blog", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.BlogPostId)
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure you want to delete this blog post? This action cannot be undone.')">
+                                <i class="fas fa-trash"></i> Yes, Delete This Post
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card.border-danger {
+        border-width: 2px;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .text-muted.small div {
+        margin-bottom: 0.25rem;
+    }
+
+    .badge {
+        font-size: 0.75em;
+        margin-right: 0.5rem;
+    }
+</style> 

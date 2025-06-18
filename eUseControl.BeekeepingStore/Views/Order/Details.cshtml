@@ -1,7 +1,7 @@
 ﻿@model eUseControl.BeekeepingStore.Domain.Entities.Order.OrderResponse
 
 @{
-    ViewBag.Title = "Detalii comandă #" + Model.OrderId;
+    ViewBag.Title = "Order Details #" + Model.OrderId;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -17,15 +17,15 @@
     <div class="row">
         <div class="col-12 mb-4">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">Comandă #@Model.OrderId</h1>
+                <h1 class="mb-0">Order #@Model.OrderId</h1>
                 <div>
                     <a href="@Url.Action("History", "Order")" class="btn btn-outline-primary me-2">
-                        <i class="fas fa-arrow-left me-2"></i>Înapoi la comenzi
+                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
                     </a>
                     @if (Model.OrderStatus == "Pending" || Model.OrderStatus == "Processing")
                     {
                         <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-                            <i class="fas fa-times me-2"></i>Anulează comanda
+                            <i class="fas fa-times me-2"></i>Cancel Order
                         </button>
                     }
                 </div>
@@ -37,22 +37,22 @@
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Detalii comandă</h5>
+                    <h5 class="mb-0">Order Details</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table">
                                 <tr>
-                                    <th style="width: 200px;">Număr comandă:</th>
+                                    <th style="width: 200px;">Order Number:</th>
                                     <td>#@Model.OrderId</td>
                                 </tr>
                                 <tr>
-                                    <th>Data:</th>
+                                    <th>Date:</th>
                                     <td>@Model.OrderDate.ToString("dd.MM.yyyy, HH:mm")</td>
                                 </tr>
                                 <tr>
-                                    <th>Status comandă:</th>
+                                    <th>Order Status:</th>
                                     <td>
                                         <span class="badge bg-@(Model.OrderStatus == "Delivered" ? "success" :
                                                                 Model.OrderStatus == "Cancelled" ? "danger" :
@@ -62,7 +62,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>Status plată:</th>
+                                    <th>Payment Status:</th>
                                     <td>
                                         <span class="badge bg-@(Model.PaymentStatus == "Completed" ? "success" :
                                                                 Model.PaymentStatus == "Failed" ? "danger" :
@@ -72,7 +72,7 @@
                                         @if (Model.PaymentStatus == "Pending" && Model.OrderStatus != "Cancelled")
                                         {
                                             <a href="@Url.Action("Process", "Payment", new { id = Model.OrderId })" class="btn btn-sm btn-success ms-2">
-                                                <i class="fas fa-credit-card me-1"></i> Plătește acum
+                                                <i class="fas fa-credit-card me-1"></i> Pay Now
                                             </a>
                                         }
                                     </td>
@@ -82,26 +82,26 @@
                         <div class="col-md-6">
                             <table class="table">
                                 <tr>
-                                    <th style="width: 200px;">Metodă de plată:</th>
+                                    <th style="width: 200px;">Payment Method:</th>
                                     <td>@Model.PaymentMethod</td>
                                 </tr>
                                 @if (Model.ShippedDate.HasValue)
                                 {
                                     <tr>
-                                        <th>Data expedierii:</th>
+                                        <th>Shipped Date:</th>
                                         <td>@Model.ShippedDate.Value.ToString("dd.MM.yyyy")</td>
                                     </tr>
                                 }
                                 @if (!string.IsNullOrEmpty(Model.TrackingNumber))
                                 {
                                     <tr>
-                                        <th>Număr de tracking:</th>
+                                        <th>Tracking Number:</th>
                                         <td>@Model.TrackingNumber</td>
                                     </tr>
                                 }
                                 <tr>
                                     <th>Total:</th>
-                                    <td><strong>@string.Format("{0:C}", Model.TotalAmount)</strong></td>
+                                    <td><strong>@string.Format("{0:F2}", Model.TotalAmount) MDL</strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -111,16 +111,16 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Produse comandate</h5>
+                    <h5 class="mb-0">Ordered Products</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Produs</th>
-                                    <th class="text-center">Preț</th>
-                                    <th class="text-center">Cantitate</th>
+                                    <th>Product</th>
+                                    <th class="text-center">Price</th>
+                                    <th class="text-center">Quantity</th>
                                     <th class="text-end">Subtotal</th>
                                 </tr>
                             </thead>
@@ -133,28 +133,28 @@
                                                 <a href="@Url.Action("Details", "Product", new { id = item.ProductId })">@item.ProductName</a>
                                             </div>
                                         </td>
-                                        <td class="text-center">@string.Format("{0:C}", item.UnitPrice)</td>
+                                        <td class="text-center">@string.Format("{0:F2}", item.UnitPrice) MDL</td>
                                         <td class="text-center">@item.Quantity</td>
-                                        <td class="text-end">@string.Format("{0:C}", item.Subtotal)</td>
+                                        <td class="text-end">@string.Format("{0:F2}", item.Subtotal) MDL</td>
                                     </tr>
                                 }
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="3" class="text-end">Subtotal:</td>
-                                    <td class="text-end">@string.Format("{0:C}", Model.Items.Sum(i => i.Subtotal))</td>
+                                    <td class="text-end">@string.Format("{0:F2}", Model.Items.Sum(i => i.Subtotal)) MDL</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3" class="text-end">Transport:</td>
+                                    <td colspan="3" class="text-end">Shipping:</td>
                                     @{
                                         decimal subtotal = Model.Items.Sum(i => i.Subtotal);
-                                        decimal shipping = subtotal > 500 ? 0 : 50;
+                                        decimal shipping = subtotal > 900 ? 0 : 150;
                                     }
-                                    <td class="text-end">@(shipping == 0 ? "GRATUIT" : string.Format("{0:C}", shipping))</td>
+                                    <td class="text-end">@(shipping == 0 ? "FREE" : string.Format("{0:F2}", shipping) + " MDL")</td>
                                 </tr>
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                    <td class="text-end"><strong>@string.Format("{0:C}", Model.TotalAmount)</strong></td>
+                                    <td class="text-end"><strong>@string.Format("{0:F2}", Model.TotalAmount) MDL</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -166,18 +166,18 @@
         <div class="col-lg-4">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Adrese</h5>
+                    <h5 class="mb-0">Addresses</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <h6 class="mb-2">Adresa de livrare</h6>
+                        <h6 class="mb-2">Shipping Address</h6>
                         <address class="mb-0">
                             @Html.Raw(Model.ShippingAddress.Replace(Environment.NewLine, "<br />"))
                         </address>
                     </div>
 
                     <div>
-                        <h6 class="mb-2">Adresa de facturare</h6>
+                        <h6 class="mb-2">Billing Address</h6>
                         <address class="mb-0">
                             @Html.Raw(Model.BillingAddress.Replace(Environment.NewLine, "<br />"))
                         </address>
@@ -189,7 +189,7 @@
             {
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Note comandă</h5>
+                        <h5 class="mb-0">Order Notes</h5>
                     </div>
                     <div class="card-body">
                         <p class="mb-0">@Html.Raw(Model.Notes.Replace(Environment.NewLine, "<br />"))</p>
@@ -199,14 +199,14 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Istoric comandă</h5>
+                    <h5 class="mb-0">Order History</h5>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="badge bg-primary rounded-pill me-2">1</span>
-                                Comandă plasată
+                                Order Placed
                             </div>
                             <small class="text-muted">@Model.OrderDate.ToString("dd.MM.yyyy, HH:mm")</small>
                         </li>
@@ -215,7 +215,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="badge bg-primary rounded-pill me-2">2</span>
-                                    Comandă procesată
+                                    Order Processed
                                 </div>
                                 <small class="text-muted">@Model.OrderDate.AddHours(2).ToString("dd.MM.yyyy, HH:mm")</small>
                             </li>
@@ -225,7 +225,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="badge bg-primary rounded-pill me-2">3</span>
-                                    Comandă expediată
+                                    Order Shipped
                                 </div>
                                 <small class="text-muted">@(Model.ShippedDate.HasValue ? Model.ShippedDate.Value.ToString("dd.MM.yyyy, HH:mm") : Model.OrderDate.AddDays(1).ToString("dd.MM.yyyy, HH:mm"))</small>
                             </li>
@@ -235,7 +235,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="badge bg-primary rounded-pill me-2">4</span>
-                                    Comandă livrată
+                                    Order Delivered
                                 </div>
                                 <small class="text-muted">@(Model.ShippedDate.HasValue ? Model.ShippedDate.Value.AddDays(2).ToString("dd.MM.yyyy, HH:mm") : Model.OrderDate.AddDays(3).ToString("dd.MM.yyyy, HH:mm"))</small>
                             </li>
@@ -245,7 +245,7 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-danger">
                                 <div>
                                     <span class="badge bg-danger rounded-pill me-2">X</span>
-                                    Comandă anulată
+                                    Order Cancelled
                                 </div>
                                 <small class="text-muted">@Model.OrderDate.AddHours(1).ToString("dd.MM.yyyy, HH:mm")</small>
                             </li>
@@ -264,21 +264,81 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cancelOrderModalLabel">Confirmare anulare comandă</h5>
+                    <h5 class="modal-title" id="cancelOrderModalLabel">Confirm Order Cancellation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Sunteți sigur că doriți să anulați comanda #@Model.OrderId?</p>
-                    <p>Această acțiune nu poate fi anulată.</p>
+                    <p>Are you sure you want to cancel order #@Model.OrderId?</p>
+                    <p>This action cannot be undone.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <form action="@Url.Action("Cancel", "Order", new { id = Model.OrderId })" method="post">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger">Anulează comanda</button>
+                        <button type="submit" class="btn btn-danger">Cancel Order</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+}
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Currency formatter to match other pages
+            function formatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
+                // Ensure price has correct decimal places
+                price = parseFloat(parseFloat(price).toFixed(2));
+
+                // Format using Intl API
+                let formatted = new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: currency,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(price);
+
+                // Ensure the currency is MDL, even if the browser changes it
+                if (formatted.includes(' L') && !formatted.includes('MDL')) {
+                    formatted = formatted.replace(' L', ' MDL');
+                }
+
+                // Clean up any duplications
+                if (formatted.includes('MDL MDL') || formatted.includes('L MDL')) {
+                    formatted = formatted.replace(' MDL', '');
+                    formatted = formatted.replace(' L', '') + ' MDL';
+                }
+
+                // If the browser ignores our locale/currency settings, manually format it
+                if (!formatted.includes('MDL')) {
+                    formatted = formatted.replace(/[$€£¥₽]/g, '').trim() + ' MDL';
+                }
+
+                return formatted;
+            }
+
+            // Fix all price displays on the page
+            function fixPriceDisplays() {
+                // Fix any remaining currency formatting issues
+                const priceElements = document.querySelectorAll('td, th, span');
+                priceElements.forEach(el => {
+                    const text = el.textContent.trim();
+                    // Look for prices that might need fixing
+                    if (text.includes('L') && !text.includes('MDL') && text.match(/[\d,]+[.,]\d{2}/)) {
+                        const match = text.match(/[\d,]+[.,]\d{2}/);
+                        if (match) {
+                            const numericValue = parseFloat(match[0].replace(',', '.'));
+                            if (!isNaN(numericValue)) {
+                                el.textContent = text.replace(match[0] + ' L', formatCurrency(numericValue));
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Run the fix
+            fixPriceDisplays();
+        });
+    </script>
 } 

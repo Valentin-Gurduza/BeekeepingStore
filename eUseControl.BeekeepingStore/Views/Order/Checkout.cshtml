@@ -1,30 +1,30 @@
 ﻿@model dynamic
 
 @{
-    ViewBag.Title = "Finalizare comandă";
+    ViewBag.Title = "Checkout";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @Html.AntiForgeryToken()
 
 <div class="container py-5">
-    <h1 class="mb-4">Finalizare comandă</h1>
+    <h1 class="mb-4">Checkout</h1>
 
     <div class="row">
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Detalii comandă</h5>
+                    <h5 class="mb-0">Order Details</h5>
                 </div>
                 <div class="card-body">
                     <form id="checkout-form">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="first-name" class="form-label">Prenume</label>
+                                <label for="first-name" class="form-label">First Name</label>
                                 <input type="text" class="form-control" id="first-name" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="last-name" class="form-label">Nume</label>
+                                <label for="last-name" class="form-label">Last Name</label>
                                 <input type="text" class="form-control" id="last-name" required>
                             </div>
                         </div>
@@ -35,30 +35,30 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Telefon</label>
+                            <label for="phone" class="form-label">Phone</label>
                             <input type="tel" class="form-control" id="phone" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="shipping-address" class="form-label">Adresa de livrare</label>
+                            <label for="shipping-address" class="form-label">Shipping Address</label>
                             <textarea class="form-control" id="shipping-address" rows="3" required></textarea>
                         </div>
 
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="billing-same">
                             <label class="form-check-label" for="billing-same">
-                                Adresa de facturare este aceeași cu cea de livrare
+                                Billing address is the same as shipping address
                             </label>
                         </div>
 
                         <div id="billing-address-container" class="mb-3 d-none">
-                            <label for="billing-address" class="form-label">Adresa de facturare</label>
+                            <label for="billing-address" class="form-label">Billing Address</label>
                             <textarea class="form-control" id="billing-address" rows="3"></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="order-notes" class="form-label">Note comandă (opțional)</label>
-                            <textarea class="form-control" id="order-notes" rows="2" placeholder="Instrucțiuni speciale pentru livrare sau alte detalii"></textarea>
+                            <label for="order-notes" class="form-label">Order Notes (optional)</label>
+                            <textarea class="form-control" id="order-notes" rows="2" placeholder="Special delivery instructions or other details"></textarea>
                         </div>
                     </form>
                 </div>
@@ -66,25 +66,25 @@
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Metoda de plată</h5>
+                    <h5 class="mb-0">Payment Method</h5>
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="radio" name="payment-method" id="payment-cash" value="cash" checked>
                         <label class="form-check-label" for="payment-cash">
-                            <i class="fas fa-money-bill-wave me-2"></i> Plata la livrare
+                            <i class="fas fa-money-bill-wave me-2"></i> Cash on Delivery
                         </label>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="radio" name="payment-method" id="payment-card" value="card">
                         <label class="form-check-label" for="payment-card">
-                            <i class="fas fa-credit-card me-2"></i> Card de credit
+                            <i class="fas fa-credit-card me-2"></i> Credit Card
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="payment-method" id="payment-transfer" value="transfer">
                         <label class="form-check-label" for="payment-transfer">
-                            <i class="fas fa-university me-2"></i> Transfer bancar
+                            <i class="fas fa-university me-2"></i> Bank Transfer
                         </label>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Sumar comandă</h5>
+                    <h5 class="mb-0">Order Summary</h5>
                 </div>
                 <div class="card-body">
                     <div class="cart-summary-items mb-3">
@@ -109,7 +109,7 @@
                     </div>
 
                     <div class="d-flex justify-content-between mb-2">
-                        <span>Transport</span>
+                        <span>Shipping</span>
                         <span class="checkout-shipping">0,00 MDL</span>
                     </div>
 
@@ -121,7 +121,7 @@
                     </div>
 
                     <button type="button" class="btn btn-primary w-100 place-order-btn">
-                        Plasează comanda
+                        Place Order
                     </button>
                 </div>
             </div>
@@ -167,13 +167,13 @@
                 let itemsHTML = '';
 
                 if (cart.length === 0) {
-                    itemsHTML = '<p class="text-center">Coșul tău de cumpărături este gol</p>';
+                    itemsHTML = '<p class="text-center">Your shopping cart is empty</p>';
 
                     // Disable place order button
                     const placeOrderBtn = document.querySelector('.place-order-btn');
                     if (placeOrderBtn) {
                         placeOrderBtn.disabled = true;
-                        placeOrderBtn.textContent = 'Coșul este gol';
+                        placeOrderBtn.textContent = 'Cart is empty';
                     }
                 } else {
                     cart.forEach(item => {
@@ -210,7 +210,7 @@
             const totalEl = document.querySelector('.checkout-total');
 
             if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
-            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'GRATUIT' : formatCurrency(shipping);
+            if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE' : formatCurrency(shipping);
             if (totalEl) totalEl.textContent = formatCurrency(total);
 
             // Handle order placement
@@ -238,7 +238,7 @@
 
                     // Disable button and show loading state
                     placeOrderBtn.disabled = true;
-                    placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Se procesează...';
+                    placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
 
                     // Create order via AJAX
                     console.log('Sending order data:', {
@@ -269,7 +269,7 @@
                         if (!response.ok) {
                             return response.text().then(errorText => {
                                 console.error('Error response body:', errorText);
-                                throw new Error('Eroare server: ' + response.status);
+                                throw new Error('Server error: ' + response.status);
                             });
                         }
 
@@ -278,8 +278,8 @@
                             try {
                                 return JSON.parse(text);
                             } catch (e) {
-                                console.error('Răspunsul nu este în format JSON valid:', text);
-                                throw new Error('Răspunsul de la server nu este în formatul așteptat');
+                                console.error('Response is not valid JSON:', text);
+                                throw new Error('Server response is not in the expected format');
                             }
                         });
                     })
@@ -295,20 +295,20 @@
                             window.location.href = '@Url.Action("Confirmation", "Order")/' + data.orderId;
                         } else {
                             // Show error message
-                            alert("Eroare: " + data.message);
+                            alert("Error: " + data.message);
 
                             // Re-enable button
                             placeOrderBtn.disabled = false;
-                            placeOrderBtn.innerHTML = 'Plasează comanda';
+                            placeOrderBtn.innerHTML = 'Place Order';
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert("A apărut o eroare la procesarea comenzii: " + error.message);
+                        alert("An error occurred while processing the order: " + error.message);
 
                         // Re-enable button
                         placeOrderBtn.disabled = false;
-                        placeOrderBtn.innerHTML = 'Plasează comanda';
+                        placeOrderBtn.innerHTML = 'Place Order';
                     });
                 });
             }

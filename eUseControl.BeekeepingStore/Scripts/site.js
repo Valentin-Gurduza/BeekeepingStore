@@ -543,8 +543,6 @@ function renderCartItems() {
                         <div class="col-lg-2 col-md-2 col-sm-4 mt-3 mt-sm-0 text-end">
                             <p class="mb-0">Total</p>
                             <p class="mb-0 fw-bold">${formatCurrency(itemTotal)}</p>
-                            ${hasPromotionalPrice ?
-                `<small class="text-muted text-decoration-line-through">${formatCurrency(itemOriginalPrice * itemQuantity)}</small>` : ''}
                             <button class="btn btn-link text-danger p-0 mt-2 delete-item">
                                 <i class="fas fa-trash me-1"></i> Remove
                             </button>
@@ -834,10 +832,21 @@ function formatCurrency(price, locale = 'ro-MD', currency = 'MDL') {
     }).format(price);
 
     // Ensure the currency is MDL, even if the browser changes it
+    if (formatted.includes(' L') && !formatted.includes('MDL')) {
+        // Replace "L" with "MDL"
+        formatted = formatted.replace(' L', ' MDL');
+    }
+
+    // Clean up any duplications
+    if (formatted.includes('MDL MDL') || formatted.includes('L MDL')) {
+        formatted = formatted.replace(' MDL', '');
+        formatted = formatted.replace(' L', '') + ' MDL';
+    }
+
+    // If the browser ignores our locale/currency settings, manually format it
     if (!formatted.includes('MDL')) {
-        // If the browser ignores our locale/currency settings,
-        // manually format it by replacing the currency symbol with MDL
-        formatted = formatted.replace(/[$€£¥]/g, '') + ' MDL';
+        // Remove any existing currency symbols and add MDL
+        formatted = formatted.replace(/[$€£¥₽]/g, '').trim() + ' MDL';
     }
 
     return formatted;

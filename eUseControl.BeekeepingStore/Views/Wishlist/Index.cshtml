@@ -70,7 +70,29 @@
                                     <p class="small text-truncate">@product.Description</p>
                                 </td>
                                 <td>
-                                    <h5 class="text-primary">@product.Price.ToString("C", new System.Globalization.CultureInfo("ro-MD"))</h5>
+                                    @{
+                                        var bl = new eUseControl.BeekeepingStore.BusinessLogic.BusinessLogic();
+                                        var promotionBL = bl.GetPromotionBL;
+                                        int productId;
+                                        int.TryParse(product.Id, out productId);
+                                        var promotionalPrice = promotionBL.GetPromotionalPrice(productId);
+
+                                        if (promotionalPrice.HasValue && promotionalPrice.Value < product.Price)
+                                        {
+                                            <div>
+                                                <h5 class="text-danger mb-1">@promotionalPrice.Value.ToString("C", new System.Globalization.CultureInfo("ro-MD"))</h5>
+                                                <small class="text-muted text-decoration-line-through">@product.Price.ToString("C", new System.Globalization.CultureInfo("ro-MD"))</small>
+                                                <br />
+                                                <span class="badge bg-danger">
+                                                    Save @((product.Price - promotionalPrice.Value).ToString("C", new System.Globalization.CultureInfo("ro-MD")))
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <h5 class="text-primary">@product.Price.ToString("C", new System.Globalization.CultureInfo("ro-MD"))</h5>
+                                        }
+                                    }
                                 </td>
                                 <td>
                                     <span class="text-muted">@product.DateAdded.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ro-MD"))</span>
@@ -86,10 +108,15 @@
                                                 <i class="fas fa-heart-broken"></i> Remove
                                             </button>
                                         }
+                                        @{
+                                            // Use promotional price for cart if available
+                                            var finalPrice = (promotionalPrice.HasValue && promotionalPrice.Value < product.Price) ? promotionalPrice.Value : product.Price;
+                                        }
                                         <button class="btn btn-primary btn-sm add-to-cart-btn"
                                                 data-product-id="@product.Id"
                                                 data-product-name="@product.Name"
-                                                data-product-price="@product.Price"
+                                                data-product-price="@finalPrice"
+                                                @if (promotionalPrice.HasValue && promotionalPrice.Value < product.Price) { <text> data-product-promotional-price="@promotionalPrice.Value" data-product-original-price="@product.Price" </text> }
                                                 data-product-image="@Url.Content(product.Image)">
                                             <i class="fas fa-shopping-cart"></i> Add to Cart
                                         </button>
@@ -124,12 +151,17 @@
                 var productId = String($button.data('product-id'));
                 var productName = $button.data('product-name');
                 var productPrice = $button.data('product-price');
+                var promotionalPrice = $button.data('product-promotional-price');
+                var originalPrice = $button.data('product-original-price');
                 var productImage = $button.data('product-image');
 
                 // Check and correct the image path if needed
                 if (!productImage || productImage === '' || productImage === 'undefined') {
                     productImage = '/Content/Images/products/beehive.jpg';
                 }
+
+                // Use promotional price if available, otherwise use regular price
+                var finalPrice = promotionalPrice ? parseFloat(promotionalPrice) : parseFloat(productPrice);
 
                 // DIRECT CART MANIPULATION BYPASSING addToCart FUNCTION
                 // This prevents notification overlap
@@ -151,18 +183,20 @@
                         cart.splice(existingProductIndex, 1);
                     }
 
-                    // Add the product with quantity 1
+                    // Add the product with the correct price (promotional if available)
                     cart.push({
                         id: productId,
                         name: productName,
-                        price: parseFloat(productPrice),
+                        price: finalPrice,
+                        originalPrice: originalPrice ? parseFloat(originalPrice) : finalPrice,
+                        promotionalPrice: promotionalPrice ? parseFloat(promotionalPrice) : null,
                         image: productImage,
                         quantity: 1
                     });
 
                     // Save the cart directly
                     localStorage.setItem('cart', JSON.stringify(cart));
-                    console.log('Product directly added to cart:', productName);
+                    console.log('Product directly added to cart:', productName, 'at price:', finalPrice);
 
                     // Manually update cart badge without triggering any events
                     var cartBadge = document.querySelector('.cart-badge');
@@ -186,8 +220,11 @@
                 $button.html('<i class="fas fa-check"></i> Added');
                 $button.removeClass('btn-primary').addClass('btn-success');
 
-                // Show notification (just once, directly here)
-                showNotification(productName + ' has been added to your cart!', 'success');
+                // Show notification with price information
+                var priceText = promotionalPrice ?
+                    ' at promotional price ' + promotionalPrice.toFixed(2) + ' MDL' :
+                    ' at ' + finalPrice.toFixed(2) + ' MDL';
+                showNotification(productName + ' has been added to your cart' + priceText + '!', 'success');
 
                 // Reactivate the button after a while
                 setTimeout(function () {
