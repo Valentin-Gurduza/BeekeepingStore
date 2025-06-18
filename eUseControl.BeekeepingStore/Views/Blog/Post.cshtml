@@ -5,265 +5,348 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container py-5">
+<div class="blog-post-page">
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="container">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="container">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         </div>
     }
 
-    <div class="row">
-        <!-- Main content -->
-        <div class="col-lg-8">
-            <article class="blog-post">
-                <!-- Featured Image -->
-                @if (!string.IsNullOrEmpty(Model.FeaturedImage))
-                {
-                    <div class="blog-post-img mb-4">
-                        <img src="@Url.Content(Model.FeaturedImage)"
-                             alt="@Model.Title"
-                             class="img-fluid rounded"
-                             onerror="this.src='@Url.Content("~/Content/Images/blog/default-blog.jpg")'">
-                    </div>
-                }
-
-                <!-- Post Header -->
-                <header class="blog-post-header mb-4">
-                    <h1 class="blog-post-title mb-3">@Model.Title</h1>
-                    <div class="blog-post-meta text-muted">
-                        <span><i class="fas fa-calendar-alt me-1"></i> @Model.PublishDate.ToString("MMMM dd, yyyy")</span>
-                        @if (!string.IsNullOrEmpty(Model.Category))
-                        {
-                            <span class="mx-2">|</span>
-                            <span>
-                                <i class="fas fa-folder me-1"></i>
-                                <a href="@Url.Action("Index", "Blog", new { category = Model.Category })" class="text-decoration-none">
-                                    @Model.Category
-                                </a>
-                            </span>
-                        }
-                        <span class="mx-2">|</span>
-                        <span><i class="fas fa-user me-1"></i> @(string.IsNullOrEmpty(Model.Author) ? "Admin" : Model.Author)</span>
-                        <span class="mx-2">|</span>
-                        <span><i class="fas fa-eye me-1"></i> @Model.ViewCount Views</span>
-                    </div>
-                </header>
-
-                <!-- Post Content -->
-                <div class="blog-post-content mb-5">
-                    @Html.Raw(Model.Content)
-                </div>
-
-                <!-- Tags -->
-                @if (!string.IsNullOrEmpty(Model.Tags))
-                {
-                    <div class="blog-post-tags mb-5">
-                        <h5>Tags:</h5>
-                        <div>
-                            @foreach (var tag in Model.Tags.Split(','))
-                            {
-                                <a href="@Url.Action("Index", "Blog", new { tag = tag.Trim() })" class="badge bg-secondary text-decoration-none me-2">
-                                    @tag.Trim()
-                                </a>
-                            }
+    <!-- Hero Section with Featured Image -->
+    @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+    {
+        <div class="blog-hero-section">
+            <div class="blog-hero-image" style="background-image: url('@Url.Content(Model.FeaturedImage)');">
+                <div class="blog-hero-overlay">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-10">
+                                <div class="blog-hero-content text-center text-white">
+                                    <h1 class="blog-hero-title">@Model.Title</h1>
+                                    <div class="blog-hero-meta">
+                                        <span class="meta-item">
+                                            <i class="fas fa-calendar-alt me-2"></i>
+                                            @Model.PublishDate.ToString("MMMM dd, yyyy")
+                                        </span>
+                                        <span class="meta-separator">•</span>
+                                        <span class="meta-item">
+                                            <i class="fas fa-user me-2"></i>
+                                            @(string.IsNullOrEmpty(Model.Author) ? "Admin" : Model.Author)
+                                        </span>
+                                        <span class="meta-separator">•</span>
+                                        <span class="meta-item">
+                                            <i class="fas fa-eye me-2"></i>
+                                            @Model.ViewCount Views
+                                        </span>
+                                        @if (!string.IsNullOrEmpty(Model.Category))
+                                        {
+                                            <span class="meta-separator">•</span>
+                                            <span class="meta-item">
+                                                <i class="fas fa-folder me-2"></i>
+                                                <a href="@Url.Action("Index", "Blog", new { category = Model.Category })" class="text-white text-decoration-none">
+                                                    @Model.Category
+                                                </a>
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                }
-
-                <!-- Share Buttons -->
-                <div class="blog-post-share mb-5">
-                    <h5>Share This Post:</h5>
-                    <div class="d-flex gap-2">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=@Request.Url.AbsoluteUri" target="_blank" class="btn btn-outline-primary">
-                            <i class="fab fa-facebook-f"></i> Facebook
-                        </a>
-                        <a href="https://twitter.com/intent/tweet?url=@Request.Url.AbsoluteUri&text=@Model.Title" target="_blank" class="btn btn-outline-info">
-                            <i class="fab fa-twitter"></i> Twitter
-                        </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=@Request.Url.AbsoluteUri&title=@Model.Title" target="_blank" class="btn btn-outline-secondary">
-                            <i class="fab fa-linkedin-in"></i> LinkedIn
-                        </a>
-                    </div>
                 </div>
+            </div>
+        </div>
+    }
 
-                <!-- Comments Section -->
-                <div class="blog-post-comments">
-                    <h3 class="comments-title mb-4">
-                        @(Model.Comments != null ? Model.Comments.Count : 0) Comments
-                    </h3>
-
-                    @if (Model.Comments != null && Model.Comments.Any())
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <!-- Main content -->
+            <div class="col-lg-10 col-xl-9">
+                <article class="blog-post">
+                    <!-- Post Header pentru postări fără imagine -->
+                    @if (string.IsNullOrEmpty(Model.FeaturedImage))
                     {
-                        <div class="comments-list mb-5">
-                            @foreach (var comment in Model.Comments.OrderBy(c => c.CommentDate))
-                            {
-                                <div class="comment card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex mb-3">
-                                            <div class="comment-avatar">
-                                                <div class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                                    @comment.Name.Substring(0, 1).ToUpper()
+                        <header class="blog-post-header-simple mb-5">
+                            <div class="text-center">
+                                <h1 class="blog-post-title-simple mb-4">@Model.Title</h1>
+                                <div class="blog-post-meta-simple">
+                                    <span class="meta-item-simple">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        @Model.PublishDate.ToString("MMMM dd, yyyy")
+                                    </span>
+                                    <span class="meta-separator-simple">•</span>
+                                    <span class="meta-item-simple">
+                                        <i class="fas fa-user me-2"></i>
+                                        @(string.IsNullOrEmpty(Model.Author) ? "Admin" : Model.Author)
+                                    </span>
+                                    <span class="meta-separator-simple">•</span>
+                                    <span class="meta-item-simple">
+                                        <i class="fas fa-eye me-2"></i>
+                                        @Model.ViewCount Views
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(Model.Category))
+                                    {
+                                        <span class="meta-separator-simple">•</span>
+                                        <span class="meta-item-simple">
+                                            <i class="fas fa-folder me-2"></i>
+                                            <a href="@Url.Action("Index", "Blog", new { category = Model.Category })" class="category-link">
+                                                @Model.Category
+                                            </a>
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </header>
+                    }
+
+                    <!-- Post Content -->
+                    <div class="blog-post-content mb-5">
+                        <div class="content-wrapper">
+                            @Html.Raw(Model.Content)
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    @if (!string.IsNullOrEmpty(Model.Tags))
+                    {
+                        <div class="blog-post-tags mb-5">
+                            <div class="tags-container">
+                                <h5 class="tags-title">
+                                    <i class="fas fa-tags me-2"></i>Tags
+                                </h5>
+                                <div class="tags-list">
+                                    @foreach (var tag in Model.Tags.Split(','))
+                                    {
+                                        <a href="@Url.Action("Index", "Blog", new { tag = tag.Trim() })" class="tag-item">
+                                            #@tag.Trim()
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Share Buttons -->
+                    <div class="blog-post-share mb-5">
+                        <div class="share-container">
+                            <h5 class="share-title">
+                                <i class="fas fa-share-alt me-2"></i>Share This Post
+                            </h5>
+                            <div class="share-buttons">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=@Request.Url.AbsoluteUri" target="_blank" class="share-btn facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                    <span>Facebook</span>
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url=@Request.Url.AbsoluteUri&text=@Model.Title" target="_blank" class="share-btn twitter">
+                                    <i class="fab fa-twitter"></i>
+                                    <span>Twitter</span>
+                                </a>
+                                <a href="https://www.linkedin.com/shareArticle?mini=true&url=@Request.Url.AbsoluteUri&title=@Model.Title" target="_blank" class="share-btn linkedin">
+                                    <i class="fab fa-linkedin-in"></i>
+                                    <span>LinkedIn</span>
+                                </a>
+                                <a href="mailto:?subject=@Model.Title&body=Check out this article: @Request.Url.AbsoluteUri" class="share-btn email">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="blog-post-comments">
+                        <h3 class="comments-title mb-4">
+                            @(Model.Comments != null ? Model.Comments.Count : 0) Comments
+                        </h3>
+
+                        @if (Model.Comments != null && Model.Comments.Any())
+                        {
+                            <div class="comments-list mb-5">
+                                @foreach (var comment in Model.Comments.OrderBy(c => c.CommentDate))
+                                {
+                                    <div class="comment card mb-3">
+                                        <div class="card-body">
+                                            <div class="d-flex mb-3">
+                                                <div class="comment-avatar">
+                                                    <div class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                        @comment.Name.Substring(0, 1).ToUpper()
+                                                    </div>
+                                                </div>
+                                                <div class="ms-3">
+                                                    <h5 class="comment-author mb-0">@comment.Name</h5>
+                                                    <small class="text-muted">@comment.CommentDate.ToString("MMMM dd, yyyy, h:mm tt")</small>
                                                 </div>
                                             </div>
-                                            <div class="ms-3">
-                                                <h5 class="comment-author mb-0">@comment.Name</h5>
-                                                <small class="text-muted">@comment.CommentDate.ToString("MMMM dd, yyyy, h:mm tt")</small>
+                                            <div class="comment-content">
+                                                <p>@comment.Content</p>
                                             </div>
                                         </div>
-                                        <div class="comment-content">
-                                            <p>@comment.Content</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-5">
+                                <p class="mb-0">Be the first to comment on this post!</p>
+                            </div>
+                        }
+
+                        <!-- Comment Form -->
+                        <div class="comment-form mb-5">
+                            <h3 class="mb-4">Leave a Comment</h3>
+                            @using (Html.BeginForm("AddComment", "Blog", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.Hidden("BlogPostId", Model.BlogPostId)
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="Name" name="Name" placeholder="Your Name" required>
+                                            <label for="Name">Your Name</label>
+                                            <div class="invalid-feedback">
+                                                Please provide your name.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input type="email" class="form-control" id="Email" name="Email" placeholder="Your Email" required>
+                                            <label for="Email">Your Email</label>
+                                            <div class="invalid-feedback">
+                                                Please provide a valid email.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="mb-3">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="Content" name="Content" style="height: 150px" placeholder="Your Comment" required></textarea>
+                                        <label for="Content">Your Comment</label>
+                                        <div class="invalid-feedback">
+                                            Please enter your comment.
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Comment</button>
                             }
                         </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info mb-5">
-                            <p class="mb-0">Be the first to comment on this post!</p>
-                        </div>
-                    }
-
-                    <!-- Comment Form -->
-                    <div class="comment-form mb-5">
-                        <h3 class="mb-4">Leave a Comment</h3>
-                        @using (Html.BeginForm("AddComment", "Blog", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
-                        {
-                            @Html.AntiForgeryToken()
-                            @Html.Hidden("BlogPostId", Model.BlogPostId)
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="text" class="form-control" id="Name" name="Name" placeholder="Your Name" required>
-                                        <label for="Name">Your Name</label>
-                                        <div class="invalid-feedback">
-                                            Please provide your name.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="email" class="form-control" id="Email" name="Email" placeholder="Your Email" required>
-                                        <label for="Email">Your Email</label>
-                                        <div class="invalid-feedback">
-                                            Please provide a valid email.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="form-floating">
-                                    <textarea class="form-control" id="Content" name="Content" style="height: 150px" placeholder="Your Comment" required></textarea>
-                                    <label for="Content">Your Comment</label>
-                                    <div class="invalid-feedback">
-                                        Please enter your comment.
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Submit Comment</button>
-                        }
                     </div>
-                </div>
-            </article>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Search Widget -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="m-0">Search</h5>
-                </div>
-                <div class="card-body">
-                    @using (Html.BeginForm("Index", "Blog", FormMethod.Get, new { @class = "d-flex" }))
-                    {
-                        <input type="text" name="search" class="form-control me-2" placeholder="Search..." required>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    }
-                </div>
+                </article>
             </div>
 
-            <!-- Categories Widget -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="m-0">Categories</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @if (ViewBag.Categories != null)
-                        {
-                            foreach (var category in ViewBag.Categories)
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-xl-3">
+                <div class="blog-sidebar">
+                    <!-- Search Widget -->
+                    <div class="sidebar-widget search-widget">
+                        <h5 class="widget-title">
+                            <i class="fas fa-search me-2"></i>Search
+                        </h5>
+                        <div class="widget-content">
+                            @using (Html.BeginForm("Index", "Blog", FormMethod.Get, new { @class = "search-form" }))
                             {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="@Url.Action("Index", "Blog", new { category = category.Key })" class="text-decoration-none">
-                                        @category.Key
-                                    </a>
-                                    <span class="badge bg-primary rounded-pill">@category.Value</span>
-                                </li>
+                                <div class="search-input-group">
+                                    <input type="text" name="search" class="form-control search-input" placeholder="Search articles..." required>
+                                    <button type="submit" class="search-btn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
                             }
-                        }
-                        else
-                        {
-                            <li class="list-group-item">No categories found</li>
-                        }
-                    </ul>
-                </div>
-            </div>
+                        </div>
+                    </div>
 
-            <!-- Recent Posts Widget -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="m-0">Recent Posts</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @if (ViewBag.RecentPosts != null)
-                        {
-                            foreach (var post in (List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.RecentPosts)
-                            {
-                                <li class="list-group-item">
-                                    <div class="d-flex">
-                                        @if (!string.IsNullOrEmpty(post.FeaturedImage))
-                                        {
-                                            <div class="flex-shrink-0" style="width: 50px; height: 50px; overflow: hidden;">
-                                                <img src="@Url.Content(post.FeaturedImage)"
-                                                     alt="@post.Title"
-                                                     class="img-fluid rounded"
-                                                     style="width: 100%; height: 100%; object-fit: cover;"
-                                                     onerror="this.src='@Url.Content("~/Content/Images/blog/default-blog.jpg")'">
-                                            </div>
-                                        }
-                                        <div class="ms-3">
-                                            <h6 class="mb-0">
-                                                <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })" class="text-decoration-none">
-                                                    @post.Title
-                                                </a>
-                                            </h6>
-                                            <small class="text-muted">@post.PublishDate.ToString("MMM dd, yyyy")</small>
+                    <!-- Categories Widget -->
+                    <div class="sidebar-widget categories-widget">
+                        <h5 class="widget-title">
+                            <i class="fas fa-folder me-2"></i>Categories
+                        </h5>
+                        <div class="widget-content">
+                            <div class="categories-list">
+                                @if (ViewBag.Categories != null)
+                                {
+                                    foreach (var category in ViewBag.Categories)
+                                    {
+                                        <div class="category-item">
+                                            <a href="@Url.Action("Index", "Blog", new { category = category.Key })" class="category-link">
+                                                <span class="category-name">@category.Key</span>
+                                                <span class="category-count">@category.Value</span>
+                                            </a>
                                         </div>
-                                    </div>
-                                </li>
-                            }
-                        }
-                        else
-                        {
-                            <li class="list-group-item">No recent posts</li>
-                        }
-                    </ul>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-categories">No categories found</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Posts Widget -->
+                    <div class="sidebar-widget recent-posts-widget">
+                        <h5 class="widget-title">
+                            <i class="fas fa-clock me-2"></i>Recent Posts
+                        </h5>
+                        <div class="widget-content">
+                            <div class="recent-posts-list">
+                                @if (ViewBag.RecentPosts != null)
+                                {
+                                    foreach (var post in (List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.RecentPosts)
+                                    {
+                                        <div class="recent-post-item">
+                                            <div class="recent-post-content">
+                                                @if (!string.IsNullOrEmpty(post.FeaturedImage))
+                                                {
+                                                    <div class="recent-post-image">
+                                                        <img src="@Url.Content(post.FeaturedImage)"
+                                                             alt="@post.Title"
+                                                             class="img-fluid">
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="recent-post-image-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                                <div class="recent-post-info">
+                                                    <h6 class="recent-post-title">
+                                                        <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })">
+                                                            @post.Title
+                                                        </a>
+                                                    </h6>
+                                                    <div class="recent-post-date">
+                                                        <i class="fas fa-calendar-alt me-1"></i>
+                                                        @post.PublishDate.ToString("MMM dd, yyyy")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="no-recent-posts">No recent posts</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -297,35 +380,531 @@
 
 @section styles {
     <style>
-        .blog-post-img {
-            max-height: 500px;
-            overflow: hidden;
-            border-radius: 0.25rem;
+        /* Blog Post Page Styles */
+        .blog-post-page {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
         }
 
-            .blog-post-img img {
-                width: 100%;
+        /* Hero Section */
+        .blog-hero-section {
+            position: relative;
+            height: 60vh;
+            min-height: 400px;
+            overflow: hidden;
+        }
+
+        .blog-hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .blog-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blog-hero-content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .blog-hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            line-height: 1.2;
+        }
+
+        .blog-hero-meta {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .meta-item {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 0.5rem;
+        }
+
+        .meta-separator {
+            margin: 0 1rem;
+            opacity: 0.7;
+        }
+
+        /* Simple Header for posts without image */
+        .blog-post-header-simple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .blog-post-title-simple {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .blog-post-meta-simple {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .meta-item-simple {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 0.5rem;
+        }
+
+        .meta-separator-simple {
+            margin: 0 1rem;
+            opacity: 0.7;
+        }
+
+        .category-link {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+
+            .category-link:hover {
+                color: inherit;
+                border-bottom-color: white;
+            }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+            .content-wrapper img {
+                max-width: 100%;
                 height: auto;
+                margin: 2rem 0;
+                border-radius: 0.5rem;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .content-wrapper blockquote {
+                border-left: 4px solid #667eea;
+                padding: 1.5rem 2rem;
+                margin: 2rem 0;
+                background: #f8f9fa;
+                border-radius: 0 0.5rem 0.5rem 0;
+                font-style: italic;
+                position: relative;
+            }
+
+                .content-wrapper blockquote::before {
+                    content: '"';
+                    font-size: 4rem;
+                    color: #667eea;
+                    position: absolute;
+                    top: -10px;
+                    left: 10px;
+                    font-family: serif;
+                }
+
+            .content-wrapper h1, .content-wrapper h2, .content-wrapper h3 {
+                color: #2c3e50;
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .content-wrapper p {
+                margin-bottom: 1.5rem;
+            }
+
+        /* Tags Section */
+        .tags-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tags-title {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+            .tag-item:hover {
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+
+        /* Share Section */
+        .share-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .share-title {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .share-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .share-btn {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+            .share-btn i {
+                margin-right: 0.5rem;
+                font-size: 1.1rem;
+            }
+
+            .share-btn.facebook {
+                background: #3b5998;
+            }
+
+                .share-btn.facebook:hover {
+                    background: #2d4373;
+                    color: white;
+                }
+
+            .share-btn.twitter {
+                background: #1da1f2;
+            }
+
+                .share-btn.twitter:hover {
+                    background: #0d8bd9;
+                    color: white;
+                }
+
+            .share-btn.linkedin {
+                background: #0077b5;
+            }
+
+                .share-btn.linkedin:hover {
+                    background: #005885;
+                    color: white;
+                }
+
+            .share-btn.email {
+                background: #6c757d;
+            }
+
+                .share-btn.email:hover {
+                    background: #545b62;
+                    color: white;
+                }
+
+        /* Sidebar Styles */
+        .blog-sidebar {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .sidebar-widget {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .widget-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .widget-content {
+            padding: 1.5rem;
+        }
+
+        /* Search Widget */
+        .search-input-group {
+            position: relative;
+            display: flex;
+        }
+
+        .search-input {
+            border-radius: 0.5rem 0 0 0.5rem;
+            border-right: none;
+            padding-right: 3rem;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .search-btn:hover {
+                background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            }
+
+        /* Categories Widget */
+        .categories-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .category-item {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .category-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: #495057;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+            .category-link:hover {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+        .category-name {
+            font-weight: 500;
+        }
+
+        .category-count {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .category-link:hover .category-count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        /* Recent Posts Widget */
+        .recent-posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .recent-post-item {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .recent-post-content {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+            .recent-post-content:hover {
+                background: #e9ecef;
+            }
+
+        .recent-post-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+            .recent-post-image img {
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
             }
 
-        .blog-post-content {
-            line-height: 1.8;
-            font-size: 1.1rem;
+        .recent-post-image-placeholder {
+            width: 60px;
+            height: 60px;
+            background: #dee2e6;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            flex-shrink: 0;
         }
 
-            .blog-post-content img {
-                max-width: 100%;
-                height: auto;
-                margin: 1.5rem 0;
-                border-radius: 0.25rem;
+        .recent-post-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .recent-post-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+            .recent-post-title a {
+                color: #2c3e50;
+                text-decoration: none;
+                font-weight: 500;
             }
 
-            .blog-post-content blockquote {
-                border-left: 4px solid #0d6efd;
-                padding-left: 1rem;
-                font-style: italic;
-                margin: 1.5rem 0;
+                .recent-post-title a:hover {
+                    color: #667eea;
+                }
+
+        .recent-post-date {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 1200px) {
+            .blog-hero-title {
+                font-size: 3rem;
             }
+        }
+
+        @@media (max-width: 992px) {
+            .blog-hero-title {
+                font-size: 2.5rem;
+            }
+
+            .blog-post-title-simple {
+                font-size: 2rem;
+            }
+
+            .content-wrapper {
+                padding: 2rem;
+            }
+
+            .blog-sidebar {
+                position: static;
+                margin-top: 3rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .blog-hero-title {
+                font-size: 2rem;
+            }
+
+            .blog-hero-meta {
+                font-size: 1rem;
+            }
+
+            .meta-item {
+                margin: 0.25rem;
+            }
+
+            .meta-separator {
+                display: none;
+            }
+
+            .blog-post-title-simple {
+                font-size: 1.75rem;
+            }
+
+            .content-wrapper {
+                padding: 1.5rem;
+                font-size: 1rem;
+            }
+
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .share-btn {
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .blog-hero-section {
+                height: 50vh;
+                min-height: 300px;
+            }
+
+            .blog-hero-title {
+                font-size: 1.75rem;
+            }
+
+            .blog-post-header-simple {
+                padding: 2rem 1rem;
+            }
+
+            .content-wrapper {
+                padding: 1rem;
+            }
+
+            .tags-list {
+                justify-content: center;
+            }
+        }
     </style>
 } 

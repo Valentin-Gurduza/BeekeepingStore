@@ -157,7 +157,10 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                 using (var context = new DataContext())
                 {
                     DateTime now = DateTime.Now;
-                    return context.Promotions
+
+                    System.Diagnostics.Debug.WriteLine($"QUERY: Getting active promotions for product {productId} at {now}");
+
+                    var promotions = context.Promotions
                         .Include(p => p.Product)
                         .Where(p => p.ProductId == productId &&
                                p.IsActive &&
@@ -165,6 +168,24 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                                (!p.EndDate.HasValue || p.EndDate >= now) &&
                                (!p.UsageLimit.HasValue || p.UsageCount < p.UsageLimit))
                         .ToList();
+
+                    System.Diagnostics.Debug.WriteLine($"QUERY: Found {promotions.Count} active promotions for product {productId}");
+
+                    foreach (var promotion in promotions)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"QUERY: Promotion {promotion.PromotionId}:");
+                        System.Diagnostics.Debug.WriteLine($"  Name: {promotion.Name}");
+                        System.Diagnostics.Debug.WriteLine($"  Type: {promotion.PromotionType}");
+                        System.Diagnostics.Debug.WriteLine($"  DiscountValue: {promotion.DiscountValue}");
+                        System.Diagnostics.Debug.WriteLine($"  DiscountValue type: {promotion.DiscountValue.GetType()}");
+                        System.Diagnostics.Debug.WriteLine($"  IsActive: {promotion.IsActive}");
+                        System.Diagnostics.Debug.WriteLine($"  StartDate: {promotion.StartDate}");
+                        System.Diagnostics.Debug.WriteLine($"  EndDate: {promotion.EndDate}");
+                        System.Diagnostics.Debug.WriteLine($"  UsageLimit: {promotion.UsageLimit}");
+                        System.Diagnostics.Debug.WriteLine($"  UsageCount: {promotion.UsageCount}");
+                    }
+
+                    return promotions;
                 }
             }
             catch (Exception ex)
@@ -242,16 +263,45 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                     switch (promotion.PromotionType)
                     {
                         case "PercentOff":
+                            // Log the exact discount value being used
+                            System.Diagnostics.Debug.WriteLine($"CALC: Processing PercentOff promotion for product {productId}:");
+                            System.Diagnostics.Debug.WriteLine($"  Promotion Name: {promotion.Name}");
+                            System.Diagnostics.Debug.WriteLine($"  Discount Value (raw): {promotion.DiscountValue}");
+                            System.Diagnostics.Debug.WriteLine($"  Discount Value type: {promotion.DiscountValue.GetType()}");
+                            System.Diagnostics.Debug.WriteLine($"  Original Price: {originalPrice}");
+                            System.Diagnostics.Debug.WriteLine($"  Original Price type: {originalPrice.GetType()}");
+
+                            // Step by step calculation with detailed logging
+                            decimal discountDecimal = promotion.DiscountValue / 100.0m;
+                            System.Diagnostics.Debug.WriteLine($"  Discount as decimal: {discountDecimal}");
+
+                            decimal multiplier = 1 - discountDecimal;
+                            System.Diagnostics.Debug.WriteLine($"  Multiplier (1 - discount): {multiplier}");
+
                             // Convertim explicit la decimal pentru a evita diviziunea întreagă
-                            promotionalPrice = originalPrice * (1 - (promotion.DiscountValue / 100.0m));
+                            promotionalPrice = originalPrice * multiplier;
+                            System.Diagnostics.Debug.WriteLine($"  Calculated Price (before rounding): {promotionalPrice}");
+                            System.Diagnostics.Debug.WriteLine($"  Calculated Price type: {promotionalPrice.GetType()}");
+                            System.Diagnostics.Debug.WriteLine($"  Is exactly 43.5? {promotionalPrice == 43.5m}");
+
                             // Rotunjim la 2 zecimale pentru precizie monetară corectă
                             promotionalPrice = Math.Round(promotionalPrice, 2, MidpointRounding.AwayFromZero);
+                            System.Diagnostics.Debug.WriteLine($"  Final Price (after rounding): {promotionalPrice}");
+                            System.Diagnostics.Debug.WriteLine($"  Final Price type: {promotionalPrice.GetType()}");
                             break;
 
                         case "FixedAmount":
+                            System.Diagnostics.Debug.WriteLine($"CALC: Processing FixedAmount promotion for product {productId}:");
+                            System.Diagnostics.Debug.WriteLine($"  Promotion Name: {promotion.Name}");
+                            System.Diagnostics.Debug.WriteLine($"  Discount Value: {promotion.DiscountValue}");
+                            System.Diagnostics.Debug.WriteLine($"  Original Price: {originalPrice}");
+
                             promotionalPrice = originalPrice - promotion.DiscountValue;
+                            System.Diagnostics.Debug.WriteLine($"  Calculated Price (before rounding): {promotionalPrice}");
+
                             // Rotunjim la 2 zecimale pentru precizie monetară corectă
                             promotionalPrice = Math.Round(promotionalPrice, 2, MidpointRounding.AwayFromZero);
+                            System.Diagnostics.Debug.WriteLine($"  Final Price (after rounding): {promotionalPrice}");
                             break;
 
                             // Alte tipuri de promoții pot fi adăugate aici

@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using eUseControl.BeekeepingStore.BusinessLogic.Interfaces;
 using eUseControl.BeekeepingStore.Domain.Entities.Blog;
+using eUseControl.BeekeepingStore.Helpers;
 
 namespace eUseControl.BeekeepingStore.BusinessLogic
 {
@@ -32,6 +33,10 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             {
                 using (var context = new DataContext())
                 {
+                    // Sanitize HTML content to prevent XSS attacks
+                    blogPost.Content = HtmlSanitizer.SanitizeHtml(blogPost.Content);
+                    blogPost.Summary = HtmlSanitizer.SanitizeHtml(blogPost.Summary);
+
                     // Set default values if not provided
                     if (blogPost.PublishDate == default)
                     {
@@ -67,6 +72,10 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                     if (existingPost == null)
                         return false;
+
+                    // Sanitize HTML content to prevent XSS attacks
+                    blogPost.Content = HtmlSanitizer.SanitizeHtml(blogPost.Content);
+                    blogPost.Summary = HtmlSanitizer.SanitizeHtml(blogPost.Summary);
 
                     // Update the existing post with new values
                     context.Entry(existingPost).CurrentValues.SetValues(blogPost);
@@ -288,6 +297,9 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
             {
                 using (var context = new DataContext())
                 {
+                    // Sanitize comment content to prevent XSS attacks
+                    comment.Content = HtmlSanitizer.SanitizeComment(comment.Content);
+
                     // Set default values
                     comment.CommentDate = DateTime.Now;
                     comment.IsApproved = false; // Require approval by default
@@ -315,6 +327,9 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
 
                     if (existingComment == null)
                         return false;
+
+                    // Sanitize comment content to prevent XSS attacks
+                    comment.Content = HtmlSanitizer.SanitizeComment(comment.Content);
 
                     // Update properties
                     existingComment.Content = comment.Content;
@@ -412,7 +427,7 @@ namespace eUseControl.BeekeepingStore.BusinessLogic
                 using (var context = new DataContext())
                 {
                     return context.BlogComments
-                        .Where(c => c.IsApproved)
+                        .Include(c => c.BlogPost)
                         .OrderByDescending(c => c.CommentDate)
                         .Take(count)
                         .ToList();

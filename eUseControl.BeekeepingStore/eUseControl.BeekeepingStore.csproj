@@ -296,6 +296,15 @@
     <Content Include="Views\AdminDashboard\ManagePromotions.cshtml" />
     <Content Include="Views\AdminDashboard\ProductDetails.cshtml" />
     <Content Include="Views\AdminDashboard\UpdateStock.cshtml" />
+    <Content Include="Views\AdminDashboard\BlogPosts.cshtml" />
+    <Content Include="Views\AdminDashboard\BlogCreate.cshtml" />
+    <Content Include="Views\AdminDashboard\BlogEdit.cshtml" />
+    <Content Include="Views\AdminDashboard\BlogDelete.cshtml" />
+    <Content Include="Views\AdminDashboard\BlogComments.cshtml" />
+    <Content Include="Views\Blog\MyPosts.cshtml" />
+    <Content Include="Views\Blog\Create.cshtml" />
+    <Content Include="Views\Blog\Edit.cshtml" />
+    <Content Include="Views\Blog\Delete.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

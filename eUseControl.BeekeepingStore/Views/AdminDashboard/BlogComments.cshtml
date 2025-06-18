@@ -1,0 +1,269 @@
+﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogComment>
+
+@{
+    ViewBag.Title = "Blog Comments Management";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-comments me-2"></i>Blog Comments Management</h2>
+    <a href="@Url.Action("BlogPosts")" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Blog Posts
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-primary-light me-3">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count ?? 0)</div>
+                    <div class="stat-label">Total Comments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-success-light me-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count(c => c.IsApproved) ?? 0)</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-warning-light me-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count(c => !c.IsApproved) ?? 0)</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-info-light me-3">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count(c => c.CommentDate.Date == DateTime.Today) ?? 0)</div>
+                    <div class="stat-label">Today</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any(c => !c.IsApproved))
+{
+    <!-- Pending Comments Section -->
+    <div class="stat-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="fas fa-clock text-warning me-2"></i>Pending Comments (@Model.Count(c => !c.IsApproved))</h5>
+        </div>
+
+        <div class="row">
+            @foreach (var comment in Model.Where(c => !c.IsApproved).Take(5))
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card border-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-1">@comment.Name</h6>
+                                <span class="badge bg-warning">Pending</span>
+                            </div>
+                            <p class="card-text small text-muted mb-2">@comment.Email</p>
+                            <p class="card-text">@(comment.Content.Length > 100 ? comment.Content.Substring(0, 100) + "..." : comment.Content)</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>@comment.CommentDate.ToString("MMM dd, yyyy HH:mm")
+                                    @if (comment.BlogPost != null)
+                                    {
+                                        <br><i class="fas fa-file-alt me-1"></i>@comment.BlogPost.Title
+                                    }
+                                </small>
+                                <div class="btn-group" role="group">
+                                    @using (Html.BeginForm("ApproveComment", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("commentId", comment.CommentId)
+                                        <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                    @using (Html.BeginForm("DeleteComment", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("commentId", comment.CommentId)
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this comment?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- All Comments Table -->
+<div class="stat-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">All Comments</h5>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover" id="commentsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Comment</th>
+                        <th>Blog Post</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var comment in Model)
+                    {
+                        <tr class="@(comment.IsApproved ? "" : "table-warning")">
+                            <td>
+                                <strong>@comment.Name</strong>
+                            </td>
+                            <td>
+                                <small class="text-muted">@comment.Email</small>
+                            </td>
+                            <td>
+                                <div style="max-width: 300px;">
+                                    @if (comment.Content.Length > 80)
+                                    {
+                                        <span title="@comment.Content">@(comment.Content.Substring(0, 80))...</span>
+                                    }
+                                    else
+                                    {
+                                        @comment.Content
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                @if (comment.BlogPost != null)
+                                {
+                                    <a href="@Url.Action("Post", "Blog", new { slug = comment.BlogPost.Slug })"
+                                       target="_blank"
+                                       class="text-decoration-none"
+                                       title="@comment.BlogPost.Title">
+                                        @(comment.BlogPost.Title.Length > 30 ? comment.BlogPost.Title.Substring(0, 30) + "..." : comment.BlogPost.Title)
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (comment.IsApproved)
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending</span>
+                                }
+                            </td>
+                            <td>
+                                <small>@comment.CommentDate.ToString("MMM dd, yyyy")<br>@comment.CommentDate.ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @if (!comment.IsApproved)
+                                    {
+                                        using (Html.BeginForm("ApproveComment", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("commentId", comment.CommentId)
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                    }
+                                    @using (Html.BeginForm("DeleteComment", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("commentId", comment.CommentId)
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this comment?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No comments found</h5>
+            <p class="text-muted">Comments will appear here when visitors leave them on your blog posts.</p>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <!-- DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#commentsTable').DataTable({
+                "pageLength": 15,
+                "order": [[5, "desc"]], // Sort by date descending
+                "columnDefs": [
+                    { "orderable": false, "targets": [6] } // Disable sorting for actions column
+                ],
+                "language": {
+                    "search": "Search comments:",
+                    "lengthMenu": "Show _MENU_ comments per page",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ comments",
+                    "paginate": {
+                        "previous": "Previous",
+                        "next": "Next"
+                    }
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #856404;
+        }
+    </style>
+} 

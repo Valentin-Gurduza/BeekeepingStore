@@ -227,8 +227,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="@Url.Action("Index", "Blog")" class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Blog" ? "active" : "")">
-                                    <i class="fas fa-blog"></i> <span>Blog</span>
+                                <a href="@Url.Action("BlogPosts", "AdminDashboard")" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString().StartsWith("Blog") ? "active" : "")">
+                                    <i class="fas fa-blog"></i> <span>Blog Management</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="@Url.Action("BlogComments", "AdminDashboard")" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "BlogComments" ? "active" : "")">
+                                    <i class="fas fa-comments"></i> <span>Blog Comments</span>
                                 </a>
                             </li>
                         </ul>

@@ -1,0 +1,351 @@
+﻿@model List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>
+
+@{
+    ViewBag.Title = "Blog Management";
+    Layout = "~/Views/Shared/_AdminDashboardLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-blog me-2"></i>Blog Management</h2>
+    <div>
+        <a href="@Url.Action("BlogCreate")" class="btn btn-primary me-2">
+            <i class="fas fa-plus me-1"></i>Create New Post
+        </a>
+        @if (Model != null && Model.Any())
+        {
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#clearBlogsModal">
+                <i class="fas fa-trash me-1"></i>Clear All Sample Blogs
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-primary-light me-3">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count ?? 0)</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-success-light me-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count(p => p.IsPublished) ?? 0)</div>
+                    <div class="stat-label">Published</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-warning-light me-3">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Count(p => !p.IsPublished) ?? 0)</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon bg-danger-light me-3">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@(Model?.Sum(p => p.ViewCount) ?? 0)</div>
+                    <div class="stat-label">Total Views</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Approval Section -->
+@if (ViewBag.PendingPosts != null && ((List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.PendingPosts).Any())
+{
+    <div class="stat-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 text-warning">
+                <i class="fas fa-clock me-2"></i>Posts Awaiting Approval (@((List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.PendingPosts).Count)
+            </h5>
+        </div>
+
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            These posts were submitted by users and are waiting for your review and approval.
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in (List<eUseControl.BeekeepingStore.Domain.Entities.Blog.BlogPost>)ViewBag.PendingPosts)
+                    {
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>@post.Title</strong>
+                                    @if (!string.IsNullOrEmpty(post.Summary))
+                                    {
+                                        <br><small class="text-muted">@(post.Summary.Length > 100 ? post.Summary.Substring(0, 100) + "..." : post.Summary)</small>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">@post.Author</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(post.Category))
+                                {
+                                    <span class="badge bg-secondary">@post.Category</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>@post.PublishDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="@Url.Action("BlogEdit", new { id = post.BlogPostId })"
+                                       class="btn btn-sm btn-outline-secondary"
+                                       title="Preview/Edit">
+                                        <i class="fas fa-eye"></i> Preview
+                                    </a>
+                                    @using (Html.BeginForm("ApprovePost", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", post.BlogPostId)
+                                        <button type="submit" class="btn btn-sm btn-success" title="Approve and Publish">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                    }
+                                    @using (Html.BeginForm("RejectPost", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", post.BlogPostId)
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                title="Reject and Delete"
+                                                onclick="return confirm('Are you sure you want to reject and delete this post? This action cannot be undone.')">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<!-- Blog Posts Table -->
+<div class="stat-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">All Blog Posts</h5>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover" id="blogPostsTable">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Views</th>
+                        <th>Publish Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(post.FeaturedImage))
+                                {
+                                    <img src="@Url.Content(post.FeaturedImage)"
+                                         alt="@post.Title"
+                                         class="img-thumbnail"
+                                         style="width: 60px; height: 40px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                         style="width: 60px; height: 40px; border-radius: 0.25rem;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div>
+                                    <strong>@post.Title</strong>
+                                    @if (!string.IsNullOrEmpty(post.Summary))
+                                    {
+                                        <br><small class="text-muted">@(post.Summary.Length > 80 ? post.Summary.Substring(0, 80) + "..." : post.Summary)</small>
+                                    }
+                                </div>
+                            </td>
+                            <td>@(string.IsNullOrEmpty(post.Author) ? "Admin" : post.Author)</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(post.Category))
+                                {
+                                    <span class="badge bg-secondary">@post.Category</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (post.IsPublished)
+                                {
+                                    <span class="badge bg-success">Published</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending Approval</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-info">@post.ViewCount</span>
+                            </td>
+                            <td>@post.PublishDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @if (post.IsPublished)
+                                    {
+                                        <a href="@Url.Action("Post", "Blog", new { slug = post.Slug })"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="View Post"
+                                           target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        using (Html.BeginForm("ApprovePost", "AdminDashboard", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", post.BlogPostId)
+                                            <button type="submit" class="btn btn-sm btn-success" title="Approve and Publish">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                    }
+                                    <a href="@Url.Action("BlogEdit", new { id = post.BlogPostId })"
+                                       class="btn btn-sm btn-outline-secondary"
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="@Url.Action("BlogDelete", new { id = post.BlogPostId })"
+                                       class="btn btn-sm btn-outline-danger"
+                                       title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-blog fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No blog posts found</h5>
+            <p class="text-muted">Create your first blog post to get started!</p>
+            <a href="@Url.Action("BlogCreate")" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Create New Post
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Clear All Blogs Modal -->
+<div class="modal fade" id="clearBlogsModal" tabindex="-1" aria-labelledby="clearBlogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clearBlogsModalLabel">Clear All Sample Blogs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning!</strong> This action will permanently delete ALL blog posts and their associated images.
+                </div>
+                <p>Are you sure you want to delete all @(Model?.Count ?? 0) blog posts? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                @using (Html.BeginForm("ClearSampleBlogs", "AdminDashboard", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Delete All Posts
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <!-- DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#blogPostsTable').DataTable({
+                "pageLength": 10,
+                "order": [[6, "desc"]], // Sort by publish date descending
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 7] } // Disable sorting for image and actions columns
+                ],
+                "language": {
+                    "search": "Search posts:",
+                    "lengthMenu": "Show _MENU_ posts per page",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ posts",
+                    "paginate": {
+                        "previous": "Previous",
+                        "next": "Next"
+                    }
+                }
+            });
+        });
+    </script>
+} 
